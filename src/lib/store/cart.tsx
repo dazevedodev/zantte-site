@@ -54,13 +54,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // lê o localStorage fora do corpo síncrono do efeito (regra
-    // react-hooks/set-state-in-effect) — só existe no client mesmo, então
-    // adiar um frame não muda nada visível.
-    const raf = requestAnimationFrame(() => {
+    // react-hooks/set-state-in-effect) — usa setTimeout, não
+    // requestAnimationFrame: rAF fica pausado enquanto a aba não está
+    // visível/em primeiro plano, o que travava o carrinho vazio pra sempre
+    // nesse cenário. setTimeout dispara de qualquer forma.
+    const timer = window.setTimeout(() => {
       setItems(readStoredCart());
       setHydrated(true);
-    });
-    return () => cancelAnimationFrame(raf);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
