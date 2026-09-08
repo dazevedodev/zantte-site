@@ -18,15 +18,13 @@ export async function createOrderPreference(order: Order) {
   const result = await preference.create({
     body: {
       external_reference: order.id,
-      items: [
-        {
-          id: order.productId,
-          title: order.productName,
-          quantity: order.quantity,
-          unit_price: order.productPriceCents / 100,
-          currency_id: "BRL",
-        },
-      ],
+      items: order.items.map((item) => ({
+        id: item.productId,
+        title: item.productName,
+        quantity: item.quantity,
+        unit_price: item.unitPriceCents / 100,
+        currency_id: "BRL",
+      })),
       payer: {
         name: order.customerName,
         email: order.customerEmail,

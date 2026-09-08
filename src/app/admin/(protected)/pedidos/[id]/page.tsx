@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getOrderById } from "@/lib/store/orders";
-import { getProductById } from "@/lib/store/products";
 import { ORDER_STATUS_LABELS } from "@/lib/store/types";
 import { formatBRL } from "@/lib/store/format";
 import { markDeliveredAction, cancelOrderAction } from "./actions";
@@ -17,15 +16,39 @@ export default async function AdminOrderDetailPage({
   const order = await getOrderById(id);
   if (!order) notFound();
 
-  const product = await getProductById(order.productId);
+  const itemsWithSupplier = order.items.filter((item) => item.supplierUrl);
 
   return (
     <section className="admin-page">
       <span className="mono label">pedido</span>
-      <h1 className="display admin-page-heading">{order.productName}</h1>
+      <h1 className="display admin-page-heading">
+        {order.items.length} {order.items.length === 1 ? "item" : "itens"}
+      </h1>
       <span className={`order-status-badge status-${order.status}`}>
         {ORDER_STATUS_LABELS[order.status]}
       </span>
+
+      <div className="admin-order-block">
+        <h2 className="mono label">itens do pedido</h2>
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>produto</th>
+              <th>quantidade</th>
+              <th>valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.items.map((item) => (
+              <tr key={item.id}>
+                <td>{item.productName}</td>
+                <td>{item.quantity}</td>
+                <td>{formatBRL(item.lineTotalCents)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="admin-order-grid">
         <div className="admin-order-block">
@@ -51,25 +74,27 @@ export default async function AdminOrderDetailPage({
         <div className="admin-order-block">
           <h2 className="mono label">pagamento</h2>
           <p>{formatBRL(order.amountCents)}</p>
-          <p>quantidade: {order.quantity}</p>
           {order.mpPaymentId && <p className="mono">MP: {order.mpPaymentId}</p>}
         </div>
       </div>
 
       {order.status === "pago" && (
         <>
-          {product?.supplierUrl && (
+          {itemsWithSupplier.length > 0 && (
             <div className="admin-order-block admin-order-supplier-block">
               <h2 className="mono label">comprar do fornecedor (uso interno)</h2>
-              <p>Compre o produto e envie pro endereço do cliente acima.</p>
-              <a
-                href={product.supplierUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-solid"
-              >
-                abrir link de compra ↗
-              </a>
+              <p>Compre cada item e envie pro endereço do cliente acima.</p>
+              {itemsWithSupplier.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.supplierUrl!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-solid admin-order-supplier-link"
+                >
+                  comprar &quot;{item.productName}&quot; ↗
+                </a>
+              ))}
             </div>
           )}
 

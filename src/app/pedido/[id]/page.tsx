@@ -25,8 +25,18 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
 
       <section className="pedido-tracking">
         <span className="label">pedido</span>
-        <h1 className="display pedido-heading">{order.productName}</h1>
-        <p className="pedido-amount">{formatBRL(order.amountCents)}</p>
+        <h1 className="display pedido-heading">
+          {order.items[0]?.productName}
+          {order.items.length > 1 ? ` + ${order.items.length - 1} item${order.items.length > 2 ? "s" : ""}` : ""}
+        </h1>
+        <ul className="pedido-items">
+          {order.items.map((item) => (
+            <li key={item.id}>
+              {item.quantity}x {item.productName} — {formatBRL(item.lineTotalCents)}
+            </li>
+          ))}
+        </ul>
+        <p className="pedido-amount">total: {formatBRL(order.amountCents)}</p>
 
         {order.status === "cancelado" ? (
           <p className="pedido-status-cancelado">este pedido foi cancelado.</p>

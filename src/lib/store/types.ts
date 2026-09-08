@@ -21,14 +21,24 @@ export type Product = {
   updatedAt: string;
 };
 
-export type Order = {
+export type OrderItem = {
   id: string;
+  orderId: string;
   productId: string;
   productName: string;
-  productPriceCents: number;
+  unitPriceCents: number;
   quantity: number;
+  lineTotalCents: number;
+  // link de compra no fornecedor do produto — só carregado quando buscamos
+  // o pedido pro admin, pra ele conseguir comprar e enviar pro cliente.
+  supplierUrl?: string | null;
+};
+
+export type Order = {
+  id: string;
   amountCents: number;
   status: OrderStatus;
+  items: OrderItem[];
 
   customerName: string;
   customerEmail: string;

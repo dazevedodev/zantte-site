@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { getProductBySlug } from "@/lib/store/products";
 import { formatBRL } from "@/lib/store/format";
-import { BuyForm } from "./buy-form";
+import { AddToCartButton } from "./add-to-cart-button";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +16,7 @@ export default async function ProductPage({
   if (!product) notFound();
 
   return (
-    <div className="store-theme">
-      <header className="portfolio-page-header">
-        <Link href="/loja">← voltar</Link>
-      </header>
-
+    <>
       <section className="product-detail">
         <div className="product-detail-media">
           {product.imageUrls[0] ? (
@@ -39,11 +34,17 @@ export default async function ProductPage({
           <p className="product-detail-price">{formatBRL(product.priceCents)}</p>
           {product.description && <p className="product-detail-description">{product.description}</p>}
 
-          <BuyForm productId={product.id} />
+          <AddToCartButton
+            productId={product.id}
+            slug={product.slug}
+            name={product.name}
+            priceCents={product.priceCents}
+            imageUrl={product.imageUrls[0] ?? null}
+          />
         </div>
       </section>
 
       <Footer />
-    </div>
+    </>
   );
 }

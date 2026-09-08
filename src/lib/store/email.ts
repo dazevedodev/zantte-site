@@ -14,6 +14,10 @@ function trackingUrl(order: Order) {
   return `${siteUrl()}/pedido/${order.id}`;
 }
 
+function itemsSummary(order: Order) {
+  return order.items.map((item) => `${item.quantity}x ${item.productName}`).join(", ");
+}
+
 export async function sendOrderShippedEmail(order: Order) {
   await client().emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
@@ -22,7 +26,7 @@ export async function sendOrderShippedEmail(order: Order) {
     text: [
       `Olá, ${order.customerName}!`,
       ``,
-      `Seu pedido "${order.productName}" (${formatBRL(order.amountCents)}) já foi enviado.`,
+      `Seu pedido (${itemsSummary(order)} — ${formatBRL(order.amountCents)}) já foi enviado.`,
       order.trackingCarrier ? `Transportadora: ${order.trackingCarrier}` : null,
       order.trackingCode ? `Código de rastreio: ${order.trackingCode}` : null,
       ``,
@@ -41,7 +45,7 @@ export async function sendOrderDeliveredEmail(order: Order) {
     text: [
       `Olá, ${order.customerName}!`,
       ``,
-      `Seu pedido "${order.productName}" foi marcado como entregue.`,
+      `Seu pedido (${itemsSummary(order)}) foi marcado como entregue.`,
       `Qualquer problema, é só responder este e-mail.`,
       ``,
       `Detalhes: ${trackingUrl(order)}`,

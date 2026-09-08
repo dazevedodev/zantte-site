@@ -6,7 +6,7 @@ import { createOrder, setOrderPreference } from "@/lib/store/orders";
 import { createOrderPreference } from "@/lib/store/mercadopago";
 import { onlyDigits } from "@/lib/store/format";
 
-export type BuyFormState = { error: string } | null;
+export type CartCheckoutState = { error: string } | null;
 
 function requireField(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -16,19 +16,36 @@ function requireField(formData: FormData, name: string): string {
   return value.trim();
 }
 
-export async function createOrderAction(
-  _prevState: BuyFormState,
+export async function createCartOrderAction(
+  _prevState: CartCheckoutState,
   formData: FormData,
-): Promise<BuyFormState> {
+): Promise<CartCheckoutState> {
   let redirectUrl: string;
 
   try {
-    const productId = requireField(formData, "productId");
-    const quantity = Math.max(1, Number(formData.get("quantity")) || 1);
+    const cartJson = formData.get("cartJson");
+    if (typeof cartJson !== "string") return { error: "carrinho vazio" };
 
-    const product = await getProductById(productId);
-    if (!product || !product.active) {
-      return { error: "produto indisponível" };
+    const cartInput = JSON.parse(cartJson) as { productId: string; quantity: number }[];
+    if (!Array.isArray(cartInput) || cartInput.length === 0) {
+      return { error: "carrinho vazio" };
+    }
+
+    // nunca confiar no preço/nome que veio do carrinho do navegador — rebusca
+    // cada produto no banco pra pegar os dados de verdade antes de cobrar.
+    const items: { productId: string; productName: string; unitPriceCents: number; quantity: number }[] = [];
+    for (const entry of cartInput) {
+      const quantity = Math.max(1, Math.floor(Number(entry.quantity)) || 1);
+      const product = await getProductById(entry.productId);
+      if (!product || !product.active) {
+        return { error: `um dos produtos do carrinho não está mais disponível` };
+      }
+      items.push({
+        productId: product.id,
+        productName: product.name,
+        unitPriceCents: product.priceCents,
+        quantity,
+      });
     }
 
     const customerName = requireField(formData, "customerName");
@@ -52,10 +69,7 @@ export async function createOrderAction(
     const shippingState = requireField(formData, "shippingState").toUpperCase().slice(0, 2);
 
     const order = await createOrder({
-      productId: product.id,
-      productName: product.name,
-      productPriceCents: product.priceCents,
-      quantity,
+      items,
       customerName,
       customerEmail,
       customerPhone,

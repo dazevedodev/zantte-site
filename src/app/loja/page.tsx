@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { listActiveProducts } from "@/lib/store/products";
 import { StoreGrid } from "./store-grid";
@@ -10,11 +9,7 @@ export default async function LojaPage() {
   const products = await listActiveProducts();
 
   return (
-    <div className="store-theme">
-      <header className="portfolio-page-header">
-        <Link href="/">← voltar</Link>
-      </header>
-
+    <>
       <section className="store-hero">
         <span className="label">loja oficial da zantte</span>
         <h1 className="store-hero-mark">
@@ -28,6 +23,6 @@ export default async function LojaPage() {
       </section>
 
       <Footer />
-    </div>
+    </>
   );
 }

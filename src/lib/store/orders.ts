@@ -1,12 +1,8 @@
 import { sql } from "./db";
-import type { Order, OrderStatus } from "./types";
+import type { Order, OrderItem, OrderStatus } from "./types";
 
 type OrderRow = {
   id: string;
-  product_id: string;
-  product_name: string;
-  product_price_cents: number;
-  quantity: number;
   amount_cents: number;
   status: OrderStatus;
   customer_name: string;
@@ -30,15 +26,23 @@ type OrderRow = {
   updated_at: string;
 };
 
-function mapOrder(row: OrderRow): Order {
+type OrderItemRow = {
+  id: string;
+  order_id: string;
+  product_id: string;
+  product_name: string;
+  unit_price_cents: number;
+  quantity: number;
+  line_total_cents: number;
+  supplier_url?: string | null;
+};
+
+function mapOrder(row: OrderRow, items: OrderItem[]): Order {
   return {
     id: row.id,
-    productId: row.product_id,
-    productName: row.product_name,
-    productPriceCents: row.product_price_cents,
-    quantity: row.quantity,
     amountCents: row.amount_cents,
     status: row.status,
+    items,
     customerName: row.customer_name,
     customerEmail: row.customer_email,
     customerPhone: row.customer_phone,
@@ -61,11 +65,32 @@ function mapOrder(row: OrderRow): Order {
   };
 }
 
+function mapOrderItem(row: OrderItemRow): OrderItem {
+  return {
+    id: row.id,
+    orderId: row.order_id,
+    productId: row.product_id,
+    productName: row.product_name,
+    unitPriceCents: row.unit_price_cents,
+    quantity: row.quantity,
+    lineTotalCents: row.line_total_cents,
+    supplierUrl: row.supplier_url ?? null,
+  };
+}
+
+async function fetchItemsForOrder(orderId: string): Promise<OrderItem[]> {
+  const rows = (await sql`
+    select oi.*, p.supplier_url
+    from order_items oi
+    join products p on p.id = oi.product_id
+    where oi.order_id = ${orderId}
+    order by oi.id
+  `) as OrderItemRow[];
+  return rows.map(mapOrderItem);
+}
+
 export type CreateOrderInput = {
-  productId: string;
-  productName: string;
-  productPriceCents: number;
-  quantity: number;
+  items: { productId: string; productName: string; unitPriceCents: number; quantity: number }[];
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -80,36 +105,61 @@ export type CreateOrderInput = {
 };
 
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
-  const amountCents = input.productPriceCents * input.quantity;
+  const amountCents = input.items.reduce((sum, i) => sum + i.unitPriceCents * i.quantity, 0);
+
   const rows = (await sql`
     insert into orders (
-      product_id, product_name, product_price_cents, quantity, amount_cents,
-      customer_name, customer_email, customer_phone, customer_cpf,
+      amount_cents, customer_name, customer_email, customer_phone, customer_cpf,
       shipping_cep, shipping_street, shipping_number, shipping_complement,
       shipping_neighborhood, shipping_city, shipping_state
     ) values (
-      ${input.productId}, ${input.productName}, ${input.productPriceCents}, ${input.quantity}, ${amountCents},
-      ${input.customerName}, ${input.customerEmail}, ${input.customerPhone}, ${input.customerCpf},
+      ${amountCents}, ${input.customerName}, ${input.customerEmail}, ${input.customerPhone}, ${input.customerCpf},
       ${input.shippingCep}, ${input.shippingStreet}, ${input.shippingNumber}, ${input.shippingComplement},
       ${input.shippingNeighborhood}, ${input.shippingCity}, ${input.shippingState}
     )
     returning *
   `) as OrderRow[];
-  return mapOrder(rows[0]);
+  const orderRow = rows[0];
+
+  const items: OrderItem[] = [];
+  for (const item of input.items) {
+    const lineTotalCents = item.unitPriceCents * item.quantity;
+    const itemRows = (await sql`
+      insert into order_items (order_id, product_id, product_name, unit_price_cents, quantity, line_total_cents)
+      values (${orderRow.id}, ${item.productId}, ${item.productName}, ${item.unitPriceCents}, ${item.quantity}, ${lineTotalCents})
+      returning *
+    `) as OrderItemRow[];
+    items.push(mapOrderItem(itemRows[0]));
+  }
+
+  return mapOrder(orderRow, items);
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {
   const rows = (await sql`select * from orders where id = ${id} limit 1`) as OrderRow[];
-  return rows[0] ? mapOrder(rows[0]) : null;
+  if (!rows[0]) return null;
+  const items = await fetchItemsForOrder(id);
+  return mapOrder(rows[0], items);
 }
 
-export async function listOrdersAdmin(status?: OrderStatus): Promise<Order[]> {
+export async function listOrdersAdmin(
+  status?: OrderStatus,
+): Promise<(Order & { itemCount: number })[]> {
   const rows = (
     status
       ? await sql`select * from orders where status = ${status} order by created_at desc`
       : await sql`select * from orders order by created_at desc`
   ) as OrderRow[];
-  return rows.map(mapOrder);
+
+  const withItems = await Promise.all(
+    rows.map(async (row) => {
+      const itemRows = (await sql`
+        select count(*)::int as count from order_items where order_id = ${row.id}
+      `) as { count: number }[];
+      return { ...mapOrder(row, []), itemCount: itemRows[0]?.count ?? 0 };
+    }),
+  );
+  return withItems;
 }
 
 export async function setOrderPreference(id: string, mpPreferenceId: string): Promise<void> {

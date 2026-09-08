@@ -45,7 +45,7 @@ export default async function AdminOrdersPage({
             <tr>
               <th>data</th>
               <th>cliente</th>
-              <th>produto</th>
+              <th>itens</th>
               <th>valor</th>
               <th>status</th>
             </tr>
@@ -59,7 +59,9 @@ export default async function AdminOrdersPage({
                   </Link>
                 </td>
                 <td>{o.customerName}</td>
-                <td>{o.productName}</td>
+                <td>
+                  {o.itemCount} {o.itemCount === 1 ? "item" : "itens"}
+                </td>
                 <td>{formatBRL(o.amountCents)}</td>
                 <td>
                   <span className={`order-status-badge status-${o.status}`}>
