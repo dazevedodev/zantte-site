@@ -6,9 +6,8 @@ import { useState } from "react";
 
 const LIGHT_UP_MS = 380;
 
-// Monograma "Z" em código (não é imagem) — mesmo traço em bloco usado no
-// objeto 3D, achatado pra 2D aqui, com um acabamento "de vidro" (gradiente +
-// brilho) pra combinar com o material do objeto central.
+// Wordmark "zantte" em código (não é imagem), com o mesmo acabamento "de
+// vidro" (gradiente + brilho) do objeto 3D central.
 export function Logo() {
   const router = useRouter();
   const [lit, setLit] = useState(false);
@@ -27,7 +26,7 @@ export function Logo() {
       aria-label="zantte"
       onClick={handleClick}
     >
-      Z
+      zantte
     </Link>
   );
 }

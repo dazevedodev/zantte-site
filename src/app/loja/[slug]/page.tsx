@@ -19,9 +19,7 @@ export default async function ProductPage({
   return (
     <>
       <header className="portfolio-page-header">
-        <Link href="/loja" className="mono">
-          ← loja
-        </Link>
+        <Link href="/loja">← voltar</Link>
       </header>
 
       <section className="product-detail">

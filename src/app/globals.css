@@ -101,11 +101,12 @@ a {
 }
 .site-logo {
   position: fixed;
-  top: 26px;
+  top: 30px;
   left: 6vw;
   z-index: 10;
-  font-size: 34px;
+  font-size: 20px;
   font-weight: 700;
+  letter-spacing: 0.01em;
   line-height: 1;
   cursor: pointer;
   /* acabamento "de vidro": gradiente claro no texto + brilho suave atrás,
@@ -717,8 +718,8 @@ a {
   padding: 28px 6vw;
 }
 .portfolio-page-header a {
-  font-size: 13px;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  letter-spacing: 0.02em;
   opacity: 0.8;
 }
 

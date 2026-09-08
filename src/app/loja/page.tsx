@@ -12,9 +12,7 @@ export default async function LojaPage() {
   return (
     <>
       <header className="portfolio-page-header">
-        <Link href="/" className="mono">
-          ← zantte
-        </Link>
+        <Link href="/">← voltar</Link>
       </header>
 
       <section className="store-hero">

@@ -33,15 +33,15 @@ export function Hero() {
         <div className={`hero-object ${charged ? "charged" : ""} ${launching ? "launching" : ""}`}>
           <BrandObject onCharged={handleCharged} shape="monograma" />
         </div>
-        <Link href="/portfolio" className="hero-projects-link mono">
+        <Link href="/portfolio" className="hero-projects-link">
           ver todos os projetos
         </Link>
-        <Link href="/loja" className="hero-store-cta mono">
+        <Link href="/loja" className="hero-store-cta">
           ver loja
         </Link>
       </div>
 
-      <span className="hero-hold-hint mono">clique e segure</span>
+      <span className="hero-hold-hint">clique e segure</span>
 
       <div className={`hero-launch-overlay ${launching ? "active" : ""}`} aria-hidden="true" />
     </section>

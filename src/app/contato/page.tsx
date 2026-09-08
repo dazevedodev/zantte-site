@@ -6,9 +6,7 @@ export default function ContatoPage() {
   return (
     <>
       <header className="portfolio-page-header">
-        <Link href="/" className="mono">
-          ← zantte
-        </Link>
+        <Link href="/">← voltar</Link>
       </header>
 
       <section className="simple-page">
