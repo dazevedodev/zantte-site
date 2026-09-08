@@ -1307,6 +1307,10 @@ a {
 .pedido-status-cancelado {
   color: #ff6b6b;
 }
+.pedido-pay-link {
+  align-self: flex-start;
+  margin: 0.4rem 0;
+}
 .pedido-tracking-code {
   font-size: 13px;
   color: var(--muted);

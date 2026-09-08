@@ -38,6 +38,12 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
         </ul>
         <p className="pedido-amount">total: {formatBRL(order.amountCents)}</p>
 
+        {order.status === "aguardando_pagamento" && order.mpInitPoint && (
+          <a href={order.mpInitPoint} className="btn-solid pedido-pay-link">
+            pagar agora
+          </a>
+        )}
+
         {order.status === "cancelado" ? (
           <p className="pedido-status-cancelado">este pedido foi cancelado.</p>
         ) : (

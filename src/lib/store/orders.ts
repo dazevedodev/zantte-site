@@ -20,6 +20,7 @@ type OrderRow = {
   tracking_code: string | null;
   admin_notes: string | null;
   mp_preference_id: string | null;
+  mp_init_point: string | null;
   mp_payment_id: string | null;
   mp_status_detail: string | null;
   created_at: string;
@@ -58,6 +59,7 @@ function mapOrder(row: OrderRow, items: OrderItem[]): Order {
     trackingCode: row.tracking_code,
     adminNotes: row.admin_notes,
     mpPreferenceId: row.mp_preference_id,
+    mpInitPoint: row.mp_init_point,
     mpPaymentId: row.mp_payment_id,
     mpStatusDetail: row.mp_status_detail,
     createdAt: row.created_at,
@@ -162,8 +164,16 @@ export async function listOrdersAdmin(
   return withItems;
 }
 
-export async function setOrderPreference(id: string, mpPreferenceId: string): Promise<void> {
-  await sql`update orders set mp_preference_id = ${mpPreferenceId}, updated_at = now() where id = ${id}`;
+export async function setOrderPreference(
+  id: string,
+  mpPreferenceId: string,
+  mpInitPoint: string,
+): Promise<void> {
+  await sql`
+    update orders
+    set mp_preference_id = ${mpPreferenceId}, mp_init_point = ${mpInitPoint}, updated_at = now()
+    where id = ${id}
+  `;
 }
 
 /**

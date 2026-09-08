@@ -18,6 +18,25 @@ function itemsSummary(order: Order) {
   return order.items.map((item) => `${item.quantity}x ${item.productName}`).join(", ");
 }
 
+export async function sendOrderCreatedEmail(order: Order) {
+  await client().emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
+    to: order.customerEmail,
+    subject: `Seu pedido na Zantte — finalize o pagamento`,
+    text: [
+      `Olá, ${order.customerName}!`,
+      ``,
+      `Recebemos seu pedido (${itemsSummary(order)} — ${formatBRL(order.amountCents)}), mas ele só é confirmado depois do pagamento.`,
+      order.mpInitPoint ? `Pague agora: ${order.mpInitPoint}` : null,
+      ``,
+      `Guarda esse e-mail — se você fechar a tela de pagamento (inclusive a do Pix) antes de terminar,`,
+      `é só voltar aqui e clicar no link acima de novo, ou acompanhar o pedido em: ${trackingUrl(order)}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  });
+}
+
 export async function sendOrderShippedEmail(order: Order) {
   await client().emails.send({
     from: process.env.RESEND_FROM_EMAIL!,

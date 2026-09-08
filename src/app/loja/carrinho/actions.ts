@@ -5,6 +5,7 @@ import { getProductById } from "@/lib/store/products";
 import { createOrder, setOrderPreference } from "@/lib/store/orders";
 import { createOrderPreference } from "@/lib/store/mercadopago";
 import { onlyDigits } from "@/lib/store/format";
+import { sendOrderCreatedEmail } from "@/lib/store/email";
 
 export type CartCheckoutState = { error: string } | null;
 
@@ -87,7 +88,17 @@ export async function createCartOrderAction(
     if (!preference.id || !preference.init_point) {
       return { error: "não foi possível iniciar o pagamento, tenta de novo" };
     }
-    await setOrderPreference(order.id, preference.id);
+    await setOrderPreference(order.id, preference.id, preference.init_point);
+
+    try {
+      await sendOrderCreatedEmail({
+        ...order,
+        mpPreferenceId: preference.id,
+        mpInitPoint: preference.init_point,
+      });
+    } catch {
+      // pedido e pagamento já foram criados; falha de e-mail não pode travar o checkout.
+    }
 
     redirectUrl = preference.init_point;
   } catch (err) {

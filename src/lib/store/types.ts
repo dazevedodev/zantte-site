@@ -59,6 +59,7 @@ export type Order = {
   adminNotes: string | null;
 
   mpPreferenceId: string | null;
+  mpInitPoint: string | null;
   mpPaymentId: string | null;
   mpStatusDetail: string | null;
 
