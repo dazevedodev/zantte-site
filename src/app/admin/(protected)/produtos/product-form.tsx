@@ -8,7 +8,13 @@ export function ProductForm({
   defaultValues,
 }: {
   action: (prevState: ProductFormState, formData: FormData) => Promise<ProductFormState>;
-  defaultValues?: { name: string; description: string; priceReais: string };
+  defaultValues?: {
+    name: string;
+    description: string;
+    priceReais: string;
+    category: string;
+    supplierUrl: string;
+  };
 }) {
   const [state, formAction, pending] = useActionState<ProductFormState, FormData>(action, null);
 
@@ -18,6 +24,16 @@ export function ProductForm({
         nome
       </label>
       <input id="name" name="name" defaultValue={defaultValues?.name} required />
+
+      <label className="mono label" htmlFor="category">
+        categoria (opcional)
+      </label>
+      <input
+        id="category"
+        name="category"
+        placeholder="ex: eletrônicos, casa, acessórios"
+        defaultValue={defaultValues?.category}
+      />
 
       <label className="mono label" htmlFor="description">
         descrição
@@ -39,6 +55,19 @@ export function ProductForm({
         adicionar imagens
       </label>
       <input id="images" name="images" type="file" accept="image/*" multiple />
+
+      <div className="admin-form-internal-section">
+        <label className="mono label" htmlFor="supplierUrl">
+          link de compra no fornecedor (uso interno — nunca aparece no site)
+        </label>
+        <input
+          id="supplierUrl"
+          name="supplierUrl"
+          type="url"
+          placeholder="https://..."
+          defaultValue={defaultValues?.supplierUrl}
+        />
+      </div>
 
       {state?.error && <p className="buy-form-error">{state.error}</p>}
 

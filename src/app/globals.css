@@ -597,6 +597,85 @@ a {
   }
 }
 
+/* loja — cabeçalho com identidade própria (ZAN CO.), separada da marca
+   Zantte: wordmark mais gráfico/comercial em vez do glass fino do Z. */
+.store-hero {
+  padding: 8vh 6vw 5vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.store-hero-mark {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2.6rem, 9vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+.store-hero-mark .co {
+  -webkit-text-stroke: 1px var(--paper);
+  color: transparent;
+}
+.store-hero-tagline {
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 50ch;
+}
+.store-filter-row {
+  position: relative;
+  margin-bottom: 1.5rem;
+  font-size: 12px;
+}
+.store-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  color: var(--paper);
+  padding: 8px 16px;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.store-filter-toggle .project-grid-toggle-arrow {
+  font-size: 0.7em;
+  transition: transform 0.25s ease;
+  color: var(--muted);
+}
+.store-filter-toggle.open .project-grid-toggle-arrow {
+  transform: rotate(180deg);
+}
+.store-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: #0a0a0a;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  padding: 8px;
+  min-width: 180px;
+}
+.store-filter-dropdown button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  text-align: left;
+  text-transform: capitalize;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.store-filter-dropdown button:hover {
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 /* footer */
 .footer {
   display: flex;
@@ -1086,6 +1165,23 @@ a {
 }
 .admin-product-form button {
   margin-top: 0.6rem;
+}
+/* separa visualmente o campo interno (link do fornecedor) do resto do
+   formulário — nunca vai pro site público, o admin precisa ver isso claro. */
+.admin-form-internal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  padding: 0.8rem;
+  border: 1px dashed var(--line-soft);
+  border-radius: 8px;
+}
+.admin-order-supplier-block {
+  border: 1px dashed var(--line-soft);
+}
+.admin-order-supplier-block .btn-solid {
+  margin-top: 0.4rem;
 }
 .admin-product-images {
   display: flex;

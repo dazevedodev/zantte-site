@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getOrderById } from "@/lib/store/orders";
+import { getProductById } from "@/lib/store/products";
 import { ORDER_STATUS_LABELS } from "@/lib/store/types";
 import { formatBRL } from "@/lib/store/format";
 import { markDeliveredAction, cancelOrderAction } from "./actions";
@@ -15,6 +16,8 @@ export default async function AdminOrderDetailPage({
   const { id } = await params;
   const order = await getOrderById(id);
   if (!order) notFound();
+
+  const product = await getProductById(order.productId);
 
   return (
     <section className="admin-page">
@@ -54,10 +57,27 @@ export default async function AdminOrderDetailPage({
       </div>
 
       {order.status === "pago" && (
-        <div className="admin-order-block">
-          <h2 className="mono label">marcar como enviado</h2>
-          <ShipForm orderId={order.id} />
-        </div>
+        <>
+          {product?.supplierUrl && (
+            <div className="admin-order-block admin-order-supplier-block">
+              <h2 className="mono label">comprar do fornecedor (uso interno)</h2>
+              <p>Compre o produto e envie pro endereço do cliente acima.</p>
+              <a
+                href={product.supplierUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-solid"
+              >
+                abrir link de compra ↗
+              </a>
+            </div>
+          )}
+
+          <div className="admin-order-block">
+            <h2 className="mono label">marcar como enviado</h2>
+            <ShipForm orderId={order.id} />
+          </div>
+        </>
       )}
 
       {order.status === "enviado" && (

@@ -12,6 +12,10 @@ export type Product = {
   description: string;
   priceCents: number;
   imageUrls: string[];
+  category: string | null;
+  // link de compra no fornecedor (dropshipping) — uso interno do admin,
+  // nunca exibido nas páginas públicas da loja.
+  supplierUrl: string | null;
   active: boolean;
   createdAt: string;
   updatedAt: string;

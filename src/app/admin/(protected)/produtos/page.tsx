@@ -21,6 +21,7 @@ export default async function AdminProductsPage() {
           <thead>
             <tr>
               <th>nome</th>
+              <th>categoria</th>
               <th>preço</th>
               <th>status</th>
             </tr>
@@ -31,13 +32,14 @@ export default async function AdminProductsPage() {
                 <td>
                   <Link href={`/admin/produtos/${p.id}`}>{p.name}</Link>
                 </td>
+                <td>{p.category ?? "—"}</td>
                 <td>{formatBRL(p.priceCents)}</td>
                 <td>{p.active ? "ativo" : "inativo"}</td>
               </tr>
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan={3} className="admin-table-empty">
+                <td colSpan={4} className="admin-table-empty">
                   nenhum produto cadastrado ainda
                 </td>
               </tr>

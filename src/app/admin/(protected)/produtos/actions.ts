@@ -15,6 +15,11 @@ async function collectImageUrls(formData: FormData, existing: string[]): Promise
   return [...existing, ...uploaded];
 }
 
+function optionalField(formData: FormData, name: string): string | null {
+  const value = formData.get(name);
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
 export async function createProductAction(
   _prevState: ProductFormState,
   formData: FormData,
@@ -39,6 +44,8 @@ export async function createProductAction(
     description: typeof description === "string" ? description.trim() : "",
     priceCents,
     imageUrls,
+    category: optionalField(formData, "category"),
+    supplierUrl: optionalField(formData, "supplierUrl"),
   });
 
   revalidatePath("/admin/produtos");
@@ -71,6 +78,8 @@ export async function updateProductAction(
     description: typeof description === "string" ? description.trim() : "",
     priceCents,
     imageUrls,
+    category: optionalField(formData, "category"),
+    supplierUrl: optionalField(formData, "supplierUrl"),
   });
 
   revalidatePath("/admin/produtos");

@@ -39,6 +39,8 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           name: product.name,
           description: product.description,
           priceReais: (product.priceCents / 100).toFixed(2).replace(".", ","),
+          category: product.category ?? "",
+          supplierUrl: product.supplierUrl ?? "",
         }}
       />
     </section>
