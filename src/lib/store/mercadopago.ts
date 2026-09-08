@@ -15,6 +15,12 @@ export async function createOrderPreference(order: Order) {
   const preference = new Preference(client());
   const phone = onlyDigits(order.customerPhone);
 
+  // Pix exige identificação completa do pagador (nome + sobrenome, não só um
+  // campo de nome único) — sem isso o botão "Criar Pix" no checkout da MP
+  // fica travado/cinza, sem mensagem de erro nenhuma pro cliente.
+  const [firstName, ...rest] = order.customerName.trim().split(/\s+/);
+  const surname = rest.join(" ") || firstName;
+
   const result = await preference.create({
     body: {
       external_reference: order.id,
@@ -26,7 +32,8 @@ export async function createOrderPreference(order: Order) {
         currency_id: "BRL",
       })),
       payer: {
-        name: order.customerName,
+        name: firstName,
+        surname,
         email: order.customerEmail,
         identification: { type: "CPF", number: onlyDigits(order.customerCpf) },
         phone: { area_code: phone.slice(0, 2), number: phone.slice(2) },
