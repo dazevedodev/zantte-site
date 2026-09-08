@@ -18,15 +18,15 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
   const stepIndex = STEPS.indexOf(order.status as (typeof STEPS)[number]);
 
   return (
-    <>
+    <div className="store-theme">
       <header className="portfolio-page-header">
         <Link href="/">← voltar</Link>
       </header>
 
       <section className="pedido-tracking">
-        <span className="mono label">pedido</span>
+        <span className="label">pedido</span>
         <h1 className="display pedido-heading">{order.productName}</h1>
-        <p className="mono pedido-amount">{formatBRL(order.amountCents)}</p>
+        <p className="pedido-amount">{formatBRL(order.amountCents)}</p>
 
         {order.status === "cancelado" ? (
           <p className="pedido-status-cancelado">este pedido foi cancelado.</p>
@@ -41,14 +41,14 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
         )}
 
         {order.trackingCode && (
-          <p className="pedido-tracking-code mono">
+          <p className="pedido-tracking-code">
             {order.trackingCarrier}: {order.trackingCode}
           </p>
         )}
 
         <div className="pedido-details">
           <p>
-            <span className="mono label">entrega</span>
+            <span className="label">entrega</span>
             <br />
             {order.shippingStreet}, {order.shippingNumber}
             {order.shippingComplement ? ` — ${order.shippingComplement}` : ""}
@@ -59,6 +59,6 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
       </section>
 
       <Footer />
-    </>
+    </div>
   );
 }

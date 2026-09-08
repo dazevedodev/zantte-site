@@ -17,7 +17,7 @@ export default async function ProductPage({
   if (!product) notFound();
 
   return (
-    <>
+    <div className="store-theme">
       <header className="portfolio-page-header">
         <Link href="/loja">← voltar</Link>
       </header>
@@ -36,7 +36,7 @@ export default async function ProductPage({
 
         <div className="product-detail-info">
           <h1 className="display product-detail-name">{product.name}</h1>
-          <p className="mono product-detail-price">{formatBRL(product.priceCents)}</p>
+          <p className="product-detail-price">{formatBRL(product.priceCents)}</p>
           {product.description && <p className="product-detail-description">{product.description}</p>}
 
           <BuyForm productId={product.id} />
@@ -44,6 +44,6 @@ export default async function ProductPage({
       </section>
 
       <Footer />
-    </>
+    </div>
   );
 }

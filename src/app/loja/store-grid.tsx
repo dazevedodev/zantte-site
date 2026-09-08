@@ -28,7 +28,7 @@ export function StoreGrid({ products }: { products: Product[] }) {
   return (
     <>
       {categories.length > 1 && (
-        <div className="store-filter-row mono">
+        <div className="store-filter-row">
           <button
             type="button"
             className={`store-filter-toggle ${open ? "open" : ""}`}
@@ -67,12 +67,12 @@ export function StoreGrid({ products }: { products: Product[] }) {
             )}
             <div className="store-card-info">
               <span className="store-card-name">{p.name}</span>
-              <span className="mono store-card-price">{formatBRL(p.priceCents)}</span>
+              <span className="store-card-price">{formatBRL(p.priceCents)}</span>
             </div>
           </Link>
         ))}
         {visible.length === 0 && (
-          <div className="project-grid-empty mono">
+          <div className="project-grid-empty">
             <span className="plus">+</span>
             <span>em breve</span>
           </div>

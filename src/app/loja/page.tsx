@@ -10,13 +10,13 @@ export default async function LojaPage() {
   const products = await listActiveProducts();
 
   return (
-    <>
+    <div className="store-theme">
       <header className="portfolio-page-header">
         <Link href="/">← voltar</Link>
       </header>
 
       <section className="store-hero">
-        <span className="mono label">loja oficial da zantte</span>
+        <span className="label">loja oficial da zantte</span>
         <h1 className="store-hero-mark">
           ZAN<span className="co">&nbsp;CO.</span>
         </h1>
@@ -28,6 +28,6 @@ export default async function LojaPage() {
       </section>
 
       <Footer />
-    </>
+    </div>
   );
 }

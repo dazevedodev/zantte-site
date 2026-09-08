@@ -33,12 +33,14 @@ export function Hero() {
         <div className={`hero-object ${charged ? "charged" : ""} ${launching ? "launching" : ""}`}>
           <BrandObject onCharged={handleCharged} shape="monograma" />
         </div>
-        <Link href="/portfolio" className="hero-projects-link">
-          ver todos os projetos
-        </Link>
-        <Link href="/loja" className="hero-store-cta">
-          ver loja
-        </Link>
+        <div className="hero-cta-group">
+          <Link href="/portfolio" className="hero-projects-link">
+            ver todos os projetos
+          </Link>
+          <Link href="/loja" className="hero-store-cta">
+            ver loja
+          </Link>
+        </div>
       </div>
 
       <span className="hero-hold-hint">clique e segure</span>
