@@ -310,6 +310,15 @@ a {
 .hero-launch-overlay.active {
   opacity: 1;
 }
+.hero-links-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-links-divider {
+  color: var(--muted);
+  font-size: 12px;
+}
 .hero-projects-link {
   font-size: 12px;
   letter-spacing: 0.06em;
