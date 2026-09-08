@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { getOrderById } from "@/lib/store/orders";
 import { ORDER_STATUS_LABELS } from "@/lib/store/types";
 import { formatBRL } from "@/lib/store/format";
+import { PurchasePixel } from "./purchase-pixel";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Seu pedido — Zantte", robots: { index: false, follow: false } };
@@ -17,8 +18,12 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
 
   const stepIndex = STEPS.indexOf(order.status as (typeof STEPS)[number]);
 
+  const isPaid = order.status !== "aguardando_pagamento" && order.status !== "cancelado";
+
   return (
     <div className="store-theme">
+      {isPaid && <PurchasePixel orderId={order.id} amountCents={order.amountCents} />}
+
       <header className="portfolio-page-header">
         <Link href="/">← voltar</Link>
       </header>

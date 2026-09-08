@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { BootScreen } from "@/components/boot-screen";
+import { MetaPixel } from "@/components/meta-pixel";
 
 // Geist pra tudo (título e corpo) — só a mono fica separada, de propósito,
 // pros detalhes técnicos (labels, menu, rodapé).
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geist.variable} ${jetbrainsMono.variable}`}
     >
       <body>
+        <MetaPixel />
         <BootScreen />
         {children}
       </body>
