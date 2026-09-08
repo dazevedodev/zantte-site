@@ -1,0 +1,50 @@
+import { Resend } from "resend";
+import type { Order } from "./types";
+import { formatBRL } from "./format";
+
+function client() {
+  return new Resend(process.env.RESEND_API_KEY!);
+}
+
+function siteUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL!.replace(/\/$/, "");
+}
+
+function trackingUrl(order: Order) {
+  return `${siteUrl()}/pedido/${order.id}`;
+}
+
+export async function sendOrderShippedEmail(order: Order) {
+  await client().emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
+    to: order.customerEmail,
+    subject: `Seu pedido na Zantte foi enviado`,
+    text: [
+      `Olá, ${order.customerName}!`,
+      ``,
+      `Seu pedido "${order.productName}" (${formatBRL(order.amountCents)}) já foi enviado.`,
+      order.trackingCarrier ? `Transportadora: ${order.trackingCarrier}` : null,
+      order.trackingCode ? `Código de rastreio: ${order.trackingCode}` : null,
+      ``,
+      `Acompanhe o status a qualquer momento em: ${trackingUrl(order)}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  });
+}
+
+export async function sendOrderDeliveredEmail(order: Order) {
+  await client().emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
+    to: order.customerEmail,
+    subject: `Seu pedido na Zantte foi entregue`,
+    text: [
+      `Olá, ${order.customerName}!`,
+      ``,
+      `Seu pedido "${order.productName}" foi marcado como entregue.`,
+      `Qualquer problema, é só responder este e-mail.`,
+      ``,
+      `Detalhes: ${trackingUrl(order)}`,
+    ].join("\n"),
+  });
+}
