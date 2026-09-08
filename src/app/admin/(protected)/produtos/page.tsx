@@ -30,7 +30,10 @@ export default async function AdminProductsPage() {
             {products.map((p) => (
               <tr key={p.id}>
                 <td>
-                  <Link href={`/admin/produtos/${p.id}`}>{p.name}</Link>
+                  <Link href={`/admin/produtos/${p.id}`}>
+                    {p.featured && "★ "}
+                    {p.name}
+                  </Link>
                 </td>
                 <td>{p.category ?? "—"}</td>
                 <td>{formatBRL(p.priceCents)}</td>

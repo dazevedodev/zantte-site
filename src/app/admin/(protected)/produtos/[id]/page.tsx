@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/store/products";
-import { updateProductAction, setProductActiveAction } from "../actions";
+import { updateProductAction, setProductActiveAction, setProductFeaturedAction } from "../actions";
 import { ProductForm } from "../product-form";
 
 export const dynamic = "force-dynamic";
@@ -12,17 +12,27 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   const action = updateProductAction.bind(null, product.id, product.imageUrls);
   const toggleActive = setProductActiveAction.bind(null, product.id, !product.active);
+  const toggleFeatured = setProductFeaturedAction.bind(null, product.id, !product.featured);
 
   return (
     <section className="admin-page">
       <div className="admin-page-head-row">
         <h1 className="display admin-page-heading">{product.name}</h1>
-        <form action={toggleActive}>
-          <button type="submit" className="admin-toggle-active-btn">
-            {product.active ? "desativar" : "ativar"}
-          </button>
-        </form>
+        <div className="admin-page-head-actions">
+          <form action={toggleFeatured}>
+            <button type="submit" className="admin-toggle-active-btn">
+              {product.featured ? "remover destaque" : "marcar como destaque"}
+            </button>
+          </form>
+          <form action={toggleActive}>
+            <button type="submit" className="admin-toggle-active-btn">
+              {product.active ? "desativar" : "ativar"}
+            </button>
+          </form>
+        </div>
       </div>
+
+      {product.featured && <p className="admin-featured-note">este é o produto em destaque da loja agora.</p>}
 
       {product.imageUrls.length > 0 && (
         <div className="admin-product-images">

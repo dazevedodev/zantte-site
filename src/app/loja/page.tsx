@@ -1,12 +1,13 @@
 import { Footer } from "@/components/footer";
-import { listActiveProducts } from "@/lib/store/products";
+import { listActiveProducts, getFeaturedProduct } from "@/lib/store/products";
 import { StoreGrid } from "./store-grid";
+import { FeaturedProduct } from "./featured-product";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ZAN CO. — Loja Zantte" };
 
 export default async function LojaPage() {
-  const products = await listActiveProducts();
+  const [products, featured] = await Promise.all([listActiveProducts(), getFeaturedProduct()]);
 
   return (
     <>
@@ -17,6 +18,8 @@ export default async function LojaPage() {
         </h1>
         <p className="store-hero-tagline">Produtos selecionados, direto pra sua casa.</p>
       </section>
+
+      {featured && <FeaturedProduct product={featured} />}
 
       <section className="store-page">
         <StoreGrid products={products} />

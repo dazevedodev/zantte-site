@@ -18,14 +18,17 @@ export function AddToCartButton({
   imageUrl: string | null;
 }) {
   const router = useRouter();
-  const { addItem } = useCart();
+  const { addItem, openDrawer } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
 
-  function handleAdd() {
+  function handleAddToCart() {
     addItem({ productId, slug, name, priceCents, imageUrl }, quantity);
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1600);
+    openDrawer();
+  }
+
+  function handleBuyNow() {
+    addItem({ productId, slug, name, priceCents, imageUrl }, quantity);
+    router.push("/loja/carrinho");
   }
 
   return (
@@ -43,15 +46,14 @@ export function AddToCartButton({
         />
       </div>
 
-      <button type="button" className="btn-solid" onClick={handleAdd}>
-        {added ? "adicionado ✓" : "adicionar ao carrinho"}
-      </button>
-
-      {added && (
-        <button type="button" className="add-to-cart-go" onClick={() => router.push("/loja/carrinho")}>
-          ver carrinho →
+      <div className="add-to-cart-actions">
+        <button type="button" className="btn-solid" onClick={handleBuyNow}>
+          comprar agora
         </button>
-      )}
+        <button type="button" className="add-to-cart-secondary" onClick={handleAddToCart}>
+          + adicionar ao carrinho
+        </button>
+      </div>
     </div>
   );
 }

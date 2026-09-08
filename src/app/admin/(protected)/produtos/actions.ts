@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { verifyAdminSession } from "@/lib/store/session";
-import { createProduct, updateProduct, setProductActive } from "@/lib/store/products";
+import { createProduct, updateProduct, setProductActive, setProductFeatured } from "@/lib/store/products";
 import { uploadProductImage } from "@/lib/store/blob";
 import { slugify } from "@/lib/store/format";
 
@@ -91,6 +91,14 @@ export async function updateProductAction(
 export async function setProductActiveAction(productId: string, active: boolean): Promise<void> {
   if (!(await verifyAdminSession())) return;
   await setProductActive(productId, active);
+  revalidatePath("/admin/produtos");
+  revalidatePath(`/admin/produtos/${productId}`);
+  revalidatePath("/loja");
+}
+
+export async function setProductFeaturedAction(productId: string, featured: boolean): Promise<void> {
+  if (!(await verifyAdminSession())) return;
+  await setProductFeatured(productId, featured);
   revalidatePath("/admin/produtos");
   revalidatePath(`/admin/produtos/${productId}`);
   revalidatePath("/loja");

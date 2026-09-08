@@ -19,6 +19,9 @@ type CartContextValue = {
   clear: () => void;
   totalCount: number;
   totalCents: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 };
 
 const STORAGE_KEY = "zantte_cart";
@@ -89,6 +92,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clear = useCallback(() => setItems([]), []);
 
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const openDrawer = useCallback(() => setDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+
   const totalCount = useMemo(() => items.reduce((sum, i) => sum + i.quantity, 0), [items]);
   const totalCents = useMemo(
     () => items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0),
@@ -96,8 +103,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ items, addItem, removeItem, setQuantity, clear, totalCount, totalCents }),
-    [items, addItem, removeItem, setQuantity, clear, totalCount, totalCents],
+    () => ({
+      items,
+      addItem,
+      removeItem,
+      setQuantity,
+      clear,
+      totalCount,
+      totalCents,
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
+    }),
+    [items, addItem, removeItem, setQuantity, clear, totalCount, totalCents, isDrawerOpen, openDrawer, closeDrawer],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

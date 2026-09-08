@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/footer";
-import { getProductBySlug } from "@/lib/store/products";
+import { getProductBySlug, listActiveProducts } from "@/lib/store/products";
 import { formatBRL } from "@/lib/store/format";
 import { AddToCartButton } from "./add-to-cart-button";
+import { ProductGallery } from "./product-gallery";
+import { ProductCard } from "../product-card";
 
 export const dynamic = "force-dynamic";
 
@@ -15,19 +17,13 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
+  const allProducts = await listActiveProducts();
+  const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 4);
+
   return (
     <>
       <section className="product-detail">
-        <div className="product-detail-media">
-          {product.imageUrls[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
-            <img src={product.imageUrls[0]} alt={product.name} />
-          ) : (
-            <div className="store-card-placeholder-cover" aria-hidden="true">
-              <span className="initial">{product.name.charAt(0).toUpperCase()}</span>
-            </div>
-          )}
-        </div>
+        <ProductGallery images={product.imageUrls} name={product.name} />
 
         <div className="product-detail-info">
           <h1 className="display product-detail-name">{product.name}</h1>
@@ -43,6 +39,17 @@ export default async function ProductPage({
           />
         </div>
       </section>
+
+      {relatedProducts.length > 0 && (
+        <section className="related-products">
+          <span className="label">mais produtos</span>
+          <div className="store-grid">
+            {relatedProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <Footer />
     </>

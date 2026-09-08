@@ -16,6 +16,7 @@ export type Product = {
   // link de compra no fornecedor (dropshipping) — uso interno do admin,
   // nunca exibido nas páginas públicas da loja.
   supplierUrl: string | null;
+  featured: boolean;
   active: boolean;
   createdAt: string;
   updatedAt: string;

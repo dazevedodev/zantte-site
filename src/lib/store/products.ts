@@ -10,6 +10,7 @@ type ProductRow = {
   image_urls: string[];
   category: string | null;
   supplier_url: string | null;
+  featured: boolean;
   active: boolean;
   created_at: string;
   updated_at: string;
@@ -25,6 +26,7 @@ function mapProduct(row: ProductRow): Product {
     imageUrls: row.image_urls,
     category: row.category,
     supplierUrl: row.supplier_url,
+    featured: row.featured,
     active: row.active,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -55,6 +57,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 export async function getProductById(id: string): Promise<Product | null> {
   const rows = (await sql`
     select * from products where id = ${id} limit 1
+  `) as ProductRow[];
+  return rows[0] ? mapProduct(rows[0]) : null;
+}
+
+export async function getFeaturedProduct(): Promise<Product | null> {
+  const rows = (await sql`
+    select * from products where featured = true and active = true order by updated_at desc limit 1
   `) as ProductRow[];
   return rows[0] ? mapProduct(rows[0]) : null;
 }
@@ -104,4 +113,12 @@ export async function updateProduct(
 
 export async function setProductActive(id: string, active: boolean): Promise<void> {
   await sql`update products set active = ${active}, updated_at = now() where id = ${id}`;
+}
+
+export async function setProductFeatured(id: string, featured: boolean): Promise<void> {
+  if (featured) {
+    // só 1 produto em destaque por vez — desmarca os outros antes de marcar este.
+    await sql`update products set featured = false where featured = true and id != ${id}`;
+  }
+  await sql`update products set featured = ${featured}, updated_at = now() where id = ${id}`;
 }
