@@ -6,6 +6,8 @@
   --muted: #8f8f89;
   --line: rgba(255, 255, 255, 0.14);
   --line-soft: rgba(255, 255, 255, 0.08);
+  --danger: #ff6b6b;
+  --success: #6bffb0;
 }
 
 /* ZAN CO. — a loja vive num tema claro/quente, invertido do resto do site
@@ -24,6 +26,8 @@
      quebrar a disciplina monocromática do resto do site. */
   --accent: #b8481f;
   --accent-ink: #fdf6ef;
+  --danger: #c23b2e;
+  --success: #4d7a4a;
   background: var(--ink);
   color: var(--paper);
   min-height: 100vh;
@@ -42,6 +46,26 @@ body {
   color: var(--paper);
   font-family: var(--font-display), system-ui, sans-serif;
   overflow-x: hidden;
+}
+
+/* foco de teclado com a identidade da marca em vez do azul padrão do
+   navegador — só aparece em navegação por teclado (:focus-visible), nunca
+   some (acessibilidade), só fica bonito. Loja usa o terracota de destaque. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.store-theme a:focus-visible,
+.store-theme button:focus-visible,
+.store-theme input:focus-visible,
+.store-theme textarea:focus-visible,
+.store-theme select:focus-visible {
+  outline: 2px solid var(--accent);
 }
 
 /* boot screen — Z de vidro no centro, uma linha que nasce das duas pontas
@@ -1189,7 +1213,7 @@ a {
 }
 .buy-form-error {
   font-size: 13px;
-  color: #ff6b6b;
+  color: var(--danger);
 }
 
 /* botão "adicionar ao carrinho" na página do produto */
@@ -1228,10 +1252,11 @@ a {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .add-to-cart-secondary:hover {
-  border-color: var(--paper);
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 /* /loja/carrinho */
@@ -1313,7 +1338,7 @@ a {
 }
 .cart-summary {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   padding: 1rem 0;
   margin-bottom: 1.5rem;
@@ -1322,7 +1347,8 @@ a {
 }
 .cart-summary-total {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 26px;
+  color: var(--accent);
 }
 
 /* carrinho lateral (drawer) — abre sozinho ao adicionar um produto */
@@ -1445,7 +1471,7 @@ a {
   border-color: var(--paper);
 }
 .pedido-status-cancelado {
-  color: #ff6b6b;
+  color: var(--danger);
 }
 .pedido-pay-link {
   align-self: flex-start;
@@ -1581,12 +1607,12 @@ a {
 }
 .order-status-badge.status-enviado,
 .order-status-badge.status-entregue {
-  color: #6bffb0;
-  border-color: #6bffb0;
+  color: var(--success);
+  border-color: var(--success);
 }
 .order-status-badge.status-cancelado {
-  color: #ff6b6b;
-  border-color: #ff6b6b;
+  color: var(--danger);
+  border-color: var(--danger);
 }
 .admin-order-grid {
   display: grid;
@@ -1618,8 +1644,8 @@ a {
 }
 .admin-cancel-form button {
   background: none;
-  border: 1px solid #ff6b6b;
-  color: #ff6b6b;
+  border: 1px solid var(--danger);
+  color: var(--danger);
   border-radius: 6px;
   padding: 10px 20px;
   font-size: 12px;
@@ -1684,8 +1710,8 @@ a {
 }
 .admin-delete-btn {
   background: none;
-  border: 1px solid #ff6b6b;
-  color: #ff6b6b;
+  border: 1px solid var(--danger);
+  color: var(--danger);
   border-radius: 6px;
   padding: 8px 16px;
   font-size: 12px;
