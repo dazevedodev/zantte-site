@@ -2,6 +2,13 @@ import Link from "next/link";
 import type { Product } from "@/lib/store/types";
 import { formatBRL, discountPercent } from "@/lib/store/format";
 
+const DESCRIPTION_LIMIT = 130;
+
+function truncate(text: string, limit: number): string {
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit).trimEnd()}…`;
+}
+
 export function FeaturedProduct({ product }: { product: Product }) {
   const hasDiscount = product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
 
@@ -24,9 +31,11 @@ export function FeaturedProduct({ product }: { product: Product }) {
       </div>
 
       <div className="featured-product-info">
-        <span className="label">produto em destaque</span>
+        <span className="store-hero-eyebrow">em destaque</span>
         <h2 className="display featured-product-name">{product.name}</h2>
-        {product.description && <p className="featured-product-description">{product.description}</p>}
+        {product.description && (
+          <p className="featured-product-description">{truncate(product.description, DESCRIPTION_LIMIT)}</p>
+        )}
         <p className="featured-product-price-row">
           {hasDiscount && (
             <span className="featured-product-price-compare">{formatBRL(product.compareAtPriceCents!)}</span>

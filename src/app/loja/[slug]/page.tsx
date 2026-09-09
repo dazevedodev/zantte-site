@@ -5,6 +5,7 @@ import { getProductBySlug, listActiveProducts } from "@/lib/store/products";
 import { formatBRL, discountPercent } from "@/lib/store/format";
 import { AddToCartButton } from "./add-to-cart-button";
 import { ProductGallery } from "./product-gallery";
+import { ProductDescription } from "./product-description";
 import { ProductCard } from "../product-card";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,14 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const allProducts = await listActiveProducts();
-  const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 4);
+  const others = allProducts.filter((p) => p.id !== product.id);
+  // prioriza produtos da mesma categoria — "mais produtos" precisa ser um
+  // convite pra comprar outro item parecido, não qualquer coisa do catálogo.
+  const sameCategory = product.category ? others.filter((p) => p.category === product.category) : [];
+  const rest = others.filter((p) => !sameCategory.includes(p));
+  const relatedProducts = [...sameCategory, ...rest].slice(0, 4);
+  const relatedLabel =
+    sameCategory.length > 0 ? `mais em ${product.category}` : "você também pode gostar";
 
   return (
     <>
@@ -54,7 +62,7 @@ export default async function ProductPage({
             )}
             <span className="product-detail-price">{formatBRL(product.priceCents)}</span>
           </p>
-          {product.description && <p className="product-detail-description">{product.description}</p>}
+          {product.description && <ProductDescription text={product.description} />}
 
           <AddToCartButton
             productId={product.id}
@@ -68,7 +76,7 @@ export default async function ProductPage({
 
       {relatedProducts.length > 0 && (
         <section className="related-products">
-          <span className="label">mais produtos</span>
+          <span className="label">{relatedLabel}</span>
           <div className="store-grid">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
