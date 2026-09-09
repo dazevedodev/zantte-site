@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/store/products";
 import { updateProductAction, setProductActiveAction, setProductFeaturedAction } from "../actions";
 import { ProductForm } from "../product-form";
+import { DeleteProductButton } from "./delete-product-button";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   const product = await getProductById(id);
   if (!product) notFound();
 
-  const action = updateProductAction.bind(null, product.id, product.imageUrls);
+  const action = updateProductAction.bind(null, product.id);
   const toggleActive = setProductActiveAction.bind(null, product.id, !product.active);
   const toggleFeatured = setProductFeaturedAction.bind(null, product.id, !product.featured);
 
@@ -29,19 +30,11 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
               {product.active ? "desativar" : "ativar"}
             </button>
           </form>
+          <DeleteProductButton productId={product.id} productName={product.name} />
         </div>
       </div>
 
       {product.featured && <p className="admin-featured-note">este é o produto em destaque da loja agora.</p>}
-
-      {product.imageUrls.length > 0 && (
-        <div className="admin-product-images">
-          {product.imageUrls.map((url) => (
-            // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
-            <img key={url} src={url} alt={product.name} />
-          ))}
-        </div>
-      )}
 
       <ProductForm
         action={action}
@@ -49,8 +42,12 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           name: product.name,
           description: product.description,
           priceReais: (product.priceCents / 100).toFixed(2).replace(".", ","),
+          compareAtPriceReais: product.compareAtPriceCents
+            ? (product.compareAtPriceCents / 100).toFixed(2).replace(".", ",")
+            : "",
           category: product.category ?? "",
           supplierUrl: product.supplierUrl ?? "",
+          imageUrls: product.imageUrls,
         }}
       />
     </section>

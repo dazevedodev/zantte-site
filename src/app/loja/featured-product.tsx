@@ -20,7 +20,12 @@ export function FeaturedProduct({ product }: { product: Product }) {
         <span className="label">produto em destaque</span>
         <h2 className="display featured-product-name">{product.name}</h2>
         {product.description && <p className="featured-product-description">{product.description}</p>}
-        <p className="featured-product-price">{formatBRL(product.priceCents)}</p>
+        <p className="featured-product-price-row">
+          {product.compareAtPriceCents && (
+            <span className="featured-product-price-compare">{formatBRL(product.compareAtPriceCents)}</span>
+          )}
+          <span className="featured-product-price">{formatBRL(product.priceCents)}</span>
+        </p>
         <Link href={`/loja/${product.slug}`} className="btn-solid">
           ver produto
         </Link>

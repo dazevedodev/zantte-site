@@ -40,7 +40,12 @@ export default async function ProductPage({
 
         <div className="product-detail-info">
           <h1 className="display product-detail-name">{product.name}</h1>
-          <p className="product-detail-price">{formatBRL(product.priceCents)}</p>
+          <p className="product-detail-price-row">
+            {product.compareAtPriceCents && (
+              <span className="product-detail-price-compare">{formatBRL(product.compareAtPriceCents)}</span>
+            )}
+            <span className="product-detail-price">{formatBRL(product.priceCents)}</span>
+          </p>
           {product.description && <p className="product-detail-description">{product.description}</p>}
 
           <AddToCartButton

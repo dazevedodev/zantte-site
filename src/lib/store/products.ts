@@ -7,6 +7,7 @@ type ProductRow = {
   name: string;
   description: string;
   price_cents: number;
+  compare_at_price_cents: number | null;
   image_urls: string[];
   category: string | null;
   supplier_url: string | null;
@@ -23,6 +24,7 @@ function mapProduct(row: ProductRow): Product {
     name: row.name,
     description: row.description,
     priceCents: row.price_cents,
+    compareAtPriceCents: row.compare_at_price_cents,
     imageUrls: row.image_urls,
     category: row.category,
     supplierUrl: row.supplier_url,
@@ -73,13 +75,14 @@ export async function createProduct(input: {
   name: string;
   description: string;
   priceCents: number;
+  compareAtPriceCents: number | null;
   imageUrls: string[];
   category: string | null;
   supplierUrl: string | null;
 }): Promise<Product> {
   const rows = (await sql`
-    insert into products (slug, name, description, price_cents, image_urls, category, supplier_url)
-    values (${input.slug}, ${input.name}, ${input.description}, ${input.priceCents}, ${input.imageUrls}, ${input.category}, ${input.supplierUrl})
+    insert into products (slug, name, description, price_cents, compare_at_price_cents, image_urls, category, supplier_url)
+    values (${input.slug}, ${input.name}, ${input.description}, ${input.priceCents}, ${input.compareAtPriceCents}, ${input.imageUrls}, ${input.category}, ${input.supplierUrl})
     returning *
   `) as ProductRow[];
   return mapProduct(rows[0]);
@@ -91,6 +94,7 @@ export async function updateProduct(
     name: string;
     description: string;
     priceCents: number;
+    compareAtPriceCents: number | null;
     imageUrls: string[];
     category: string | null;
     supplierUrl: string | null;
@@ -101,6 +105,7 @@ export async function updateProduct(
     set name = ${input.name},
         description = ${input.description},
         price_cents = ${input.priceCents},
+        compare_at_price_cents = ${input.compareAtPriceCents},
         image_urls = ${input.imageUrls},
         category = ${input.category},
         supplier_url = ${input.supplierUrl},
@@ -121,4 +126,22 @@ export async function setProductFeatured(id: string, featured: boolean): Promise
     await sql`update products set featured = false where featured = true and id != ${id}`;
   }
   await sql`update products set featured = ${featured}, updated_at = now() where id = ${id}`;
+}
+
+export type DeleteProductResult = { deleted: true } | { deleted: false; reason: string };
+
+export async function deleteProduct(id: string): Promise<DeleteProductResult> {
+  const orderRows = (await sql`
+    select count(*)::int as count from order_items where product_id = ${id}
+  `) as { count: number }[];
+
+  if ((orderRows[0]?.count ?? 0) > 0) {
+    return {
+      deleted: false,
+      reason: "esse produto já tem pedido vinculado — desative em vez de excluir, pra não perder o histórico.",
+    };
+  }
+
+  await sql`delete from products where id = ${id}`;
+  return { deleted: true };
 }

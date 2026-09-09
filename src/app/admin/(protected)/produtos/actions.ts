@@ -3,21 +3,43 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { verifyAdminSession } from "@/lib/store/session";
-import { createProduct, updateProduct, setProductActive, setProductFeatured } from "@/lib/store/products";
+import {
+  createProduct,
+  updateProduct,
+  setProductActive,
+  setProductFeatured,
+  deleteProduct,
+} from "@/lib/store/products";
 import { uploadProductImage } from "@/lib/store/blob";
 import { slugify } from "@/lib/store/format";
 
 export type ProductFormState = { error: string } | null;
 
-async function collectImageUrls(formData: FormData, existing: string[]): Promise<string[]> {
+async function collectNewImageUrls(formData: FormData): Promise<string[]> {
   const files = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
-  const uploaded = await Promise.all(files.map(uploadProductImage));
-  return [...existing, ...uploaded];
+  return Promise.all(files.map(uploadProductImage));
+}
+
+function existingImageUrlsFromForm(formData: FormData): string[] {
+  const raw = formData.get("existingImageUrls");
+  if (typeof raw !== "string" || !raw.trim()) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((u): u is string => typeof u === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 function optionalField(formData: FormData, name: string): string | null {
   const value = formData.get(name);
   return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function parsePriceCents(value: FormDataEntryValue | null): number | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  const cents = Math.round(Number(value.replace(",", ".")) * 100);
+  return Number.isFinite(cents) && cents > 0 ? cents : null;
 }
 
 export async function createProductAction(
@@ -27,23 +49,26 @@ export async function createProductAction(
   if (!(await verifyAdminSession())) return { error: "sessão expirada" };
 
   const name = formData.get("name");
-  const description = formData.get("description");
-  const price = formData.get("priceReais");
-
   if (typeof name !== "string" || !name.trim()) return { error: "nome obrigatório" };
-  if (typeof price !== "string" || !price.trim()) return { error: "preço obrigatório" };
 
-  const priceCents = Math.round(Number(price.replace(",", ".")) * 100);
-  if (!Number.isFinite(priceCents) || priceCents <= 0) return { error: "preço inválido" };
+  const priceCents = parsePriceCents(formData.get("priceReais"));
+  if (!priceCents) return { error: "preço inválido" };
 
-  const imageUrls = await collectImageUrls(formData, []);
+  const compareAtPriceCents = parsePriceCents(formData.get("compareAtPriceReais"));
+  if (compareAtPriceCents !== null && compareAtPriceCents <= priceCents) {
+    return { error: "o preço promocional riscado precisa ser maior que o preço de venda" };
+  }
+
+  const description = formData.get("description");
+  const newImageUrls = await collectNewImageUrls(formData);
 
   const product = await createProduct({
     slug: `${slugify(name)}-${Date.now().toString(36)}`,
     name: name.trim(),
     description: typeof description === "string" ? description.trim() : "",
     priceCents,
-    imageUrls,
+    compareAtPriceCents,
+    imageUrls: newImageUrls,
     category: optionalField(formData, "category"),
     supplierUrl: optionalField(formData, "supplierUrl"),
   });
@@ -55,28 +80,31 @@ export async function createProductAction(
 
 export async function updateProductAction(
   productId: string,
-  existingImageUrls: string[],
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
   if (!(await verifyAdminSession())) return { error: "sessão expirada" };
 
   const name = formData.get("name");
-  const description = formData.get("description");
-  const price = formData.get("priceReais");
-
   if (typeof name !== "string" || !name.trim()) return { error: "nome obrigatório" };
-  if (typeof price !== "string" || !price.trim()) return { error: "preço obrigatório" };
 
-  const priceCents = Math.round(Number(price.replace(",", ".")) * 100);
-  if (!Number.isFinite(priceCents) || priceCents <= 0) return { error: "preço inválido" };
+  const priceCents = parsePriceCents(formData.get("priceReais"));
+  if (!priceCents) return { error: "preço inválido" };
 
-  const imageUrls = await collectImageUrls(formData, existingImageUrls);
+  const compareAtPriceCents = parsePriceCents(formData.get("compareAtPriceReais"));
+  if (compareAtPriceCents !== null && compareAtPriceCents <= priceCents) {
+    return { error: "o preço promocional riscado precisa ser maior que o preço de venda" };
+  }
+
+  const description = formData.get("description");
+  const newImageUrls = await collectNewImageUrls(formData);
+  const imageUrls = [...existingImageUrlsFromForm(formData), ...newImageUrls];
 
   await updateProduct(productId, {
     name: name.trim(),
     description: typeof description === "string" ? description.trim() : "",
     priceCents,
+    compareAtPriceCents,
     imageUrls,
     category: optionalField(formData, "category"),
     supplierUrl: optionalField(formData, "supplierUrl"),
@@ -102,4 +130,27 @@ export async function setProductFeaturedAction(productId: string, featured: bool
   revalidatePath("/admin/produtos");
   revalidatePath(`/admin/produtos/${productId}`);
   revalidatePath("/loja");
+}
+
+export type DeleteProductState = { error: string } | null;
+
+// assinatura (prevState, formData) exigida pelo useActionState no client,
+// mesmo sem usar nenhum dos dois aqui.
+/* eslint-disable @typescript-eslint/no-unused-vars */
+export async function deleteProductAction(
+  productId: string,
+  _prevState: DeleteProductState,
+  _formData: FormData,
+): Promise<DeleteProductState> {
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  if (!(await verifyAdminSession())) return { error: "sessão expirada" };
+
+  const result = await deleteProduct(productId);
+  if (!result.deleted) {
+    return { error: result.reason };
+  }
+
+  revalidatePath("/admin/produtos");
+  revalidatePath("/loja");
+  redirect("/admin/produtos");
 }

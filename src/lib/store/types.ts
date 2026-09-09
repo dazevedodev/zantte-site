@@ -11,6 +11,9 @@ export type Product = {
   name: string;
   description: string;
   priceCents: number;
+  // preço "de" riscado, opcional — quando preenchido e maior que priceCents,
+  // mostra como promoção (de/por) no site.
+  compareAtPriceCents: number | null;
   imageUrls: string[];
   category: string | null;
   // link de compra no fornecedor (dropshipping) — uso interno do admin,

@@ -15,7 +15,12 @@ export function ProductCard({ product }: { product: Product }) {
       )}
       <div className="store-card-info">
         <span className="store-card-name">{product.name}</span>
-        <span className="store-card-price">{formatBRL(product.priceCents)}</span>
+        <span className="store-card-price-row">
+          {product.compareAtPriceCents && (
+            <span className="store-card-price-compare">{formatBRL(product.compareAtPriceCents)}</span>
+          )}
+          <span className="store-card-price">{formatBRL(product.priceCents)}</span>
+        </span>
       </div>
     </Link>
   );
