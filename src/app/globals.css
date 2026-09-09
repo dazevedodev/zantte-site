@@ -1536,6 +1536,71 @@ a {
 .cart-drawer-checkout {
   text-align: center;
 }
+/* upsell — sugestão de complemento no carrinho, sempre priorizando um
+   produto com desconto de verdade cadastrado (não inventa promoção). */
+.cart-upsell {
+  background: rgba(184, 72, 31, 0.08);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cart-upsell-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cart-upsell-product {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.cart-upsell-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cart-upsell-price-compare {
+  text-decoration: line-through;
+  color: var(--muted);
+  font-size: 11px !important;
+  font-weight: 400 !important;
+}
+.cart-upsell-price {
+  color: var(--accent);
+  font-weight: 700 !important;
+}
+.cart-upsell-badge {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+.cart-upsell-add {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cart-upsell-add:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
 
 /* consulta pública de pedido */
 .pedido-tracking {
