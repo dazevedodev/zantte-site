@@ -4,6 +4,7 @@ import { ORDER_STATUS_LABELS } from "@/lib/store/types";
 import { formatBRL } from "@/lib/store/format";
 import { markDeliveredAction, cancelOrderAction } from "./actions";
 import { ShipForm } from "./ship-form";
+import { DeleteOrderButton } from "./delete-order-button";
 
 export const dynamic = "force-dynamic";
 
@@ -123,6 +124,8 @@ export default async function AdminOrderDetailPage({
           <button type="submit">cancelar pedido</button>
         </form>
       )}
+
+      <DeleteOrderButton orderId={order.id} />
     </section>
   );
 }

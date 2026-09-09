@@ -1,8 +1,15 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { verifyAdminSession } from "@/lib/store/session";
-import { getOrderById, setOrderShipped, setOrderDelivered, cancelOrder } from "@/lib/store/orders";
+import {
+  getOrderById,
+  setOrderShipped,
+  setOrderDelivered,
+  cancelOrder,
+  deleteOrder,
+} from "@/lib/store/orders";
 import { sendOrderShippedEmail, sendOrderDeliveredEmail } from "@/lib/store/email";
 
 export type OrderActionState = { error: string } | null;
@@ -58,4 +65,23 @@ export async function cancelOrderAction(orderId: string): Promise<void> {
   await cancelOrder(orderId);
   revalidatePath(`/admin/pedidos/${orderId}`);
   revalidatePath("/admin/pedidos");
+}
+
+export type DeleteOrderState = { error: string } | null;
+
+// assinatura (prevState, formData) exigida pelo useActionState no client,
+// mesmo sem usar nenhum dos dois aqui.
+/* eslint-disable @typescript-eslint/no-unused-vars */
+export async function deleteOrderAction(
+  orderId: string,
+  _prevState: DeleteOrderState,
+  _formData: FormData,
+): Promise<DeleteOrderState> {
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  if (!(await verifyAdminSession())) return { error: "sessão expirada" };
+
+  await deleteOrder(orderId);
+
+  revalidatePath("/admin/pedidos");
+  redirect("/admin/pedidos");
 }

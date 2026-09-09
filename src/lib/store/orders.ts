@@ -217,3 +217,12 @@ export async function cancelOrder(id: string): Promise<void> {
 export async function setOrderNotes(id: string, notes: string): Promise<void> {
   await sql`update orders set admin_notes = ${notes}, updated_at = now() where id = ${id}`;
 }
+
+/**
+ * Apaga de vez — usado só pra limpar pedido de teste (nunca em pedido
+ * pago de cliente de verdade). Remove os itens antes por causa da FK.
+ */
+export async function deleteOrder(id: string): Promise<void> {
+  await sql`delete from order_items where order_id = ${id}`;
+  await sql`delete from orders where id = ${id}`;
+}
