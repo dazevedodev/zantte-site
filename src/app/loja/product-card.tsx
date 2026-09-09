@@ -21,15 +21,16 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="initial">{product.name.charAt(0).toUpperCase()}</span>
           </div>
         )}
+        <span className={`store-card-price-tag ${hasDiscount ? "on-sale" : ""}`}>
+          {formatBRL(product.priceCents)}
+        </span>
       </div>
       <div className="store-card-info">
+        {product.category && <span className="store-card-category">{product.category}</span>}
         <span className="store-card-name">{product.name}</span>
-        <span className="store-card-price-row">
-          {hasDiscount && (
-            <span className="store-card-price-compare">{formatBRL(product.compareAtPriceCents!)}</span>
-          )}
-          <span className="store-card-price">{formatBRL(product.priceCents)}</span>
-        </span>
+        {hasDiscount && (
+          <span className="store-card-price-compare">{formatBRL(product.compareAtPriceCents!)}</span>
+        )}
       </div>
     </Link>
   );

@@ -2,7 +2,6 @@ import { Footer } from "@/components/footer";
 import { listActiveProducts, getFeaturedProduct } from "@/lib/store/products";
 import { StoreGrid } from "./store-grid";
 import { StoreHero } from "./store-hero";
-import { FeaturedProduct } from "./featured-product";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ZAN CO. — Loja Zantte" };
@@ -12,13 +11,11 @@ export default async function LojaPage() {
 
   return (
     <>
-      <StoreHero spotlight={products} />
+      <StoreHero products={products} featured={featured} />
 
       <section className="store-page" id="catalogo">
         <StoreGrid products={products} />
       </section>
-
-      {featured && <FeaturedProduct product={featured} />}
 
       <Footer />
     </>
