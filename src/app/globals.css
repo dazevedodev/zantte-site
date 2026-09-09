@@ -1175,9 +1175,16 @@ a {
    igual referência de loja "de verdade" (não só uma foto solta). */
 .product-gallery {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
   align-items: start;
+}
+/* só reserva a coluna de miniaturas quando ela existe de fato — produto
+   com 1 foto só (a maioria do catálogo) não tem rail de miniatura, e sem
+   essa regra a imagem principal era espremida na largura da coluna de
+   72px do rail (bug real: foto "pequena" na página do produto). */
+.product-gallery:has(.product-gallery-thumbs) {
+  grid-template-columns: 72px 1fr;
 }
 .product-detail-media {
   position: relative;
