@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { getProductBySlug, listActiveProducts } from "@/lib/store/products";
@@ -22,6 +23,18 @@ export default async function ProductPage({
 
   return (
     <>
+      <nav className="product-breadcrumb mono" aria-label="breadcrumb">
+        <Link href="/loja">loja</Link>
+        {product.category && (
+          <>
+            <span>/</span>
+            <span>{product.category}</span>
+          </>
+        )}
+        <span>/</span>
+        <span className="product-breadcrumb-current">{product.name}</span>
+      </nav>
+
       <section className="product-detail">
         <ProductGallery images={product.imageUrls} name={product.name} />
 

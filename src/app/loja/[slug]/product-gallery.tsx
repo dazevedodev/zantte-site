@@ -16,10 +16,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
   }
 
   return (
-    <div className="product-detail-media">
-      {/* eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui. */}
-      <img src={images[active]} alt={name} className="product-gallery-main" />
-
+    <div className="product-gallery">
       {images.length > 1 && (
         <div className="product-gallery-thumbs">
           {images.map((url, i) => (
@@ -36,6 +33,11 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
           ))}
         </div>
       )}
+
+      <div className="product-detail-media">
+        {/* eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui. */}
+        <img src={images[active]} alt={name} className="product-gallery-main" />
+      </div>
     </div>
   );
 }
