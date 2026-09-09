@@ -265,7 +265,10 @@ a {
   position: fixed;
   top: 30px;
   right: 6vw;
-  z-index: 10;
+  /* bem acima de qualquer coisa — o objeto 3D (WebGL) as vezes cria sua
+     própria camada de composição no Safari/iOS e pinta por cima de
+     elementos fixed com z-index baixo, mesmo sem ter z-index nenhum. */
+  z-index: 999;
   width: 26px;
   height: 18px;
   display: flex;
@@ -275,15 +278,17 @@ a {
   border: none;
   cursor: pointer;
   padding: 0;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .hero-menu span {
   display: block;
-  height: 1px;
+  height: 2px;
   background: var(--paper);
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 .hero-menu.open span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
+  transform: translateY(9px) rotate(45deg);
 }
 .hero-menu.open span:nth-child(2) {
   opacity: 0;
@@ -841,33 +846,27 @@ a {
   .store-hero {
     grid-template-columns: 1fr;
     padding: 6vh 6vw 4vh;
-    gap: 2rem;
+    gap: 1.5rem;
   }
+  /* no celular, 3 fotos de marketing espremidas lado a lado ficam
+     ilegíveis (o texto de cada painel encolhe demais) — mostra só o
+     tile de destaque, em largura cheia, e deixa o resto pro catálogo
+     logo abaixo em vez de tentar caber o mosaico inteiro. */
   .store-hero-mosaic {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     grid-template-rows: 1fr;
-    height: 190px;
+    height: 280px;
   }
-  .store-hero-tile-0,
   .store-hero-tile-1,
   .store-hero-tile-2 {
-    grid-row: 1;
+    display: none;
   }
   .store-hero-tile-0 {
     grid-column: 1;
-  }
-  .store-hero-tile-1 {
-    grid-column: 2;
-  }
-  .store-hero-tile-2 {
-    grid-column: 3;
-  }
-  .store-hero-tile-frame,
-  .store-hero-tile-0 .store-hero-tile-frame {
-    padding: 14px;
+    grid-row: 1;
   }
   .store-hero-tile-name {
-    display: none;
+    display: block;
   }
 }
 /* categorias — fileira de pills sempre visível, sem precisar abrir nada */

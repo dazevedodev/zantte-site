@@ -13,24 +13,30 @@ type Phase = "lines" | "hold" | "exiting" | "done";
 
 export function BootScreen() {
   const [phase, setPhase] = useState<Phase>("lines");
-  const [visible, setVisible] = useState(false);
+  // Começa visível (cobre a tela desde o primeiro paint) — se começasse
+  // false, o HTML inicial não tinha o overlay nenhum, e o conteúdo da
+  // página (hero) ficava exposto por um instante antes do JS decidir
+  // mostrar o boot, causando o flash "abre o site antes da animação".
+  // Nos casos em que o boot deve ser pulado (sessão já viu, reduced
+  // motion), o efeito abaixo desliga de volta antes de qualquer traço
+  // de animação — o usuário só vê um frame do overlay estático, nunca
+  // o conteúdo por trás dele.
+  const [visible, setVisible] = useState(true);
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    // "visible" já começa false — não precisa de setState pra "desligar" o
-    // boot screen nesses casos, só não liga ele (fica null pelo check embaixo).
     if (sessionStorage.getItem(SESSION_KEY) || prefersReducedMotion()) {
-      return;
+      // setState fora do corpo síncrono do efeito (regra react-hooks/set-state-in-effect).
+      const skip = window.setTimeout(() => setVisible(false), 0);
+      return () => window.clearTimeout(skip);
     }
     sessionStorage.setItem(SESSION_KEY, "1");
     document.body.style.overflow = "hidden";
 
-    // Os dois setState ficam dentro do rAF (não direto no corpo do efeito) —
-    // além de "started" precisar mesmo de um frame de atraso pra CSS animar
-    // a partir do estado inicial, isso evita disparar setState síncrono
-    // direto no efeito.
+    // "started" precisa de um frame de atraso pra CSS animar a partir do
+    // estado inicial (0 -> cresce), por isso fica num rAF em vez de direto
+    // no corpo do efeito.
     const raf = requestAnimationFrame(() => {
-      setVisible(true);
       requestAnimationFrame(() => setStarted(true));
     });
 
