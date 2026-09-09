@@ -2,6 +2,30 @@ export function onlyDigits(value: string) {
   return value.replace(/\D/g, "");
 }
 
+// valida o dígito verificador de verdade, não só o tamanho — um CPF com
+// 11 dígitos mas checksum errado passava direto pro Mercado Pago e travava
+// o botão "Criar Pix" lá sem nenhuma mensagem de erro pro cliente.
+export function isValidCpf(cpf: string): boolean {
+  const digits = onlyDigits(cpf);
+  if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+
+  function checkDigit(base: string): number {
+    let sum = 0;
+    let weight = base.length + 1;
+    for (const char of base) {
+      sum += Number(char) * weight;
+      weight--;
+    }
+    const remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  }
+
+  const base = digits.slice(0, 9);
+  const d1 = checkDigit(base);
+  const d2 = checkDigit(base + d1);
+  return digits === `${base}${d1}${d2}`;
+}
+
 export function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", {
     style: "currency",

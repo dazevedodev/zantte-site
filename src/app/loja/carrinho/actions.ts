@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getProductById } from "@/lib/store/products";
 import { createOrder, setOrderPreference } from "@/lib/store/orders";
 import { createOrderPreference } from "@/lib/store/mercadopago";
-import { onlyDigits } from "@/lib/store/format";
+import { onlyDigits, isValidCpf } from "@/lib/store/format";
 import { sendOrderCreatedEmail } from "@/lib/store/email";
 
 export type CartCheckoutState = { error: string } | null;
@@ -54,7 +54,9 @@ export async function createCartOrderAction(
     const customerPhone = onlyDigits(requireField(formData, "customerPhone"));
     const customerCpf = onlyDigits(requireField(formData, "customerCpf"));
 
-    if (customerCpf.length !== 11) return { error: "CPF inválido" };
+    if (!isValidCpf(customerCpf)) {
+      return { error: "CPF inválido — confere se digitou certo, o Mercado Pago recusa CPF errado sem avisar" };
+    }
     if (customerPhone.length < 10 || customerPhone.length > 11) {
       return { error: "telefone inválido" };
     }
