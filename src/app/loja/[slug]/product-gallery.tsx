@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 
-export function ProductGallery({ images, name }: { images: string[]; name: string }) {
+export function ProductGallery({
+  images,
+  name,
+  discountPercent,
+}: {
+  images: string[];
+  name: string;
+  discountPercent: number | null;
+}) {
   const [active, setActive] = useState(0);
 
   if (images.length === 0) {
@@ -35,6 +43,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
       )}
 
       <div className="product-detail-media">
+        {discountPercent !== null && <span className="sale-badge">-{discountPercent}%</span>}
         {/* eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui. */}
         <img src={images[active]} alt={name} className="product-gallery-main" />
       </div>

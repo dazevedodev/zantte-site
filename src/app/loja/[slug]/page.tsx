@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { getProductBySlug, listActiveProducts } from "@/lib/store/products";
-import { formatBRL } from "@/lib/store/format";
+import { formatBRL, discountPercent } from "@/lib/store/format";
 import { AddToCartButton } from "./add-to-cart-button";
 import { ProductGallery } from "./product-gallery";
 import { ProductCard } from "../product-card";
@@ -36,7 +36,15 @@ export default async function ProductPage({
       </nav>
 
       <section className="product-detail">
-        <ProductGallery images={product.imageUrls} name={product.name} />
+        <ProductGallery
+          images={product.imageUrls}
+          name={product.name}
+          discountPercent={
+            product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents
+              ? discountPercent(product.compareAtPriceCents, product.priceCents)
+              : null
+          }
+        />
 
         <div className="product-detail-info">
           <h1 className="display product-detail-name">{product.name}</h1>

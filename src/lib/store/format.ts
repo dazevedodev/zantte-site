@@ -9,6 +9,10 @@ export function formatBRL(cents: number) {
   });
 }
 
+export function discountPercent(compareAtCents: number, priceCents: number): number {
+  return Math.round(((compareAtCents - priceCents) / compareAtCents) * 100);
+}
+
 export function formatCep(cep: string) {
   const digits = onlyDigits(cep).slice(0, 8);
   return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;

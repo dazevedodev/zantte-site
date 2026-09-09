@@ -1,11 +1,18 @@
 import Link from "next/link";
 import type { Product } from "@/lib/store/types";
-import { formatBRL } from "@/lib/store/format";
+import { formatBRL, discountPercent } from "@/lib/store/format";
 
 export function FeaturedProduct({ product }: { product: Product }) {
+  const hasDiscount = product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
+
   return (
     <section className="featured-product">
       <div className="featured-product-media">
+        {hasDiscount && (
+          <span className="sale-badge">
+            -{discountPercent(product.compareAtPriceCents!, product.priceCents)}%
+          </span>
+        )}
         {product.imageUrls[0] ? (
           // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
           <img src={product.imageUrls[0]} alt={product.name} />
@@ -21,8 +28,8 @@ export function FeaturedProduct({ product }: { product: Product }) {
         <h2 className="display featured-product-name">{product.name}</h2>
         {product.description && <p className="featured-product-description">{product.description}</p>}
         <p className="featured-product-price-row">
-          {product.compareAtPriceCents && (
-            <span className="featured-product-price-compare">{formatBRL(product.compareAtPriceCents)}</span>
+          {hasDiscount && (
+            <span className="featured-product-price-compare">{formatBRL(product.compareAtPriceCents!)}</span>
           )}
           <span className="featured-product-price">{formatBRL(product.priceCents)}</span>
         </p>
