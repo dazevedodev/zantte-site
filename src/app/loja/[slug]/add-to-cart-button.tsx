@@ -22,9 +22,12 @@ export function AddToCartButton({
   const router = useRouter();
   const { addItem, openDrawer } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
 
   function handleAddToCart() {
     addItem({ productId, slug, name, priceCents, imageUrl, variantName }, quantity);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1500);
     openDrawer();
   }
 
@@ -52,8 +55,12 @@ export function AddToCartButton({
         <button type="button" className="btn-solid" onClick={handleBuyNow}>
           comprar agora
         </button>
-        <button type="button" className="add-to-cart-secondary" onClick={handleAddToCart}>
-          + adicionar ao carrinho
+        <button
+          type="button"
+          className={`add-to-cart-secondary ${justAdded ? "added" : ""}`}
+          onClick={handleAddToCart}
+        >
+          {justAdded ? "adicionado ✓" : "+ adicionar ao carrinho"}
         </button>
       </div>
     </div>
