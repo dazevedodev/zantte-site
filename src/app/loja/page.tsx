@@ -16,7 +16,7 @@ export default async function LojaPage() {
 
       <WhyBuy />
 
-      <section className="store-page" id="catalogo">
+      <section className="store-page" id="loja-toolbar">
         <StoreGrid products={products} />
       </section>
 

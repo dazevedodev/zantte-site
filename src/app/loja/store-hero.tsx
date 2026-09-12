@@ -1,42 +1,38 @@
 import Link from "next/link";
 import type { Product } from "@/lib/store/types";
 
+// Composição editorial de 1 produto só (o destaque), com bastante respiro
+// em volta — em vez de espremer 3 fotos num mosaico, que fica ilegível no
+// mobile e não passa sensação premium.
 export function StoreHero({ products, featured }: { products: Product[]; featured: Product | null }) {
-  const rest = products.filter((p) => p.id !== featured?.id);
-  const tiles = [...(featured ? [featured] : []), ...rest].slice(0, 3);
+  const spotlight = featured ?? products[0] ?? null;
 
   return (
     <section className="store-hero">
       <div className="store-hero-copy">
         <span className="store-hero-eyebrow">loja oficial da zantte</span>
-        <h1 className="store-hero-mark">
-          ZAN<span className="co">&nbsp;CO.</span>
-        </h1>
+        <h1 className="store-hero-mark display">ZAN CO.</h1>
         <p className="store-hero-tagline">Produtos selecionados, direto pra sua casa.</p>
-        <a href="#catalogo" className="store-hero-cta">
-          ver produtos ↓
+        <a href="#loja-toolbar" className="store-hero-cta">
+          ver produtos
         </a>
       </div>
 
-      {tiles.length > 0 && (
-        <div className="store-hero-mosaic">
-          {tiles.map((p, i) => (
-            <Link key={p.id} href={`/loja/${p.slug}`} className={`store-hero-tile store-hero-tile-${i}`}>
-              {featured?.id === p.id && <span className="store-hero-tile-badge">destaque</span>}
-              <div className="store-hero-tile-frame">
-                {p.imageUrls[0] ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
-                  <img src={p.imageUrls[0]} alt={p.name} />
-                ) : (
-                  <div className="store-card-placeholder-cover" aria-hidden="true">
-                    <span className="initial">{p.name.charAt(0).toUpperCase()}</span>
-                  </div>
-                )}
+      {spotlight && (
+        <Link href={`/loja/${spotlight.slug}`} className="store-hero-spotlight">
+          {featured && <span className="store-hero-spotlight-badge">destaque</span>}
+          <div className="store-hero-spotlight-frame">
+            {spotlight.imageUrls[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
+              <img src={spotlight.imageUrls[0]} alt={spotlight.name} />
+            ) : (
+              <div className="store-card-placeholder-cover" aria-hidden="true">
+                <span className="initial">{spotlight.name.charAt(0).toUpperCase()}</span>
               </div>
-              <span className="store-hero-tile-name">{p.name}</span>
-            </Link>
-          ))}
-        </div>
+            )}
+          </div>
+          <span className="store-hero-spotlight-name">{spotlight.name}</span>
+        </Link>
       )}
     </section>
   );
