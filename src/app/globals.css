@@ -48,6 +48,15 @@ body {
   overflow-x: hidden;
 }
 
+/* impede arrastar imagens pra fora da página (assim dá pra "baixar" um
+   ícone/foto sem clicar em nenhum botão de download) — não bloqueia clique
+   nem toque normal, só o gesto de arrastar. */
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
 /* foco de teclado com a identidade da marca em vez do azul padrão do
    navegador — só aparece em navegação por teclado (:focus-visible), nunca
    some (acessibilidade), só fica bonito. Loja usa o terracota de destaque. */

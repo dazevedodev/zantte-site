@@ -3,6 +3,7 @@ import { Geist, JetBrains_Mono, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { BootScreen } from "@/components/boot-screen";
 import { MetaPixel } from "@/components/meta-pixel";
+import { DragGuard } from "@/components/drag-guard";
 
 // Geist pra tudo (título e corpo) — só a mono fica separada, de propósito,
 // pros detalhes técnicos (labels, menu, rodapé).
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body>
         <MetaPixel />
+        <DragGuard />
         <BootScreen />
         {children}
       </body>
