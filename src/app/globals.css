@@ -181,8 +181,9 @@ a {
   letter-spacing: 0.01em;
   line-height: 1;
   cursor: pointer;
-  /* acabamento "de vidro": gradiente claro no texto + brilho suave atrás. */
-  background: linear-gradient(160deg, #ffffff 0%, #ffffff 25%, #8a8a86 55%, #ffffff 85%);
+  /* acabamento "de vidro" em preto — mesma paleta do mascote e dos ícones
+     do dock, em vez do branco/prata anterior. */
+  background: linear-gradient(160deg, #2a2a2a 0%, #050505 25%, #1c1c1c 55%, #050505 85%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -774,15 +775,91 @@ a {
   background: #7c9b83;
   position: relative;
 }
-/* /contato — só os 3 ícones centralizados na tela, sem texto. */
+/* /contato — formulário de um lado, os 3 ícones de contato direto do
+   outro. Empilha em coluna (form em cima) quando não cabe lado a lado. */
 .contact-page {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 14vh 6vw 6vh;
+}
+.contact-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(3rem, 8vw, 7rem);
+  flex-wrap: wrap;
 }
 .contact-icons {
   display: flex;
-  gap: clamp(2.5rem, 8vw, 5.5rem);
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(360px, 84vw);
+}
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 243, 234, 0.28);
+  background: rgba(245, 243, 234, 0.1);
+  color: #f5f3ea;
+  font-family: var(--font-display), sans-serif;
+  font-size: 14px;
+  resize: none;
+}
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: rgba(245, 243, 234, 0.55);
+}
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: rgba(245, 243, 234, 0.7);
+  background: rgba(245, 243, 234, 0.16);
+}
+.contact-form-row {
+  display: flex;
+  gap: 10px;
+}
+.contact-form-row input {
+  width: 50%;
+}
+.contact-form-submit {
+  align-self: flex-start;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: none;
+  background: #f5f3ea;
+  color: #17160f;
+  font-family: var(--font-bubble);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+.contact-form-submit:hover {
+  transform: scale(1.04);
+}
+.contact-form-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+.contact-form-error {
+  font-size: 13px;
+  color: #ffd7d7;
+}
+.contact-form-success {
+  font-family: var(--font-bubble);
+  font-size: 18px;
+  color: #f5f3ea;
+  max-width: 320px;
+  text-align: center;
 }
 .simple-page-logo {
   position: fixed;
