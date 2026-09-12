@@ -814,7 +814,7 @@ a {
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: #f5f3ea;
 }
 .footer-links {
   display: flex;
