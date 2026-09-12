@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { SiteMenu } from "@/components/site-menu";
 import { PROJECTS } from "@/lib/projects";
 import { PortfolioCarousel } from "./portfolio-carousel";
 
 export default function PortfolioPage() {
   return (
     <div className="portfolio-carousel-page">
-      <SiteMenu />
       <Link href="/" className="site-logo display portfolio-carousel-logo" aria-label="zantte">
         zantte
       </Link>

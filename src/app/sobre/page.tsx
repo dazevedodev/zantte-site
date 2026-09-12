@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { Footer } from "@/components/footer";
-import { SiteMenu } from "@/components/site-menu";
 
 export default function SobrePage() {
   return (
     <div className="simple-page-pastel">
-      <SiteMenu />
       <Link href="/" className="site-logo display simple-page-logo" aria-label="zantte">
         zantte
       </Link>
