@@ -10,8 +10,7 @@ export function Hero() {
   return (
     <section className="hero hero-pastel">
       <div className="hero-statement">
-        {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
-        <img src="/icons/mascot.png" alt="zantte" className="hero-mascot" />
+        <h1 className="hero-wordmark-bubble">zantte</h1>
       </div>
 
       <nav className="hero-dock">

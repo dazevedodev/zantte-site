@@ -146,11 +146,9 @@ a {
   display: flex;
   flex-direction: column;
 }
-/* pastel escuro chapado — mesma "pegada" fosca/suave de uma referência em
-   verde pastel que ela mandou, só em tom preto/cinza-quente em vez de
-   verde. Sobrescreve o gradiente usado no resto do site de propósito. */
+/* pastel verde fosco — mesmo tom de fundo da referência que ela mandou. */
 .hero-pastel {
-  background: #3f4d3c;
+  background: #93a288;
 }
 .hero-statement {
   flex: 1;
@@ -162,14 +160,19 @@ a {
   text-align: center;
   padding: 6vh 6vw 2vh;
 }
-/* mascote 3D acima do wordmark — mesma ideia de "flutuar" dos ícones do
-   dock, só maior e mais lenta (objeto maior "pesa" mais). */
-.hero-mascot {
-  width: clamp(160px, 22vw, 280px);
-  height: clamp(160px, 22vw, 280px);
-  object-fit: contain;
-  filter: drop-shadow(0 26px 22px rgba(0, 0, 0, 0.4)) drop-shadow(0 8px 8px rgba(0, 0, 0, 0.25));
-  animation: dock-float 5.2s ease-in-out infinite;
+/* wordmark "bolha" — fonte redonda/bold (Baloo 2) com camadas de
+   text-shadow simulando letra inflada/3D (aresta clara em cima, sombra
+   funda embaixo), sem depender de nenhum render externo. */
+.hero-wordmark-bubble {
+  font-family: var(--font-bubble);
+  font-size: clamp(4rem, 19vw, 13rem);
+  font-weight: 800;
+  line-height: 1;
+  color: #f5f3ea;
+  text-shadow:
+    0 -2px 0 rgba(255, 255, 255, 0.35),
+    0 6px 0 rgba(0, 0, 0, 0.18),
+    0 14px 24px rgba(0, 0, 0, 0.45);
 }
 .site-logo {
   font-size: 20px;
@@ -392,7 +395,7 @@ a {
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: #3f4d3c;
+  background: #93a288;
 }
 .portfolio-carousel-logo {
   position: fixed;
@@ -853,11 +856,11 @@ a {
   opacity: 0.8;
 }
 
-/* páginas simples (sobre/contato) — mesmo fundo pastel escuro e logo da
+/* páginas simples (sobre/contato) — mesmo fundo pastel e logo da
    home/portfólio, pra não parecer um site diferente ao navegar. */
 .simple-page-pastel {
   min-height: 100vh;
-  background: #3f4d3c;
+  background: #93a288;
   position: relative;
 }
 /* /contato — só os 3 ícones centralizados na tela, sem texto. */
