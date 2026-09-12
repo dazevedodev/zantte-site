@@ -146,6 +146,12 @@ a {
   display: flex;
   flex-direction: column;
 }
+.hero-logo {
+  position: fixed;
+  top: 30px;
+  left: 6vw;
+  z-index: 10;
+}
 /* pastel verde fosco — cor exata tirada do fundo da imagem do mascote. */
 .hero-pastel {
   background: #7c9b83;
