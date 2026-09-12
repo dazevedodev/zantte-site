@@ -41,6 +41,12 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
             </li>
           ))}
         </ul>
+        {order.shippingCostCents > 0 && (
+          <p className="pedido-shipping-cost">
+            frete: {formatBRL(order.shippingCostCents)}
+            {order.shippingDaysEstimate ? ` — chega em ${order.shippingDaysEstimate}` : ""}
+          </p>
+        )}
         <p className="pedido-amount">total: {formatBRL(order.amountCents)}</p>
 
         {order.status === "aguardando_pagamento" && order.mpInitPoint && (

@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Footer } from "@/components/footer";
 import { getProductBySlug, listActiveProducts } from "@/lib/store/products";
-import { formatBRL, discountPercent } from "@/lib/store/format";
-import { AddToCartButton } from "./add-to-cart-button";
-import { ProductGallery } from "./product-gallery";
-import { ProductDescription } from "./product-description";
+import { discountPercent } from "@/lib/store/format";
+import { ProductPurchase } from "./product-purchase";
 import { ProductCard } from "../product-card";
+import { StoreFooter } from "../store-footer";
 
 export const dynamic = "force-dynamic";
 
@@ -44,34 +42,24 @@ export default async function ProductPage({
       </nav>
 
       <section className="product-detail">
-        <ProductGallery
-          images={product.imageUrls}
+        <ProductPurchase
+          productId={product.id}
+          slug={product.slug}
           name={product.name}
+          description={product.description}
+          priceCents={product.priceCents}
+          compareAtPriceCents={product.compareAtPriceCents}
+          images={product.imageUrls}
+          videoUrl={product.videoUrl}
+          variants={product.variants}
+          unitsSold={product.unitsSold}
+          shippingType={product.shippingType}
           discountPercent={
             product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents
               ? discountPercent(product.compareAtPriceCents, product.priceCents)
               : null
           }
         />
-
-        <div className="product-detail-info">
-          <h1 className="display product-detail-name">{product.name}</h1>
-          <p className="product-detail-price-row">
-            {product.compareAtPriceCents && (
-              <span className="product-detail-price-compare">{formatBRL(product.compareAtPriceCents)}</span>
-            )}
-            <span className="product-detail-price">{formatBRL(product.priceCents)}</span>
-          </p>
-          {product.description && <ProductDescription text={product.description} />}
-
-          <AddToCartButton
-            productId={product.id}
-            slug={product.slug}
-            name={product.name}
-            priceCents={product.priceCents}
-            imageUrl={product.imageUrls[0] ?? null}
-          />
-        </div>
       </section>
 
       {relatedProducts.length > 0 && (
@@ -85,7 +73,7 @@ export default async function ProductPage({
         </section>
       )}
 
-      <Footer />
+      <StoreFooter />
     </>
   );
 }

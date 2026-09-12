@@ -48,6 +48,15 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           category: product.category ?? "",
           supplierUrl: product.supplierUrl ?? "",
           imageUrls: product.imageUrls,
+          videoUrl: product.videoUrl ?? "",
+          variants: product.variants,
+          unitsSold: product.unitsSold > 0 ? String(product.unitsSold) : "",
+          shippingType: product.shippingType,
+          weightGrams: product.weightGrams ? String(product.weightGrams) : "",
+          lengthCm: product.lengthCm ? String(product.lengthCm) : "",
+          widthCm: product.widthCm ? String(product.widthCm) : "",
+          heightCm: product.heightCm ? String(product.heightCm) : "",
+          dropDeliveryDays: product.dropDeliveryDays ?? "",
         }}
       />
     </section>

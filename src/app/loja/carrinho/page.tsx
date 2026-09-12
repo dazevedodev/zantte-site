@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useCart } from "@/lib/store/cart";
 import { formatBRL, formatCep } from "@/lib/store/format";
 import { createCartOrderAction, type CartCheckoutState } from "./actions";
+import { previewCartShippingAction } from "./shipping-preview";
+import type { CartShippingResult } from "@/lib/store/shipping";
+import { TrustBadges } from "../trust-badges";
+import { PaymentMethods } from "../payment-methods";
 
 type ViaCep = {
   logradouro?: string;
@@ -24,6 +28,8 @@ export default function CarrinhoPage() {
   const [cep, setCep] = useState("");
   const [address, setAddress] = useState({ street: "", neighborhood: "", city: "", state: "" });
   const [cepLookupFailed, setCepLookupFailed] = useState(false);
+  const [shipping, setShipping] = useState<CartShippingResult | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
 
   async function handleCepBlur() {
     const digits = cep.replace(/\D/g, "");
@@ -46,9 +52,22 @@ export default function CarrinhoPage() {
     } catch {
       setCepLookupFailed(true);
     }
+
+    setShippingLoading(true);
+    try {
+      const result = await previewCartShippingAction(
+        digits,
+        items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      );
+      setShipping(result);
+    } finally {
+      setShippingLoading(false);
+    }
   }
 
-  const cartJson = JSON.stringify(items.map((i) => ({ productId: i.productId, quantity: i.quantity })));
+  const cartJson = JSON.stringify(
+    items.map((i) => ({ productId: i.productId, variantName: i.variantName, quantity: i.quantity })),
+  );
 
   if (items.length === 0) {
     return (
@@ -67,7 +86,7 @@ export default function CarrinhoPage() {
 
       <div className="cart-items">
         {items.map((item) => (
-          <div key={item.productId} className="cart-item">
+          <div key={`${item.productId}-${item.variantName ?? ""}`} className="cart-item">
             {item.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
               <img src={item.imageUrl} alt={item.name} className="cart-item-image" />
@@ -79,6 +98,7 @@ export default function CarrinhoPage() {
             <div className="cart-item-info">
               <Link href={`/loja/${item.slug}`} className="cart-item-name">
                 {item.name}
+                {item.variantName && <span className="cart-item-variant"> — {item.variantName}</span>}
               </Link>
               <span className="cart-item-price">{formatBRL(item.priceCents)}</span>
             </div>
@@ -86,13 +106,15 @@ export default function CarrinhoPage() {
               type="number"
               min={1}
               value={item.quantity}
-              onChange={(e) => setQuantity(item.productId, Math.max(1, Number(e.target.value) || 1))}
+              onChange={(e) =>
+                setQuantity(item.productId, item.variantName, Math.max(1, Number(e.target.value) || 1))
+              }
               className="cart-item-quantity"
             />
             <button
               type="button"
               className="cart-item-remove"
-              onClick={() => removeItem(item.productId)}
+              onClick={() => removeItem(item.productId, item.variantName)}
               aria-label={`remover ${item.name}`}
             >
               remover
@@ -102,8 +124,26 @@ export default function CarrinhoPage() {
       </div>
 
       <div className="cart-summary">
-        <span>total</span>
-        <span className="cart-summary-total">{formatBRL(totalCents)}</span>
+        <div className="cart-summary-row">
+          <span>subtotal</span>
+          <span>{formatBRL(totalCents)}</span>
+        </div>
+        {shippingLoading && (
+          <div className="cart-summary-row">
+            <span>frete</span>
+            <span>calculando...</span>
+          </div>
+        )}
+        {!shippingLoading && shipping && (
+          <div className="cart-summary-row">
+            <span>frete{shipping.daysEstimate ? ` (${shipping.daysEstimate})` : ""}</span>
+            <span>{shipping.costCents > 0 ? formatBRL(shipping.costCents) : "grátis"}</span>
+          </div>
+        )}
+        <div className="cart-summary-row cart-summary-row-total">
+          <span>total</span>
+          <span className="cart-summary-total">{formatBRL(totalCents + (shipping?.costCents ?? 0))}</span>
+        </div>
       </div>
 
       <form action={formAction} className="buy-form">
@@ -172,6 +212,9 @@ export default function CarrinhoPage() {
         <button type="submit" className="btn-solid" disabled={pending}>
           {pending ? "processando..." : "ir para o pagamento"}
         </button>
+
+        <PaymentMethods />
+        <TrustBadges />
       </form>
     </section>
   );

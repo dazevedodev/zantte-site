@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { Product } from "@/lib/store/types";
-import { formatBRL, discountPercent } from "@/lib/store/format";
+import { formatBRL, discountPercent, formatSoldCount } from "@/lib/store/format";
 
 export function ProductCard({ product }: { product: Product }) {
   const hasDiscount = product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
+  const soldLabel = formatSoldCount(product.unitsSold);
 
   return (
     <Link href={`/loja/${product.slug}`} className="store-card">
@@ -21,16 +22,19 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="initial">{product.name.charAt(0).toUpperCase()}</span>
           </div>
         )}
-        <span className={`store-card-price-tag ${hasDiscount ? "on-sale" : ""}`}>
-          {formatBRL(product.priceCents)}
-        </span>
+        <div className="store-card-price-stack">
+          {hasDiscount && (
+            <span className="store-card-price-old">{formatBRL(product.compareAtPriceCents!)}</span>
+          )}
+          <span className={`store-card-price-tag ${hasDiscount ? "on-sale" : ""}`}>
+            {formatBRL(product.priceCents)}
+          </span>
+        </div>
       </div>
       <div className="store-card-info">
         {product.category && <span className="store-card-category">{product.category}</span>}
         <span className="store-card-name">{product.name}</span>
-        {hasDiscount && (
-          <span className="store-card-price-compare">{formatBRL(product.compareAtPriceCents!)}</span>
-        )}
+        {soldLabel && <span className="store-card-sold">{soldLabel}</span>}
       </div>
     </Link>
   );

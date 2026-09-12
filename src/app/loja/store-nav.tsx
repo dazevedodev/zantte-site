@@ -7,12 +7,15 @@ import { useCart } from "@/lib/store/cart";
 export function StoreNav() {
   const pathname = usePathname();
   const { totalCount } = useCart();
-  const backHref = pathname === "/loja" ? "/" : "/loja";
+  const atRoot = pathname === "/loja";
+  const backHref = atRoot ? "/" : "/loja";
 
   return (
     <header className="store-nav">
+      {/* na raiz da loja, o link volta pra Zantte — o texto deixa isso
+          explícito, já que "ZAN CO." sozinho não comunica de quem é a loja. */}
       <Link href={backHref} className="store-nav-back">
-        ← voltar
+        {atRoot ? "← zantte" : "← voltar"}
       </Link>
 
       <Link href="/loja" className="store-nav-wordmark">

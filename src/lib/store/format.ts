@@ -42,6 +42,17 @@ export function formatCep(cep: string) {
   return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
 }
 
+// nunca mostra o número exato de vendas — arredonda pra baixo pro degrau
+// mais próximo, no mesmo padrão que o Mercado Livre usa ("+100 vendidos").
+// Continua 100% verdadeiro (quem vendeu 57 também vendeu "+50"), só não
+// expõe o número cru.
+const SOLD_THRESHOLDS = [1000, 500, 250, 100, 50, 25, 10, 5];
+
+export function formatSoldCount(unitsSold: number): string | null {
+  const threshold = SOLD_THRESHOLDS.find((t) => unitsSold >= t);
+  return threshold ? `+${threshold} vendas` : null;
+}
+
 export function slugify(value: string) {
   return value
     .normalize("NFD")

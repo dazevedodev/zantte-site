@@ -1,28 +1,30 @@
 import Link from "next/link";
-import { Footer } from "@/components/footer";
 import { WHATSAPP_URL, INSTAGRAM_URL, CONTACT_EMAIL } from "@/lib/site-config";
+
+const CONTACT_LINKS = [
+  { href: WHATSAPP_URL, label: "whatsapp", icon: "/icons/whatsapp.png" },
+  { href: INSTAGRAM_URL, label: "instagram", icon: "/icons/instagram.png" },
+  { href: `mailto:${CONTACT_EMAIL}`, label: "email", icon: "/icons/mail.png" },
+] as const;
 
 export default function ContatoPage() {
   return (
-    <>
-      <header className="portfolio-page-header">
-        <Link href="/">← voltar</Link>
-      </header>
+    <div className="simple-page-pastel contact-page">
+      <Link href="/" className="site-logo display simple-page-logo" aria-label="zantte">
+        zantte
+      </Link>
 
-      <section className="simple-page">
-        <span className="mono label">contato</span>
-        <h1 className="display simple-page-heading">Conte o problema. A gente vê se faz sentido.</h1>
-        <p className="simple-page-text">Resposta rápida, sem formulário burocrático — só chamar no WhatsApp.</p>
-        <div className="simple-page-links mono">
-          <a href={WHATSAPP_URL} className="btn-solid">
-            Falar no WhatsApp ↗
+      <div className="contact-icons">
+        {CONTACT_LINKS.map(({ href, label, icon }) => (
+          <a key={label} href={href} target="_blank" rel="noreferrer" className="hero-dock-item">
+            <span className="hero-dock-icon">
+              {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
+              <img src={icon} alt="" />
+            </span>
+            <span className="hero-dock-label">{label}</span>
           </a>
-          <a href={INSTAGRAM_URL}>Instagram ↗</a>
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL} ↗</a>
-        </div>
-      </section>
-
-      <Footer />
-    </>
+        ))}
+      </div>
+    </div>
   );
 }

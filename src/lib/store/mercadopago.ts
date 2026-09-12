@@ -24,13 +24,30 @@ export async function createOrderPreference(order: Order) {
   const result = await preference.create({
     body: {
       external_reference: order.id,
-      items: order.items.map((item) => ({
-        id: item.productId,
-        title: item.productName,
-        quantity: item.quantity,
-        unit_price: item.unitPriceCents / 100,
-        currency_id: "BRL",
-      })),
+      items: [
+        ...order.items.map((item) => ({
+          id: item.productId,
+          title: item.productName,
+          quantity: item.quantity,
+          unit_price: item.unitPriceCents / 100,
+          currency_id: "BRL",
+        })),
+        // frete entra como item separado pra bater com amount_cents do
+        // pedido (soma de produtos + frete) — sem isso a MP cobrava só o
+        // valor dos produtos e o pedido ficava registrado com valor maior
+        // do que o que o cliente realmente pagou.
+        ...(order.shippingCostCents > 0
+          ? [
+              {
+                id: "frete",
+                title: "frete",
+                quantity: 1,
+                unit_price: order.shippingCostCents / 100,
+                currency_id: "BRL",
+              },
+            ]
+          : []),
+      ],
       payer: {
         name: firstName,
         surname,

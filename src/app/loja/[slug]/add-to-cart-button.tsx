@@ -10,24 +10,26 @@ export function AddToCartButton({
   name,
   priceCents,
   imageUrl,
+  variantName = null,
 }: {
   productId: string;
   slug: string;
   name: string;
   priceCents: number;
   imageUrl: string | null;
+  variantName?: string | null;
 }) {
   const router = useRouter();
   const { addItem, openDrawer } = useCart();
   const [quantity, setQuantity] = useState(1);
 
   function handleAddToCart() {
-    addItem({ productId, slug, name, priceCents, imageUrl }, quantity);
+    addItem({ productId, slug, name, priceCents, imageUrl, variantName }, quantity);
     openDrawer();
   }
 
   function handleBuyNow() {
-    addItem({ productId, slug, name, priceCents, imageUrl }, quantity);
+    addItem({ productId, slug, name, priceCents, imageUrl, variantName }, quantity);
     router.push("/loja/carrinho");
   }
 

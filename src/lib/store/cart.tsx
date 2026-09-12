@@ -8,14 +8,22 @@ export type CartItem = {
   name: string;
   priceCents: number;
   imageUrl: string | null;
+  // cor escolhida (quando o produto tem variações) — duas cores do mesmo
+  // produto viram linhas separadas no carrinho, por isso entra na comparação
+  // de "mesmo item" junto com o productId.
+  variantName: string | null;
   quantity: number;
 };
+
+function sameLine(a: { productId: string; variantName: string | null }, b: { productId: string; variantName: string | null }) {
+  return a.productId === b.productId && a.variantName === b.variantName;
+}
 
 type CartContextValue = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  setQuantity: (productId: string, quantity: number) => void;
+  removeItem: (productId: string, variantName?: string | null) => void;
+  setQuantity: (productId: string, variantName: string | null, quantity: number) => void;
   clear: () => void;
   totalCount: number;
   totalCents: number;
@@ -71,24 +79,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">, quantity = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === item.productId);
+      const existing = prev.find((i) => sameLine(i, item));
       if (existing) {
-        return prev.map((i) =>
-          i.productId === item.productId ? { ...i, quantity: i.quantity + quantity } : i,
-        );
+        return prev.map((i) => (sameLine(i, item) ? { ...i, quantity: i.quantity + quantity } : i));
       }
       return [...prev, { ...item, quantity }];
     });
   }, []);
 
-  const removeItem = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const removeItem = useCallback((productId: string, variantName: string | null = null) => {
+    setItems((prev) => prev.filter((i) => !sameLine(i, { productId, variantName })));
   }, []);
 
-  const setQuantity = useCallback((productId: string, quantity: number) => {
+  const setQuantity = useCallback((productId: string, variantName: string | null, quantity: number) => {
     setItems((prev) => {
-      if (quantity <= 0) return prev.filter((i) => i.productId !== productId);
-      return prev.map((i) => (i.productId === productId ? { ...i, quantity } : i));
+      if (quantity <= 0) return prev.filter((i) => !sameLine(i, { productId, variantName }));
+      return prev.map((i) => (sameLine(i, { productId, variantName }) ? { ...i, quantity } : i));
     });
   }, []);
 

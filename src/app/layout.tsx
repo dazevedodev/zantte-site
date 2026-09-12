@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, JetBrains_Mono } from "next/font/google";
+import { Geist, JetBrains_Mono, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { BootScreen } from "@/components/boot-screen";
 import { MetaPixel } from "@/components/meta-pixel";
@@ -18,6 +18,14 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+// redonda/bold — só pro wordmark da home e rótulos do dock de ícones, tom
+// mais lúdico. Não substitui a Geist no resto do site.
+const baloo = Baloo_2({
+  variable: "--font-bubble",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   title: "Zantte — Tecnologia que resolve problemas reais",
   description: "Zantte desenvolve sistemas digitais e motion sob medida para negócios locais.",
@@ -27,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="pt-BR"
-      className={`${geist.variable} ${jetbrainsMono.variable}`}
+      className={`${geist.variable} ${jetbrainsMono.variable} ${baloo.variable}`}
     >
       <body>
         <MetaPixel />

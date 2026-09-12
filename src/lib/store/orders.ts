@@ -19,6 +19,8 @@ type OrderRow = {
   tracking_carrier: string | null;
   tracking_code: string | null;
   admin_notes: string | null;
+  shipping_cost_cents: number;
+  shipping_days_estimate: string | null;
   mp_preference_id: string | null;
   mp_init_point: string | null;
   mp_payment_id: string | null;
@@ -35,6 +37,7 @@ type OrderItemRow = {
   unit_price_cents: number;
   quantity: number;
   line_total_cents: number;
+  variant_name: string | null;
   supplier_url?: string | null;
 };
 
@@ -58,6 +61,8 @@ function mapOrder(row: OrderRow, items: OrderItem[]): Order {
     trackingCarrier: row.tracking_carrier,
     trackingCode: row.tracking_code,
     adminNotes: row.admin_notes,
+    shippingCostCents: row.shipping_cost_cents ?? 0,
+    shippingDaysEstimate: row.shipping_days_estimate,
     mpPreferenceId: row.mp_preference_id,
     mpInitPoint: row.mp_init_point,
     mpPaymentId: row.mp_payment_id,
@@ -76,6 +81,7 @@ function mapOrderItem(row: OrderItemRow): OrderItem {
     unitPriceCents: row.unit_price_cents,
     quantity: row.quantity,
     lineTotalCents: row.line_total_cents,
+    variantName: row.variant_name,
     supplierUrl: row.supplier_url ?? null,
   };
 }
@@ -92,7 +98,13 @@ async function fetchItemsForOrder(orderId: string): Promise<OrderItem[]> {
 }
 
 export type CreateOrderInput = {
-  items: { productId: string; productName: string; unitPriceCents: number; quantity: number }[];
+  items: {
+    productId: string;
+    productName: string;
+    unitPriceCents: number;
+    quantity: number;
+    variantName: string | null;
+  }[];
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -104,20 +116,25 @@ export type CreateOrderInput = {
   shippingNeighborhood: string;
   shippingCity: string;
   shippingState: string;
+  shippingCostCents: number;
+  shippingDaysEstimate: string | null;
 };
 
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
-  const amountCents = input.items.reduce((sum, i) => sum + i.unitPriceCents * i.quantity, 0);
+  const amountCents =
+    input.items.reduce((sum, i) => sum + i.unitPriceCents * i.quantity, 0) + input.shippingCostCents;
 
   const rows = (await sql`
     insert into orders (
       amount_cents, customer_name, customer_email, customer_phone, customer_cpf,
       shipping_cep, shipping_street, shipping_number, shipping_complement,
-      shipping_neighborhood, shipping_city, shipping_state
+      shipping_neighborhood, shipping_city, shipping_state,
+      shipping_cost_cents, shipping_days_estimate
     ) values (
       ${amountCents}, ${input.customerName}, ${input.customerEmail}, ${input.customerPhone}, ${input.customerCpf},
       ${input.shippingCep}, ${input.shippingStreet}, ${input.shippingNumber}, ${input.shippingComplement},
-      ${input.shippingNeighborhood}, ${input.shippingCity}, ${input.shippingState}
+      ${input.shippingNeighborhood}, ${input.shippingCity}, ${input.shippingState},
+      ${input.shippingCostCents}, ${input.shippingDaysEstimate}
     )
     returning *
   `) as OrderRow[];
@@ -127,8 +144,8 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   for (const item of input.items) {
     const lineTotalCents = item.unitPriceCents * item.quantity;
     const itemRows = (await sql`
-      insert into order_items (order_id, product_id, product_name, unit_price_cents, quantity, line_total_cents)
-      values (${orderRow.id}, ${item.productId}, ${item.productName}, ${item.unitPriceCents}, ${item.quantity}, ${lineTotalCents})
+      insert into order_items (order_id, product_id, product_name, unit_price_cents, quantity, line_total_cents, variant_name)
+      values (${orderRow.id}, ${item.productId}, ${item.productName}, ${item.unitPriceCents}, ${item.quantity}, ${lineTotalCents}, ${item.variantName})
       returning *
     `) as OrderItemRow[];
     items.push(mapOrderItem(itemRows[0]));

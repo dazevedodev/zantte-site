@@ -32,6 +32,7 @@ export function CartDrawer({ products }: { products: Product[] }) {
       name: suggestion.name,
       priceCents: suggestion.priceCents,
       imageUrl: suggestion.imageUrls[0] ?? null,
+      variantName: null,
     });
   }
 
@@ -51,7 +52,7 @@ export function CartDrawer({ products }: { products: Product[] }) {
           <>
             <div className="cart-drawer-items">
               {items.map((item) => (
-                <div key={item.productId} className="cart-drawer-item">
+                <div key={`${item.productId}-${item.variantName ?? ""}`} className="cart-drawer-item">
                   {item.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
                     <img src={item.imageUrl} alt={item.name} className="cart-item-image" />
@@ -61,7 +62,10 @@ export function CartDrawer({ products }: { products: Product[] }) {
                     </div>
                   )}
                   <div className="cart-item-info">
-                    <span className="cart-item-name">{item.name}</span>
+                    <span className="cart-item-name">
+                      {item.name}
+                      {item.variantName && <span className="cart-item-variant"> — {item.variantName}</span>}
+                    </span>
                     <span className="cart-item-price">
                       {item.quantity}x {formatBRL(item.priceCents)}
                     </span>
@@ -69,7 +73,7 @@ export function CartDrawer({ products }: { products: Product[] }) {
                   <button
                     type="button"
                     className="cart-item-remove"
-                    onClick={() => removeItem(item.productId)}
+                    onClick={() => removeItem(item.productId, item.variantName)}
                     aria-label={`remover ${item.name}`}
                   >
                     remover

@@ -1,51 +1,30 @@
-"use client";
-
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BrandObject } from "./brand-object";
-import { SiteMenu } from "./site-menu";
-import { Logo } from "./logo";
 
-const LAUNCH_DURATION_MS = 650;
+const DOCK = [
+  { href: "/loja", label: "store", icon: "/icons/loja.png" },
+  { href: "/portfolio", label: "portfolio", icon: "/icons/portfolio.png" },
+  { href: "/contato", label: "contact", icon: "/icons/contato.png" },
+] as const;
 
 export function Hero() {
-  const router = useRouter();
-  const [charged, setCharged] = useState(false);
-  const [launching, setLaunching] = useState(false);
-
-  const handleCharged = useCallback(() => {
-    setCharged(true);
-    // "carrega" e depois lança — o objeto cresce/funde em preto antes de
-    // trocar de página, em vez de sumir na hora sem transição nenhuma.
-    window.setTimeout(() => {
-      setLaunching(true);
-      window.setTimeout(() => router.push("/portfolio"), LAUNCH_DURATION_MS);
-    }, 150);
-  }, [router]);
-
   return (
-    <section className="hero">
-      <Logo />
-      <SiteMenu />
-
-      <div className="hero-center">
-        <div className={`hero-object ${charged ? "charged" : ""} ${launching ? "launching" : ""}`}>
-          <BrandObject onCharged={handleCharged} shape="monograma" />
-        </div>
-        <div className="hero-cta-group">
-          <Link href="/portfolio" className="hero-projects-link">
-            ver todos os projetos
-          </Link>
-          <Link href="/loja" className="hero-store-cta">
-            ver loja
-          </Link>
-        </div>
+    <section className="hero hero-pastel">
+      <div className="hero-statement">
+        {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
+        <img src="/icons/mascot.png" alt="zantte" className="hero-mascot" />
       </div>
 
-      <span className="hero-hold-hint">clique e segure</span>
-
-      <div className={`hero-launch-overlay ${launching ? "active" : ""}`} aria-hidden="true" />
+      <nav className="hero-dock">
+        {DOCK.map(({ href, label, icon }) => (
+          <Link key={href} href={href} className="hero-dock-item">
+            <span className="hero-dock-icon">
+              {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
+              <img src={icon} alt="" />
+            </span>
+            <span className="hero-dock-label">{label}</span>
+          </Link>
+        ))}
+      </nav>
     </section>
   );
 }

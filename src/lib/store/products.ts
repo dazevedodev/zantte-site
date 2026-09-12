@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import type { Product } from "./types";
+import type { Product, ProductVariant, ShippingType } from "./types";
 
 type ProductRow = {
   id: string;
@@ -9,8 +9,17 @@ type ProductRow = {
   price_cents: number;
   compare_at_price_cents: number | null;
   image_urls: string[];
+  video_url: string | null;
+  variants: ProductVariant[];
+  units_sold: number;
   category: string | null;
   supplier_url: string | null;
+  shipping_type: ShippingType | null;
+  weight_grams: number | null;
+  length_cm: number | null;
+  width_cm: number | null;
+  height_cm: number | null;
+  drop_delivery_days: string | null;
   featured: boolean;
   active: boolean;
   created_at: string;
@@ -26,8 +35,17 @@ function mapProduct(row: ProductRow): Product {
     priceCents: row.price_cents,
     compareAtPriceCents: row.compare_at_price_cents,
     imageUrls: row.image_urls,
+    videoUrl: row.video_url,
+    variants: row.variants ?? [],
+    unitsSold: row.units_sold ?? 0,
     category: row.category,
     supplierUrl: row.supplier_url,
+    shippingType: row.shipping_type,
+    weightGrams: row.weight_grams,
+    lengthCm: row.length_cm,
+    widthCm: row.width_cm,
+    heightCm: row.height_cm,
+    dropDeliveryDays: row.drop_delivery_days,
     featured: row.featured,
     active: row.active,
     createdAt: row.created_at,
@@ -70,19 +88,41 @@ export async function getFeaturedProduct(): Promise<Product | null> {
   return rows[0] ? mapProduct(rows[0]) : null;
 }
 
-export async function createProduct(input: {
-  slug: string;
-  name: string;
-  description: string;
-  priceCents: number;
-  compareAtPriceCents: number | null;
-  imageUrls: string[];
-  category: string | null;
-  supplierUrl: string | null;
-}): Promise<Product> {
+export type ProductShippingInput = {
+  shippingType: ShippingType | null;
+  weightGrams: number | null;
+  lengthCm: number | null;
+  widthCm: number | null;
+  heightCm: number | null;
+  dropDeliveryDays: string | null;
+};
+
+export async function createProduct(
+  input: {
+    slug: string;
+    name: string;
+    description: string;
+    priceCents: number;
+    compareAtPriceCents: number | null;
+    imageUrls: string[];
+    videoUrl: string | null;
+    variants: ProductVariant[];
+    unitsSold: number;
+    category: string | null;
+    supplierUrl: string | null;
+  } & ProductShippingInput,
+): Promise<Product> {
   const rows = (await sql`
-    insert into products (slug, name, description, price_cents, compare_at_price_cents, image_urls, category, supplier_url)
-    values (${input.slug}, ${input.name}, ${input.description}, ${input.priceCents}, ${input.compareAtPriceCents}, ${input.imageUrls}, ${input.category}, ${input.supplierUrl})
+    insert into products (
+      slug, name, description, price_cents, compare_at_price_cents, image_urls, video_url,
+      variants, units_sold, category, supplier_url,
+      shipping_type, weight_grams, length_cm, width_cm, height_cm, drop_delivery_days
+    )
+    values (
+      ${input.slug}, ${input.name}, ${input.description}, ${input.priceCents}, ${input.compareAtPriceCents}, ${input.imageUrls}, ${input.videoUrl},
+      ${JSON.stringify(input.variants)}, ${input.unitsSold}, ${input.category}, ${input.supplierUrl},
+      ${input.shippingType}, ${input.weightGrams}, ${input.lengthCm}, ${input.widthCm}, ${input.heightCm}, ${input.dropDeliveryDays}
+    )
     returning *
   `) as ProductRow[];
   return mapProduct(rows[0]);
@@ -96,9 +136,12 @@ export async function updateProduct(
     priceCents: number;
     compareAtPriceCents: number | null;
     imageUrls: string[];
+    videoUrl: string | null;
+    variants: ProductVariant[];
+    unitsSold: number;
     category: string | null;
     supplierUrl: string | null;
-  },
+  } & ProductShippingInput,
 ): Promise<Product> {
   const rows = (await sql`
     update products
@@ -107,8 +150,17 @@ export async function updateProduct(
         price_cents = ${input.priceCents},
         compare_at_price_cents = ${input.compareAtPriceCents},
         image_urls = ${input.imageUrls},
+        video_url = ${input.videoUrl},
+        variants = ${JSON.stringify(input.variants)},
+        units_sold = ${input.unitsSold},
         category = ${input.category},
         supplier_url = ${input.supplierUrl},
+        shipping_type = ${input.shippingType},
+        weight_grams = ${input.weightGrams},
+        length_cm = ${input.lengthCm},
+        width_cm = ${input.widthCm},
+        height_cm = ${input.heightCm},
+        drop_delivery_days = ${input.dropDeliveryDays},
         updated_at = now()
     where id = ${id}
     returning *

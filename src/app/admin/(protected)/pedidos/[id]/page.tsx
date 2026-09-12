@@ -42,7 +42,10 @@ export default async function AdminOrderDetailPage({
           <tbody>
             {order.items.map((item) => (
               <tr key={item.id}>
-                <td>{item.productName}</td>
+                <td>
+                  {item.productName}
+                  {item.variantName && <strong> — {item.variantName}</strong>}
+                </td>
                 <td>{item.quantity}</td>
                 <td>{formatBRL(item.lineTotalCents)}</td>
               </tr>

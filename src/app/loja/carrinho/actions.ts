@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getProductById } from "@/lib/store/products";
 import { createOrder, setOrderPreference } from "@/lib/store/orders";
 import { createOrderPreference } from "@/lib/store/mercadopago";
+import { estimateCartShipping } from "@/lib/store/shipping";
 import { onlyDigits, isValidCpf } from "@/lib/store/format";
 import { sendOrderCreatedEmail } from "@/lib/store/email";
 
@@ -27,14 +28,28 @@ export async function createCartOrderAction(
     const cartJson = formData.get("cartJson");
     if (typeof cartJson !== "string") return { error: "carrinho vazio" };
 
-    const cartInput = JSON.parse(cartJson) as { productId: string; quantity: number }[];
+    const cartInput = JSON.parse(cartJson) as {
+      productId: string;
+      variantName: string | null;
+      quantity: number;
+    }[];
     if (!Array.isArray(cartInput) || cartInput.length === 0) {
       return { error: "carrinho vazio" };
     }
 
     // nunca confiar no preço/nome que veio do carrinho do navegador — rebusca
     // cada produto no banco pra pegar os dados de verdade antes de cobrar.
-    const items: { productId: string; productName: string; unitPriceCents: number; quantity: number }[] = [];
+    // o mesmo vale pro frete: o valor calculado no navegador é só preview,
+    // quem decide o que é cobrado é o recálculo aqui embaixo.
+    const items: {
+      productId: string;
+      productName: string;
+      unitPriceCents: number;
+      quantity: number;
+      variantName: string | null;
+    }[] = [];
+    const shippingItems: { product: NonNullable<Awaited<ReturnType<typeof getProductById>>>; quantity: number }[] =
+      [];
     for (const entry of cartInput) {
       const quantity = Math.max(1, Math.floor(Number(entry.quantity)) || 1);
       const product = await getProductById(entry.productId);
@@ -46,7 +61,9 @@ export async function createCartOrderAction(
         productName: product.name,
         unitPriceCents: product.priceCents,
         quantity,
+        variantName: typeof entry.variantName === "string" ? entry.variantName : null,
       });
+      shippingItems.push({ product, quantity });
     }
 
     const customerName = requireField(formData, "customerName");
@@ -71,6 +88,8 @@ export async function createCartOrderAction(
     const shippingCity = requireField(formData, "shippingCity");
     const shippingState = requireField(formData, "shippingState").toUpperCase().slice(0, 2);
 
+    const shipping = await estimateCartShipping(shippingItems, shippingCep);
+
     const order = await createOrder({
       items,
       customerName,
@@ -84,6 +103,8 @@ export async function createCartOrderAction(
       shippingNeighborhood,
       shippingCity,
       shippingState,
+      shippingCostCents: shipping.costCents,
+      shippingDaysEstimate: shipping.daysEstimate,
     });
 
     const preference = await createOrderPreference(order);

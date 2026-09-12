@@ -10,8 +10,10 @@ import {
   setProductFeatured,
   deleteProduct,
 } from "@/lib/store/products";
-import { uploadProductImage } from "@/lib/store/blob";
+import { uploadProductImage, uploadProductVideo } from "@/lib/store/blob";
 import { slugify } from "@/lib/store/format";
+import type { ProductVariant, ShippingType } from "@/lib/store/types";
+import type { ProductShippingInput } from "@/lib/store/products";
 
 export type ProductFormState = { error: string } | null;
 
@@ -31,6 +33,30 @@ function existingImageUrlsFromForm(formData: FormData): string[] {
   }
 }
 
+async function resolveVideoUrl(formData: FormData): Promise<string | null> {
+  const file = formData.get("video");
+  if (file instanceof File && file.size > 0) return uploadProductVideo(file);
+  const removed = formData.get("removeVideo") === "true";
+  if (removed) return null;
+  const existing = formData.get("existingVideoUrl");
+  return typeof existing === "string" && existing.trim() ? existing.trim() : null;
+}
+
+function variantsFromForm(formData: FormData): ProductVariant[] {
+  const raw = formData.get("variants");
+  if (typeof raw !== "string" || !raw.trim()) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (v): v is ProductVariant =>
+        v && typeof v.name === "string" && v.name.trim() && typeof v.imageUrl === "string" && v.imageUrl.trim(),
+    );
+  } catch {
+    return [];
+  }
+}
+
 function optionalField(formData: FormData, name: string): string | null {
   const value = formData.get(name);
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -40,6 +66,34 @@ function parsePriceCents(value: FormDataEntryValue | null): number | null {
   if (typeof value !== "string" || !value.trim()) return null;
   const cents = Math.round(Number(value.replace(",", ".")) * 100);
   return Number.isFinite(cents) && cents > 0 ? cents : null;
+}
+
+function parseUnitsSold(formData: FormData): number {
+  const value = formData.get("unitsSold");
+  if (typeof value !== "string" || !value.trim()) return 0;
+  const n = Math.floor(Number(value));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function parsePositiveInt(formData: FormData, name: string): number | null {
+  const value = formData.get(name);
+  if (typeof value !== "string" || !value.trim()) return null;
+  const n = Math.round(Number(value));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function shippingInputFromForm(formData: FormData): ProductShippingInput {
+  const raw = formData.get("shippingType");
+  const shippingType: ShippingType | null = raw === "own" || raw === "drop" ? raw : null;
+
+  return {
+    shippingType,
+    weightGrams: shippingType === "own" ? parsePositiveInt(formData, "weightGrams") : null,
+    lengthCm: shippingType === "own" ? parsePositiveInt(formData, "lengthCm") : null,
+    widthCm: shippingType === "own" ? parsePositiveInt(formData, "widthCm") : null,
+    heightCm: shippingType === "own" ? parsePositiveInt(formData, "heightCm") : null,
+    dropDeliveryDays: shippingType === "drop" ? optionalField(formData, "dropDeliveryDays") : null,
+  };
 }
 
 export async function createProductAction(
@@ -61,6 +115,7 @@ export async function createProductAction(
 
   const description = formData.get("description");
   const newImageUrls = await collectNewImageUrls(formData);
+  const videoUrl = await resolveVideoUrl(formData);
 
   const product = await createProduct({
     slug: `${slugify(name)}-${Date.now().toString(36)}`,
@@ -69,8 +124,12 @@ export async function createProductAction(
     priceCents,
     compareAtPriceCents,
     imageUrls: newImageUrls,
+    videoUrl,
+    variants: variantsFromForm(formData),
+    unitsSold: parseUnitsSold(formData),
     category: optionalField(formData, "category"),
     supplierUrl: optionalField(formData, "supplierUrl"),
+    ...shippingInputFromForm(formData),
   });
 
   revalidatePath("/admin/produtos");
@@ -99,6 +158,7 @@ export async function updateProductAction(
   const description = formData.get("description");
   const newImageUrls = await collectNewImageUrls(formData);
   const imageUrls = [...existingImageUrlsFromForm(formData), ...newImageUrls];
+  const videoUrl = await resolveVideoUrl(formData);
 
   await updateProduct(productId, {
     name: name.trim(),
@@ -106,8 +166,12 @@ export async function updateProductAction(
     priceCents,
     compareAtPriceCents,
     imageUrls,
+    videoUrl,
+    variants: variantsFromForm(formData),
+    unitsSold: parseUnitsSold(formData),
     category: optionalField(formData, "category"),
     supplierUrl: optionalField(formData, "supplierUrl"),
+    ...shippingInputFromForm(formData),
   });
 
   revalidatePath("/admin/produtos");

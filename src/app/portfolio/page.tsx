@@ -1,19 +1,24 @@
 import Link from "next/link";
-import { Footer } from "@/components/footer";
-import { ProjectGrid } from "@/components/project-grid";
+import { PROJECTS } from "@/lib/projects";
+import { PortfolioCarousel } from "./portfolio-carousel";
 
 export default function PortfolioPage() {
   return (
-    <>
-      <header className="portfolio-page-header">
-        <Link href="/">← voltar</Link>
-      </header>
+    <div className="portfolio-carousel-page">
+      <Link href="/" className="site-logo display portfolio-carousel-logo" aria-label="zantte">
+        zantte
+      </Link>
 
-      <section className="portfolio">
-        <ProjectGrid />
-      </section>
+      <PortfolioCarousel projects={PROJECTS} />
 
-      <Footer />
-    </>
+      <div className="portfolio-carousel-corners">
+        <Link href="/sobre" className="portfolio-carousel-corner">
+          about us
+        </Link>
+        <Link href="/contato" className="portfolio-carousel-corner">
+          contact
+        </Link>
+      </div>
+    </div>
   );
 }
