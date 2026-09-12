@@ -331,16 +331,19 @@ a {
 .hero-dock-item:focus-visible .hero-dock-icon img {
   transform: scale(1.18) translateY(-6px);
 }
+/* posicionado embaixo, ancorado na base fixa do item (não no ícone que
+   flutua) — como os 3 itens têm a mesma altura de caixa, os 3 rótulos
+   saem sempre na mesma altura entre si, só variando a largura do texto. */
 .hero-dock-label {
   font-family: var(--font-bubble);
   font-weight: 700;
   font-size: 13px;
   color: #f5f3ea;
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(-4px);
   transition: opacity 0.2s ease, transform 0.2s ease;
   position: absolute;
-  top: -22px;
+  bottom: -28px;
 }
 .hero-dock-item:hover .hero-dock-label,
 .hero-dock-item:focus-visible .hero-dock-label {
