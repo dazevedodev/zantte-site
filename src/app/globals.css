@@ -146,9 +146,9 @@ a {
   display: flex;
   flex-direction: column;
 }
-/* pastel verde fosco — mesmo tom de fundo da referência que ela mandou. */
+/* pastel verde fosco — cor exata tirada do fundo da imagem do mascote. */
 .hero-pastel {
-  background: #93a288;
+  background: #7c9b83;
 }
 .hero-statement {
   flex: 1;
@@ -160,19 +160,14 @@ a {
   text-align: center;
   padding: 6vh 6vw 2vh;
 }
-/* wordmark "bolha" — fonte redonda/bold (Baloo 2) com camadas de
-   text-shadow simulando letra inflada/3D (aresta clara em cima, sombra
-   funda embaixo), sem depender de nenhum render externo. */
-.hero-wordmark-bubble {
-  font-family: var(--font-bubble);
-  font-size: clamp(4rem, 19vw, 13rem);
-  font-weight: 800;
-  line-height: 1;
-  color: #f5f3ea;
-  text-shadow:
-    0 -2px 0 rgba(255, 255, 255, 0.35),
-    0 6px 0 rgba(0, 0, 0, 0.18),
-    0 14px 24px rgba(0, 0, 0, 0.45);
+/* mascote 3D — mesma ideia de "flutuar" dos ícones do dock, só maior e
+   mais lenta (objeto maior "pesa" mais). */
+.hero-mascot {
+  width: clamp(200px, 26vw, 340px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 26px 22px rgba(0, 0, 0, 0.4)) drop-shadow(0 8px 8px rgba(0, 0, 0, 0.25));
+  animation: dock-float 5.2s ease-in-out infinite;
 }
 .site-logo {
   font-size: 20px;
@@ -395,7 +390,7 @@ a {
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: #93a288;
+  background: #7c9b83;
 }
 .portfolio-carousel-logo {
   position: fixed;
@@ -860,7 +855,7 @@ a {
    home/portfólio, pra não parecer um site diferente ao navegar. */
 .simple-page-pastel {
   min-height: 100vh;
-  background: #93a288;
+  background: #7c9b83;
   position: relative;
 }
 /* /contato — só os 3 ícones centralizados na tela, sem texto. */
