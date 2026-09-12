@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteMenu } from "@/components/site-menu";
 import { WHATSAPP_URL, INSTAGRAM_URL, CONTACT_EMAIL } from "@/lib/site-config";
 
 const CONTACT_LINKS = [
@@ -10,6 +11,7 @@ const CONTACT_LINKS = [
 export default function ContatoPage() {
   return (
     <div className="simple-page-pastel contact-page">
+      <SiteMenu />
       <Link href="/" className="site-logo display simple-page-logo" aria-label="zantte">
         zantte
       </Link>
