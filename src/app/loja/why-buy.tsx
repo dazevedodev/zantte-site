@@ -44,24 +44,51 @@ const REASONS = [
       </>
     ),
   },
+  {
+    title: "Troca garantida",
+    text: "Arrependeu? Tem até 7 dias pra trocar ou devolver, garantido por lei.",
+    icon: (
+      <path
+        d="M4 12a8 8 0 0 1 13.6-5.7M20 12a8 8 0 0 1-13.6 5.7M17 3v4h-4M7 21v-4h4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
+    title: "Acompanhe seu pedido",
+    text: "Rastreamento em tempo real, direto no link que a gente manda por e-mail.",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3.5 2" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
+  },
 ];
+
+// marquee horizontal contínuo (CSS puro, sem JS/rAF) — duplica a lista
+// uma vez e anima translateX até -50%, um loop sem emenda visível.
+const TRACK = [...REASONS, ...REASONS];
 
 export function WhyBuy() {
   return (
     <section className="why-buy">
       <span className="label">por que comprar com a gente</span>
-      <div className="why-buy-grid">
-        {REASONS.map((reason) => (
-          <div key={reason.title} className="why-buy-item">
-            <div className="why-buy-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-                {reason.icon}
-              </svg>
+      <div className="why-buy-marquee">
+        <div className="why-buy-grid">
+          {TRACK.map((reason, i) => (
+            <div key={`${reason.title}-${i}`} className="why-buy-item" aria-hidden={i >= REASONS.length}>
+              <div className="why-buy-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                  {reason.icon}
+                </svg>
+              </div>
+              <h3>{reason.title}</h3>
+              <p>{reason.text}</p>
             </div>
-            <h3>{reason.title}</h3>
-            <p>{reason.text}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

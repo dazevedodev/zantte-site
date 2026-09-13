@@ -900,16 +900,37 @@ a {
   color: #17160f;
   font-weight: 700;
 }
+/* esteira horizontal contínua — a lista vem duplicada do componente
+   (TRACK = REASONS+REASONS), então translateX(-50%) sempre entrega
+   exatamente o comprimento de uma cópia: o loop nunca "pisca" ou trava,
+   só recomeça exatamente de onde já estava (puro CSS, sem JS/rAF). */
+.why-buy-marquee {
+  overflow: hidden;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
 .why-buy-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: 20px;
+  width: max-content;
+  animation: why-buy-marquee 46s linear infinite;
 }
 .why-buy-item {
+  flex: 0 0 auto;
+  width: min(280px, 78vw);
   padding: 28px 22px;
   border-radius: 14px;
   background: #17160f;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes why-buy-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 .why-buy-item:hover {
   transform: translateY(-3px);
@@ -941,17 +962,6 @@ a {
   line-height: 1.55;
   color: rgba(245, 243, 234, 0.65);
   max-width: 32ch;
-}
-@media (max-width: 900px) {
-  .why-buy-grid {
-    grid-template-columns: repeat(2, 1fr);
-    row-gap: 20px;
-  }
-}
-@media (max-width: 560px) {
-  .why-buy-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* "mais produtos" no fim da página do produto */
