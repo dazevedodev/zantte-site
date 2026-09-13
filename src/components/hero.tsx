@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteMenu } from "@/components/site-menu";
 
 const DOCK = [
   { href: "/loja", label: "store", icon: "/icons/loja.png" },
@@ -12,6 +13,8 @@ export function Hero() {
       <Link href="/" className="site-logo display hero-logo" aria-label="zantte">
         zantte
       </Link>
+
+      <SiteMenu />
 
       <div className="hero-statement">
         {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
