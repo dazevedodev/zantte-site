@@ -9,11 +9,13 @@ function initial(name: string) {
   return name.trim().charAt(0).toUpperCase();
 }
 
-// carrossel vertical com perspectiva — o item perto do centro fica reto, os
-// que se afastam (pra cima/baixo) inclinam em 3D e encolhem, tipo um
-// cilindro girando. Recalcula no evento de scroll (throttled por rAF), não
-// num loop perpétuo — mais leve e não deixa o navegador "ocupado" pra
-// sempre (isso travava ferramentas de automação/print da página).
+// carrossel HORIZONTAL com perspectiva — igual a referência BOSE/Motion que
+// ela mandou no início: rola de lado, o card perto do centro fica reto, os
+// que se afastam (esquerda/direita) inclinam em 3D e encolhem, tipo um
+// cilindro girando na horizontal. Recalcula no evento de scroll (throttled
+// por rAF), não num loop perpétuo — mais leve e não deixa o navegador
+// "ocupado" pra sempre (isso travava ferramentas de automação/print da
+// página).
 export function PortfolioCarousel({ projects }: { projects: Project[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -27,18 +29,18 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
     const update = () => {
       scheduled = false;
       const rect = container.getBoundingClientRect();
-      const centerY = rect.top + rect.height / 2;
+      const centerX = rect.left + rect.width / 2;
 
       for (const el of itemRefs.current) {
         if (!el) continue;
         const r = el.getBoundingClientRect();
-        const elCenter = r.top + r.height / 2;
-        const offset = Math.max(-1.4, Math.min(1.4, (elCenter - centerY) / rect.height));
+        const elCenter = r.left + r.width / 2;
+        const offset = Math.max(-1.4, Math.min(1.4, (elCenter - centerX) / rect.width));
         const rotate = offset * 34;
         const translateZ = -Math.abs(offset) * 260;
         const scale = 1 - Math.abs(offset) * 0.22;
         const opacity = Math.max(0.12, 1 - Math.abs(offset) * 0.55);
-        el.style.transform = `translateZ(${translateZ}px) rotateX(${rotate}deg) scale(${scale})`;
+        el.style.transform = `translateZ(${translateZ}px) rotateY(${-rotate}deg) scale(${scale})`;
         el.style.opacity = String(opacity);
       }
     };
@@ -60,28 +62,28 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
   }, []);
 
   return (
-    <div ref={containerRef} className="portfolio-vcarousel">
-      <div className="portfolio-vcarousel-track">
+    <div ref={containerRef} className="portfolio-hcarousel">
+      <div className="portfolio-hcarousel-track">
         {projects.map((p, i) => (
           <a
             key={p.name}
             href={p.url}
             target={p.url ? "_blank" : undefined}
             rel="noopener noreferrer"
-            className="portfolio-vcarousel-item"
+            className="portfolio-hcarousel-item"
             ref={(el) => {
               itemRefs.current[i] = el;
             }}
           >
             {p.cover ? (
               // eslint-disable-next-line @next/next/no-img-element -- capa vem de arquivo estático simples, sem otimização necessária aqui.
-              <img src={p.cover} alt={p.name} className="portfolio-vcarousel-cover" />
+              <img src={p.cover} alt={p.name} className="portfolio-hcarousel-cover" />
             ) : (
-              <div className="portfolio-vcarousel-placeholder display" aria-hidden="true">
+              <div className="portfolio-hcarousel-placeholder display" aria-hidden="true">
                 <span className="initial">{initial(p.name)}</span>
               </div>
             )}
-            <span className="portfolio-vcarousel-name mono">{p.name}</span>
+            <span className="portfolio-hcarousel-name mono">{p.name}</span>
           </a>
         ))}
         {projects.length === 0 && <div className="portfolio-carousel-empty mono">em breve</div>}
