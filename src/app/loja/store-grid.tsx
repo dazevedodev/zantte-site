@@ -33,6 +33,7 @@ export function StoreGrid({ products }: { products: Product[] }) {
   const [filter, setFilter] = useState<string | "todos">("todos");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("relevancia");
+  const [sortOpen, setSortOpen] = useState(false);
 
   const searching = query.trim().length > 0;
 
@@ -80,18 +81,45 @@ export function StoreGrid({ products }: { products: Product[] }) {
           />
         </div>
 
-        <select
-          className="store-sort"
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-          aria-label="ordenar por"
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        <div className="store-sort">
+          <button
+            type="button"
+            className="store-sort-toggle"
+            onClick={() => setSortOpen((v) => !v)}
+            aria-expanded={sortOpen}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
+            </svg>
+            filtrar
+          </button>
+
+          {sortOpen && (
+            <>
+              <button
+                type="button"
+                className="store-sort-backdrop"
+                aria-label="fechar"
+                onClick={() => setSortOpen(false)}
+              />
+              <div className="store-sort-panel">
+                {SORT_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    className={sort === o.value ? "active" : ""}
+                    onClick={() => {
+                      setSort(o.value);
+                      setSortOpen(false);
+                    }}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {categories.length > 0 && (
