@@ -14,10 +14,6 @@ export function StoreNav() {
         ZANTTE
       </Link>
 
-      <Link href="/loja" className="store-nav-wordmark">
-        ZAN CO.
-      </Link>
-
       <div className="store-nav-actions">
         <Link href="/loja#loja-toolbar" className="store-nav-search" aria-label="buscar produtos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">

@@ -11,6 +11,7 @@ export function StoreHero({ products, featured }: { products: Product[]; feature
     <section className="store-hero">
       <div className="store-hero-copy">
         <span className="store-hero-eyebrow">loja oficial da zantte</span>
+        <h1 className="store-hero-mark display">ZAN CO.</h1>
         <p className="store-hero-tagline">Produtos selecionados, direto pra sua casa.</p>
         <a href="#loja-toolbar" className="store-hero-cta">
           ver produtos
