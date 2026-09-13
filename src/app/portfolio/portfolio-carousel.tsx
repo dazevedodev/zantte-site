@@ -9,25 +9,48 @@ function initial(name: string) {
   return name.trim().charAt(0).toUpperCase();
 }
 
-// carrossel HORIZONTAL com perspectiva — igual a referência BOSE/Motion que
-// ela mandou no início: rola de lado, o card perto do centro fica reto, os
-// que se afastam (esquerda/direita) inclinam em 3D e encolhem, tipo um
-// cilindro girando na horizontal. Recalcula no evento de scroll (throttled
-// por rAF), não num loop perpétuo — mais leve e não deixa o navegador
-// "ocupado" pra sempre (isso travava ferramentas de automação/print da
-// página).
+// carrossel HORIZONTAL, infinito nos dois sentidos — sem começo nem fim.
+// Truque: a lista é renderizada 3x seguidas (cópia anterior / cópia do
+// meio / cópia seguinte); a gente começa rolado pro início da cópia do
+// meio, e sempre que o scroll entra fundo demais numa cópia vizinha, salta
+// de volta pra posição equivalente na cópia do meio SEM animação — como o
+// conteúdo é idêntico entre cópias, o salto é imperceptível e dá a
+// sensação de rolar pra sempre em qualquer direção.
 export function PortfolioCarousel({ projects }: { projects: Project[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const n = projects.length;
+  const track = n > 0 ? [...projects, ...projects, ...projects] : [];
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || n === 0) return;
     let raf = 0;
     let scheduled = false;
 
+    function copyWidth() {
+      const first = itemRefs.current[0];
+      const firstOfNextCopy = itemRefs.current[n];
+      if (!first || !firstOfNextCopy) return 0;
+      return firstOfNextCopy.offsetLeft - first.offsetLeft;
+    }
+
     const update = () => {
       scheduled = false;
+      const container = containerRef.current;
+      if (!container) return;
+
+      // realinha antes de medir, pra nunca deixar a pessoa ver a borda
+      // real do início/fim da lista triplicada.
+      const cw = copyWidth();
+      if (cw > 0) {
+        if (container.scrollLeft < cw * 0.5) {
+          container.scrollLeft += cw;
+        } else if (container.scrollLeft > cw * 1.5) {
+          container.scrollLeft -= cw;
+        }
+      }
+
       const rect = container.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
 
@@ -51,7 +74,11 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
       raf = requestAnimationFrame(update);
     };
 
+    // começa no início da cópia do meio.
+    const cw = copyWidth();
+    if (cw > 0) container.scrollLeft = cw;
     update();
+
     container.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
@@ -59,14 +86,14 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
       container.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [n]);
 
   return (
     <div ref={containerRef} className="portfolio-hcarousel">
       <div className="portfolio-hcarousel-track">
-        {projects.map((p, i) => (
+        {track.map((p, i) => (
           <a
-            key={p.name}
+            key={`${p.name}-${i}`}
             href={p.url}
             target={p.url ? "_blank" : undefined}
             rel="noopener noreferrer"
@@ -86,7 +113,7 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
             <span className="portfolio-hcarousel-name mono">{p.name}</span>
           </a>
         ))}
-        {projects.length === 0 && <div className="portfolio-carousel-empty mono">em breve</div>}
+        {track.length === 0 && <div className="portfolio-carousel-empty mono">em breve</div>}
       </div>
     </div>
   );
