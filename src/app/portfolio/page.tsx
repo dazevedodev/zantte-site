@@ -10,15 +10,6 @@ export default function PortfolioPage() {
       </Link>
 
       <PortfolioCarousel projects={PROJECTS} />
-
-      <div className="portfolio-carousel-corners">
-        <Link href="/sobre" className="portfolio-carousel-corner">
-          about us
-        </Link>
-        <Link href="/contato" className="portfolio-carousel-corner">
-          contact
-        </Link>
-      </div>
     </div>
   );
 }

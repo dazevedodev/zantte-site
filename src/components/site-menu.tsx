@@ -6,6 +6,7 @@ import Link from "next/link";
 const ITEMS = [
   { href: "/loja", label: "store", icon: "/icons/loja.png" },
   { href: "/portfolio", label: "portfolio", icon: "/icons/portfolio.png" },
+  { href: "/sobre", label: "about us", icon: null },
   { href: "/contato", label: "contact", icon: "/icons/contato.png" },
 ] as const;
 
@@ -45,8 +46,10 @@ export function SiteMenu() {
             onClick={() => setOpen(false)}
           >
             <span className="site-menu-item-icon">
-              {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
-              <img src={icon} alt="" />
+              {icon && (
+                // eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização.
+                <img src={icon} alt="" />
+              )}
             </span>
             <span className="site-menu-item-label">{label}</span>
           </Link>
