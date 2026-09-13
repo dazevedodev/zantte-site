@@ -11,7 +11,6 @@ export function StoreHero({ products, featured }: { products: Product[]; feature
     <section className="store-hero">
       <div className="store-hero-copy">
         <span className="store-hero-eyebrow">loja oficial da zantte</span>
-        <h1 className="store-hero-mark display">ZAN CO.</h1>
         <p className="store-hero-tagline">Produtos selecionados, direto pra sua casa.</p>
         <a href="#loja-toolbar" className="store-hero-cta">
           ver produtos
@@ -19,8 +18,8 @@ export function StoreHero({ products, featured }: { products: Product[]; feature
       </div>
 
       {spotlight && (
-        <Link href={`/loja/${spotlight.slug}`} className="store-hero-spotlight">
-          {featured && <span className="store-hero-spotlight-badge">destaque</span>}
+        <div className="store-hero-spotlight">
+          <span className="store-hero-spotlight-badge">produto em alta</span>
           <div className="store-hero-spotlight-frame">
             {spotlight.imageUrls[0] ? (
               // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
@@ -32,7 +31,10 @@ export function StoreHero({ products, featured }: { products: Product[]; feature
             )}
           </div>
           <span className="store-hero-spotlight-name">{spotlight.name}</span>
-        </Link>
+          <Link href={`/loja/${spotlight.slug}`} className="store-hero-spotlight-cta">
+            ver produto
+          </Link>
+        </div>
       )}
     </section>
   );
