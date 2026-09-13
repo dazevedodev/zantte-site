@@ -7,6 +7,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <nav className="admin-nav mono">
         <Link href="/admin/pedidos">pedidos</Link>
         <Link href="/admin/produtos">produtos</Link>
+        <Link href="/admin/portfolio">portfolio</Link>
         <Link href="/" className="admin-nav-site">
           ver site ↗
         </Link>

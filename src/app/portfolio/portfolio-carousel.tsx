@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Project } from "@/lib/projects";
+import type { PortfolioProject } from "@/lib/portfolio";
 
 // Sem foto real ainda — em vez do preview ao vivo por iframe, gera uma capa
 // só com a inicial do projeto, no mesmo tratamento "de vidro" da logo.
@@ -16,7 +16,7 @@ function initial(name: string) {
 // de volta pra posição equivalente na cópia do meio SEM animação — como o
 // conteúdo é idêntico entre cópias, o salto é imperceptível e dá a
 // sensação de rolar pra sempre em qualquer direção.
-export function PortfolioCarousel({ projects }: { projects: Project[] }) {
+export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const n = projects.length;
@@ -93,8 +93,8 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
       <div className="portfolio-hcarousel-track">
         {track.map((p, i) => (
           <a
-            key={`${p.name}-${i}`}
-            href={p.url}
+            key={`${p.id}-${i}`}
+            href={p.url ?? undefined}
             target={p.url ? "_blank" : undefined}
             rel="noopener noreferrer"
             className="portfolio-hcarousel-item"
@@ -102,15 +102,18 @@ export function PortfolioCarousel({ projects }: { projects: Project[] }) {
               itemRefs.current[i] = el;
             }}
           >
-            {p.cover ? (
-              // eslint-disable-next-line @next/next/no-img-element -- capa vem de arquivo estático simples, sem otimização necessária aqui.
-              <img src={p.cover} alt={p.name} className="portfolio-hcarousel-cover" />
+            {p.coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- capa vem do Blob, sem otimização necessária aqui.
+              <img src={p.coverUrl} alt={p.name} className="portfolio-hcarousel-cover" />
             ) : (
               <div className="portfolio-hcarousel-placeholder display" aria-hidden="true">
                 <span className="initial">{initial(p.name)}</span>
               </div>
             )}
-            <span className="portfolio-hcarousel-name mono">{p.name}</span>
+            <span className="portfolio-hcarousel-caption">
+              <span className="portfolio-hcarousel-name">{p.name}</span>
+              {p.tagline && <span className="portfolio-hcarousel-tagline mono">{p.tagline}</span>}
+            </span>
           </a>
         ))}
         {track.length === 0 && <div className="portfolio-carousel-empty mono">em breve</div>}

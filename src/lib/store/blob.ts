@@ -13,3 +13,10 @@ export async function uploadProductVideo(file: File): Promise<string> {
   const { url } = await put(filename, file, { access: "public" });
   return url;
 }
+
+export async function uploadPortfolioCover(file: File): Promise<string> {
+  const extension = file.name.split(".").pop() ?? "jpg";
+  const filename = `portfolio/${crypto.randomUUID()}.${extension}`;
+  const { url } = await put(filename, file, { access: "public" });
+  return url;
+}
