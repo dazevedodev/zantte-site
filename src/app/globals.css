@@ -907,14 +907,12 @@ a {
 }
 .why-buy-item {
   padding: 28px 22px;
-  border: 1px solid rgba(245, 243, 234, 0.14);
   border-radius: 14px;
-  background: rgba(245, 243, 234, 0.05);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #17160f;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .why-buy-item:hover {
   transform: translateY(-3px);
-  border-color: var(--accent);
 }
 .why-buy-item .why-buy-icon {
   width: 46px;
