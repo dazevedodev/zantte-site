@@ -889,17 +889,15 @@ a {
   }
 }
 
-/* "por que comprar com a gente" — faixa preta de verdade (não cartões
-   claros soltos no verde), pra destacar do resto e combinar com o preto
-   do mascote/ícones em vez de ficar "sem cor própria". */
+/* "por que comprar com a gente" — fundo continua o verde da página, só
+   os cartões (retângulos) que são pretos com texto branco. */
 .why-buy {
-  background: #17160f;
   padding: 6vh 6vw 7vh;
 }
 .why-buy > .label {
   display: block;
   margin-bottom: 2.2rem;
-  color: rgba(245, 243, 234, 0.6);
+  color: #17160f;
   font-weight: 700;
 }
 .why-buy-grid {
