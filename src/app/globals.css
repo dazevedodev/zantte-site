@@ -521,12 +521,25 @@ a {
     right: 8px;
   }
 }
-.portfolio-hcarousel-cover,
-.portfolio-hcarousel-placeholder {
+/* wrapper com o fundo escuro fixo — a capa usa object-fit:contain (nunca
+   corta nada, seja qual for a proporção da imagem gerada) e o wrapper
+   preenche a moldura 16:10 por trás, então uma foto que não seja
+   exatamente 16:10 só sobra fundo escuro nas laterais/topo em vez de ter
+   pedaço cortado. */
+.portfolio-hcarousel-cover-wrap {
+  position: relative;
+  display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
   border-radius: 14px;
-  object-fit: cover;
+  overflow: hidden;
+  background: #1c1c1f;
+}
+.portfolio-hcarousel-cover,
+.portfolio-hcarousel-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .portfolio-hcarousel-placeholder {
   display: flex;
@@ -534,6 +547,42 @@ a {
   justify-content: center;
   background: #1c1c1f;
   border: 1px solid var(--line-soft);
+}
+/* dica discreta pra convidar a clicar — só aparece nos projetos que têm
+   link cadastrado, e fica mais forte no hover/foco. */
+.portfolio-hcarousel-cta {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(245, 243, 234, 0.92);
+  color: #17160f;
+  font-family: var(--font-bubble);
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.portfolio-hcarousel-cta svg {
+  width: 13px;
+  height: 13px;
+}
+.portfolio-hcarousel-item:hover .portfolio-hcarousel-cta,
+.portfolio-hcarousel-item:focus-visible .portfolio-hcarousel-cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 820px) {
+  /* sem hover em touch — deixa sempre visível, senão ninguém vê a dica */
+  .portfolio-hcarousel-cta {
+    opacity: 1;
+    transform: none;
+  }
 }
 .portfolio-hcarousel-placeholder .initial {
   font-size: clamp(3.5rem, 8vw, 6rem);

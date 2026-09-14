@@ -18,6 +18,14 @@ function optionalField(formData: FormData, name: string): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+// sem "https://" o link vira um caminho relativo do próprio site em vez
+// de abrir o site externo — normaliza aqui pra nunca salvar assim.
+function optionalUrlField(formData: FormData, name: string): string | null {
+  const value = optionalField(formData, name);
+  if (!value) return null;
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+}
+
 async function resolveCoverUrl(formData: FormData): Promise<string | null> {
   const file = formData.get("cover");
   if (file instanceof File && file.size > 0) return uploadPortfolioCover(file);
@@ -41,7 +49,7 @@ export async function createPortfolioProjectAction(
   const project = await createPortfolioProject({
     name: name.trim(),
     tagline: optionalField(formData, "tagline"),
-    url: optionalField(formData, "url"),
+    url: optionalUrlField(formData, "url"),
     coverUrl,
   });
 
@@ -65,7 +73,7 @@ export async function updatePortfolioProjectAction(
   await updatePortfolioProject(projectId, {
     name: name.trim(),
     tagline: optionalField(formData, "tagline"),
-    url: optionalField(formData, "url"),
+    url: optionalUrlField(formData, "url"),
     coverUrl,
   });
 
