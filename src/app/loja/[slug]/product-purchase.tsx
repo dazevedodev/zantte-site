@@ -147,6 +147,7 @@ export function ProductPurchase({
           <div className="product-payment-top">
             <PaymentMethods />
             <span className="product-payment-secure">pagamento seguro · Mercado Pago</span>
+            <TrustBadges />
           </div>
         </div>
 
@@ -161,8 +162,6 @@ export function ProductPurchase({
           imageUrl={selectedVariant?.imageUrl ?? images[0] ?? null}
           variantName={selectedVariant?.name ?? null}
         />
-
-        <TrustBadges />
       </div>
     </>
   );
