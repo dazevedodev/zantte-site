@@ -65,16 +65,15 @@ export function ProductPurchase({
     window.scrollTo(0, 0);
   }, [slug]);
 
-  // alinha o fim da linha de comprar com o fim do "leve também", sempre —
-  // compactar a descrição (ProductHighlights) já ajuda, mas nome/categoria/
-  // desconto/frete variam de produto pra produto e às vezes a coluna da
-  // galeria termina antes, às vezes a de info termina antes. Em vez de
-  // tentar acertar isso só no CSS (as duas colunas rolam de forma
-  // independente), mede as duas depois de cada render e empurra pra baixo
-  // — com uma margem pequena e calculada, nunca esticando — qualquer uma
-  // das duas que estiver terminando mais cedo, sempre que a galeria
-  // (imagem carregando) ou o conteúdo da coluna de info (nome quebrando
-  // linha, "ver mais") mudam de altura.
+  // alinha o fim da linha de comprar com o fim do "leve também" — SÓ
+  // empurrando a linha de comprar pra baixo, nunca o "leve também": ele
+  // tem que continuar sempre colado na foto, sem vão nenhum embaixo dela
+  // (regra que ela deixou bem clara). Compactar a descrição
+  // (ProductHighlights) já ajuda a coluna de info não passar do tamanho da
+  // galeria com frequência, mas quando um produto tem foto+"leve também"
+  // naturalmente mais curto que o resto da info (nome grande, frete,
+  // etc.), a linha de comprar fica um pouco abaixo do "leve também" — é o
+  // preço aceitável pra nunca abrir vão embaixo da foto.
   useEffect(() => {
     const crossSellEl = crossSellRef.current;
     const infoContentEl = infoContentRef.current;
@@ -88,16 +87,11 @@ export function ProductPurchase({
     let timer: ReturnType<typeof setTimeout> | null = null;
     function align() {
       if (!crossSellEl || !buyRowEl) return;
-      crossSellEl.style.marginTop = "";
       buyRowEl.style.marginTop = "0px";
       const crossSellBottom = crossSellEl.getBoundingClientRect().bottom;
       const buyRowBottom = buyRowEl.getBoundingClientRect().bottom;
       const delta = crossSellBottom - buyRowBottom;
-      if (delta > 0) {
-        buyRowEl.style.marginTop = `${delta}px`;
-      } else if (delta < 0) {
-        crossSellEl.style.marginTop = `${-delta}px`;
-      }
+      buyRowEl.style.marginTop = delta > 0 ? `${delta}px` : "0px";
     }
 
     function scheduleAlign() {
