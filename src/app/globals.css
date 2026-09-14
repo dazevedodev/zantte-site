@@ -402,12 +402,16 @@ a {
   transform: translateY(-2px);
 }
 /* na loja, os CTAs primários ganham a mesma pílula arredondada + fonte
-   bolha usada no resto do site, em vez do botão quadrado genérico. */
+   bolha usada no resto do site, em vez do botão quadrado genérico. E o
+   texto vira branco (--on-surface) em vez de var(--ink) — na loja --ink é
+   o verde da página, então um botão preto com escrita "--ink" saía verde
+   sobre preto, baixo contraste. */
 .store-theme .btn-solid {
   border-radius: 999px;
   font-family: var(--font-bubble);
   font-weight: 700;
   padding: 15px 32px;
+  color: var(--on-surface);
 }
 
 .label {
@@ -624,7 +628,7 @@ a {
   top: -2px;
   right: -4px;
   background: var(--paper);
-  color: var(--ink);
+  color: var(--on-surface);
   font-size: 10px;
   font-weight: 700;
   min-width: 16px;
@@ -656,7 +660,7 @@ a {
 .store-hero-eyebrow {
   align-self: flex-start;
   background: var(--paper);
-  color: var(--ink);
+  color: var(--on-surface);
   padding: 7px 16px;
   border-radius: 999px;
   font-size: 12px;
@@ -691,7 +695,7 @@ a {
   padding: 13px 28px;
   border-radius: 999px;
   background: var(--paper);
-  color: var(--ink);
+  color: var(--on-surface);
   font-family: var(--font-bubble);
   font-weight: 700;
   font-size: 14px;
@@ -753,7 +757,7 @@ a {
   padding: 11px 24px;
   border-radius: 999px;
   background: var(--paper);
-  color: var(--ink);
+  color: var(--on-surface);
   font-family: var(--font-bubble);
   font-weight: 700;
   font-size: 13px;
@@ -943,13 +947,16 @@ a {
 }
 
 /* "por que comprar com a gente" — fundo continua o verde da página, só
-   os cartões (retângulos) que são pretos com texto branco. */
+   os cartões (retângulos) que são pretos com texto branco. A esteira em
+   si é full-bleed (sem o padding lateral da página, sem máscara de
+   esmaecimento): os cards entram e saem exatamente na borda da tela dos
+   dois lados, só o rótulo acima mantém o respiro do resto do site. */
 .why-buy {
-  padding: 6vh 6vw 7vh;
+  padding: 6vh 0 7vh;
 }
 .why-buy > .label {
   display: block;
-  margin-bottom: 2.2rem;
+  margin: 0 6vw 2.2rem;
   color: #17160f;
   font-weight: 700;
 }
@@ -960,8 +967,6 @@ a {
 .why-buy-marquee {
   overflow: hidden;
   width: 100%;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
 .why-buy-grid {
   display: flex;
@@ -1359,24 +1364,6 @@ a {
   border-radius: 999px;
   z-index: 1;
 }
-/* espaço reservado pro cupom de desconto — funcionalidade ainda não
-   existe, então fica só um marcador tracejado por enquanto. */
-.coupon-badge-slot {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-  background: rgba(23, 22, 15, 0.55);
-  color: var(--on-surface);
-  opacity: 0.75;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px dashed rgba(245, 243, 234, 0.5);
-}
 .store-card-info {
   display: flex;
   flex-direction: column;
@@ -1660,34 +1647,80 @@ a {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 10px;
   margin-left: auto;
   max-width: 260px;
 }
-.product-payment-top .payment-methods {
-  margin: 0;
-  gap: 14px;
-}
+/* selos de confiança vêm primeiro (mesma identidade visual pros três:
+   ícone + título + legenda), pix/cartão/boleto ficam por último, como um
+   rodapezinho de ícones do bloco. */
 .product-payment-top .trust-badges {
+  margin: 0;
+  padding-top: 0;
+  border-top: none;
+  max-width: none;
+  align-items: flex-end;
+  text-align: right;
+  gap: 10px;
+}
+.product-payment-top .trust-badges li {
+  flex-direction: row-reverse;
+}
+.product-payment-top .trust-badges span {
+  align-items: flex-end;
+}
+.product-payment-top .payment-methods {
   margin: 8px 0 0;
   padding-top: 10px;
   border-top: 1px solid var(--line-soft);
-  max-width: none;
-  gap: 10px;
-}
-.product-payment-secure {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--paper);
-  opacity: 0.7;
+  gap: 14px;
 }
 /* pilha de preço — valor antigo riscado num retângulo pequeno em cima,
-   valor atual grande embaixo. Mesma lógica do card, só maior aqui. */
+   valor atual grande embaixo, e o campo de cupom logo abaixo. Mesma
+   lógica do card, só maior aqui. */
 .product-detail-price-stack {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
+}
+.product-coupon {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.product-coupon input {
+  background: var(--surface);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: var(--on-surface);
+  font-size: 13px;
+  width: 170px;
+}
+.product-coupon input::placeholder {
+  color: var(--on-surface);
+  opacity: 0.5;
+}
+.product-coupon button {
+  background: none;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 0 18px;
+  color: var(--paper);
+  font-family: var(--font-bubble);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.product-coupon button:hover {
+  border-color: var(--accent);
+}
+.product-coupon-message {
+  font-size: 12px;
+  color: var(--paper);
+  opacity: 0.65;
 }
 .product-detail-price {
   font-size: 28px;
@@ -1836,9 +1869,11 @@ a {
    agora" e o botão (só ícone) de adicionar ao carrinho, tudo na mesma linha:
    ela pediu o comprar agora do lado da quantidade e o adicionar virando só
    um botão de "+" com o ícone do carrinho, sem disputar espaço com o CTA
-   principal. */
+   principal. margin-top:auto empurra pro fim da coluna de info — junto
+   com o mesmo truque no "leve também" (coluna da galeria), isso mantém as
+   duas linhas sempre alinhadas entre si, produto a produto. */
 .add-to-cart {
-  margin-top: 1rem;
+  margin-top: auto;
   max-width: 420px;
 }
 .add-to-cart-row {
@@ -2259,6 +2294,11 @@ a {
 /* "leve também" na própria página do produto — mesma lógica do upsell do
    carrinho (sempre prioriza desconto real), mas em caixa preta/texto
    branco, igual o resto da loja, em vez do tom terracota do carrinho. */
+/* empurra o "leve também" pro fim da coluna da galeria — como a coluna da
+   galeria e a coluna de info são esticadas na mesma altura pelo grid
+   (.product-detail), isso mantém o "leve também" sempre alinhado com a
+   linha de comprar (que também é empurrada pro fim da coluna de info),
+   não importa o quão comprida seja a descrição de cada produto. */
 .product-cross-sell {
   background: var(--surface);
   border-radius: 14px;
@@ -2266,6 +2306,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: auto;
 }
 .product-cross-sell-label {
   font-size: 11px;

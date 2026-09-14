@@ -14,10 +14,6 @@ export function ProductCard({ product }: { product: Product }) {
             -{discountPercent(product.compareAtPriceCents!, product.priceCents)}%
           </span>
         )}
-        {/* reserva o lugar do cupom de desconto — ainda não existe like
-            funcionalidade, mas ela pediu pra já deixar o espaço marcado
-            na capa até a gente criar isso de verdade. */}
-        <span className="coupon-badge-slot">cupom</span>
         {product.imageUrls[0] ? (
           // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
           <img src={product.imageUrls[0]} alt={product.name} className="store-card-cover" />

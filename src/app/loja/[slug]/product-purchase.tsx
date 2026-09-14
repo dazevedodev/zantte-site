@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatBRL, formatSoldCount, discountPercent } from "@/lib/store/format";
 import { useCart } from "@/lib/store/cart";
@@ -51,10 +51,23 @@ export function ProductPurchase({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(variants[0] ?? null);
   const { addItem, openDrawer } = useCart();
   const [crossSellAdded, setCrossSellAdded] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponMessage, setCouponMessage] = useState<string | null>(null);
+
+  // ao navegar de um produto pra outro (ex: pelo "leve também" ou pelos
+  // relacionados), o Next as vezes mantém o scroll onde a pessoa estava —
+  // aqui garante que toda página de produto sempre abre do topo.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
 
   const soldLabel = formatSoldCount(unitsSold);
   const crossSellHasDiscount =
     crossSell?.compareAtPriceCents && crossSell.compareAtPriceCents > crossSell.priceCents;
+
+  function handleApplyCoupon() {
+    setCouponMessage(couponCode.trim() ? "cupons chegando em breve por aqui" : "digite um cupom");
+  }
 
   function handleAddCrossSell() {
     if (!crossSell) return;
@@ -143,11 +156,25 @@ export function ProductPurchase({
               <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
             )}
             <span className="product-detail-price">{formatBRL(priceCents)}</span>
+            <div className="product-coupon">
+              <input
+                type="text"
+                placeholder="cupom de desconto"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  setCouponMessage(null);
+                }}
+              />
+              <button type="button" onClick={handleApplyCoupon}>
+                aplicar
+              </button>
+            </div>
+            {couponMessage && <span className="product-coupon-message">{couponMessage}</span>}
           </div>
           <div className="product-payment-top">
-            <PaymentMethods />
-            <span className="product-payment-secure">pagamento seguro · Mercado Pago</span>
             <TrustBadges />
+            <PaymentMethods />
           </div>
         </div>
 
