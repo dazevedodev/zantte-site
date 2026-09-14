@@ -73,42 +73,15 @@ export function ProductPurchase({
 
   return (
     <>
-      <ProductGallery
-        images={images}
-        name={name}
-        discountPercent={discountPct}
-        videoUrl={videoUrl}
-        variants={variants}
-        selectedVariant={selectedVariant}
-        onSelectVariant={setSelectedVariant}
-      />
-
-      <div className="product-detail-info">
-        {(category || soldLabel) && (
-          <div className="product-detail-badges">
-            {category && <span className="product-detail-badge">{category}</span>}
-            {soldLabel && <span className="product-detail-badge accent">{soldLabel}</span>}
-          </div>
-        )}
-
-        <h1 className="display product-detail-name">{name}</h1>
-        <div className="product-detail-price-stack">
-          {compareAtPriceCents && (
-            <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
-          )}
-          <span className="product-detail-price">{formatBRL(priceCents)}</span>
-        </div>
-
-        {description && <ProductHighlights text={description} />}
-        {shippingType && <ShippingEstimate productId={productId} />}
-
-        <AddToCartButton
-          productId={productId}
-          slug={slug}
+      <div className="product-gallery-column">
+        <ProductGallery
+          images={images}
           name={name}
-          priceCents={priceCents}
-          imageUrl={selectedVariant?.imageUrl ?? images[0] ?? null}
-          variantName={selectedVariant?.name ?? null}
+          discountPercent={discountPct}
+          videoUrl={videoUrl}
+          variants={variants}
+          selectedVariant={selectedVariant}
+          onSelectVariant={setSelectedVariant}
         />
 
         {crossSell && (
@@ -153,6 +126,35 @@ export function ProductPurchase({
             </div>
           </div>
         )}
+      </div>
+
+      <div className="product-detail-info">
+        {(category || soldLabel) && (
+          <div className="product-detail-badges">
+            {category && <span className="product-detail-badge">{category}</span>}
+            {soldLabel && <span className="product-detail-badge accent">{soldLabel}</span>}
+          </div>
+        )}
+
+        <h1 className="display product-detail-name">{name}</h1>
+        <div className="product-detail-price-stack">
+          {compareAtPriceCents && (
+            <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
+          )}
+          <span className="product-detail-price">{formatBRL(priceCents)}</span>
+        </div>
+
+        {description && <ProductHighlights text={description} />}
+        {shippingType && <ShippingEstimate productId={productId} />}
+
+        <AddToCartButton
+          productId={productId}
+          slug={slug}
+          name={name}
+          priceCents={priceCents}
+          imageUrl={selectedVariant?.imageUrl ?? images[0] ?? null}
+          variantName={selectedVariant?.name ?? null}
+        />
 
         <PaymentMethods />
         <TrustBadges />
