@@ -280,8 +280,8 @@ a {
    (os dois convivem, não é um substituindo o outro). */
 .site-menu-toggle {
   position: fixed;
-  top: 30px;
-  right: 6vw;
+  top: 28px;
+  right: 28px;
   z-index: 40;
   width: 40px;
   height: 40px;
@@ -328,8 +328,9 @@ a {
   width: min(220px, 70vw);
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 22px;
   padding: 8vh 28px;
   background: rgba(18, 22, 16, 0.55);
   backdrop-filter: blur(14px);
@@ -340,20 +341,21 @@ a {
 .site-menu-panel.open {
   transform: translateX(0);
 }
+/* ícone grande em cima, título embaixo — ocupa a largura do painel em vez
+   de ficar uma linha fina de ícone pequeno + texto, que sobrava espaço
+   dos dois lados. */
 .site-menu-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 14px 4px;
-  border-bottom: 1px solid rgba(245, 243, 234, 0.14);
+  gap: 10px;
+  padding: 10px 4px;
   text-decoration: none;
-}
-.site-menu-item:last-child {
-  border-bottom: none;
+  text-align: center;
 }
 .site-menu-item-icon {
-  width: 26px;
-  height: 26px;
+  width: 60px;
+  height: 60px;
   flex-shrink: 0;
   display: flex;
 }
@@ -458,8 +460,14 @@ a {
   gap: 6vw;
   padding: 0 50vw;
   transform-style: preserve-3d;
+  /* a faixa em si nunca deve ser o alvo do clique — só existe pra
+     posicionar os cards em 3D. Sem isso, o contexto 3D (perspective +
+     preserve-3d) faz o navegador "acertar" a faixa em vez do card
+     transformado por baixo do cursor, e nenhum card fica clicável. */
+  pointer-events: none;
 }
 .portfolio-hcarousel-item {
+  pointer-events: auto;
   scroll-snap-align: center;
   flex: 0 0 auto;
   width: min(52vw, 680px);
