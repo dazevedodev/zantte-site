@@ -6,7 +6,7 @@ import Link from "next/link";
 const ITEMS = [
   { href: "/loja", label: "store", icon: "/icons/loja.png" },
   { href: "/portfolio", label: "portfolio", icon: "/icons/portfolio.png" },
-  { href: "/sobre", label: "about us", icon: null },
+  { href: "/sobre", label: "about us", icon: "/icons/sobre.png" },
   { href: "/contato", label: "contact", icon: "/icons/contato.png" },
 ] as const;
 
