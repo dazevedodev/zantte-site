@@ -44,13 +44,6 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     let raf = 0;
     let scheduled = false;
 
-    function copyWidth() {
-      const first = itemRefs.current[0];
-      const firstOfNextCopy = itemRefs.current[n];
-      if (!first || !firstOfNextCopy) return 0;
-      return firstOfNextCopy.offsetLeft - first.offsetLeft;
-    }
-
     const updateTransforms = () => {
       scheduled = false;
       const container = containerRef.current;
@@ -79,10 +72,19 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
       raf = requestAnimationFrame(updateTransforms);
     };
 
-    // começa no início de uma cópia do meio.
-    const cw = copyWidth();
-    if (cw > 0) container.scrollLeft = cw * MIDDLE_COPY;
+    // centraliza o item do meio já na posição final, sem nenhuma animação
+    // de entrada — scrollIntoView com behavior:"instant" usa a medida real
+    // do navegador (em vez de recalcular a largura da cópia manualmente),
+    // então cai exatamente no ponto de centralização sem sobra nenhuma que
+    // o scroll-snap precisasse "corrigir" com um pulinho depois. E
+    // desliga a transição de transform/opacity só nesse instante inicial,
+    // pra ela não "abrir" do achatado pro inclinado quando a página abre —
+    // já nasce no estado final.
+    const trackEl = container.querySelector<HTMLElement>(".portfolio-hcarousel-track");
+    trackEl?.classList.add("no-transition");
+    itemRefs.current[MIDDLE_COPY * n]?.scrollIntoView({ behavior: "instant", inline: "center", block: "nearest" });
     updateTransforms();
+    requestAnimationFrame(() => trackEl?.classList.remove("no-transition"));
 
     container.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
@@ -138,8 +140,6 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
           <a
             key={`${p.id}-${i}`}
             href={p.url ? normalizeUrl(p.url) : undefined}
-            target={p.url ? "_blank" : undefined}
-            rel="noopener noreferrer"
             className="portfolio-hcarousel-item"
             ref={(el) => {
               itemRefs.current[i] = el;

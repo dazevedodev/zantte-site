@@ -472,6 +472,12 @@ a {
      ângulo/escala item a item, e dava sensação de "borrão". */
   transition: transform 0.32s ease-out, opacity 0.32s ease-out;
 }
+/* desligada só no instante em que a página abre — sem isso, os itens iam
+   do estado achatado (sem transform ainda) pro estado inclinado final com
+   uma animação visível, um "movimento inicial" que ela não queria. */
+.portfolio-hcarousel-track.no-transition .portfolio-hcarousel-item {
+  transition: none;
+}
 /* setas discretas — forma alternativa de passar 1 projeto de cada vez,
    sem depender de rolar rápido (que é o que causava a sensação de
    borrão). */
@@ -521,11 +527,12 @@ a {
     right: 8px;
   }
 }
-/* wrapper com o fundo escuro fixo — a capa usa object-fit:contain (nunca
-   corta nada, seja qual for a proporção da imagem gerada) e o wrapper
-   preenche a moldura 16:10 por trás, então uma foto que não seja
-   exatamente 16:10 só sobra fundo escuro nas laterais/topo em vez de ter
-   pedaço cortado. */
+/* a capa preenche a moldura 16:10 inteira, sem sobra de fundo nas bordas
+   (object-fit:contain deixava tarja escura quando a imagem não era
+   exatamente 16:10 — ela não quer nenhuma borda ali). Com cover, uma foto
+   fora dessa proporção é cortada pra caber; pra não cortar nada importante
+   o ideal é gerar/exportar a capa já em 1600×1000px (16:10), como o campo
+   de upload no admin já indica. */
 .portfolio-hcarousel-cover-wrap {
   position: relative;
   display: block;
@@ -539,7 +546,7 @@ a {
 .portfolio-hcarousel-placeholder {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 .portfolio-hcarousel-placeholder {
   display: flex;
