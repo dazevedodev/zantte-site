@@ -10,23 +10,35 @@ function initial(name: string) {
 }
 
 // carrossel HORIZONTAL, infinito nos dois sentidos — sem começo nem fim.
-// Truque: a lista é renderizada 3x seguidas (cópia anterior / cópia do
-// meio / cópia seguinte); a gente começa rolado pro início da cópia do
-// meio, e sempre que o scroll entra fundo demais numa cópia vizinha, salta
-// de volta pra posição equivalente na cópia do meio SEM animação — como o
-// conteúdo é idêntico entre cópias, o salto é imperceptível e dá a
-// sensação de rolar pra sempre em qualquer direção.
+// Truque: a lista é renderizada repetida (COPIES cópias seguidas); a gente
+// começa rolado pro início da cópia do meio, e quando o scroll se afasta
+// demais dela, salta de volta pra posição equivalente SEM animação — como
+// o conteúdo é idêntico entre cópias, o salto é imperceptível.
+//
+// O pulo tem que acontecer só depois que o scroll ASSENTAR (debounce),
+// nunca no meio de uma animação: corrigir o scrollLeft enquanto o
+// scrollBy({behavior:"smooth"}) do botão ainda está em andamento cancela a
+// animação do navegador na hora e trava a passagem — é exatamente essa
+// travada que ela via só indo pra um lado (o lado em que o clique já
+// aterrissava perto do limite da cópia). Com só 2 projetos, um clique
+// sozinho já é metade da largura de uma cópia, então o limite batia quase
+// toda hora; por isso a lista agora repete mais vezes (mais fôlego) e o
+// realinhamento espera o scroll ficar quieto antes de agir.
+const COPIES = 5;
+const MIDDLE_COPY = Math.floor(COPIES / 2);
+
 export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const n = projects.length;
-  const track = n > 0 ? [...projects, ...projects, ...projects] : [];
+  const track = n > 0 ? Array.from({ length: COPIES }, () => projects).flat() : [];
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container || n === 0) return;
     let raf = 0;
     let scheduled = false;
+    let settleTimer: ReturnType<typeof setTimeout> | null = null;
 
     function copyWidth() {
       const first = itemRefs.current[0];
@@ -35,21 +47,25 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
       return firstOfNextCopy.offsetLeft - first.offsetLeft;
     }
 
-    const update = () => {
+    // só reposiciona (sem animação) quando não há mais nada rolando —
+    // nunca durante uma passagem em andamento.
+    function realign() {
+      const container = containerRef.current;
+      if (!container) return;
+      const cw = copyWidth();
+      if (cw <= 0) return;
+      const middle = cw * MIDDLE_COPY;
+      if (container.scrollLeft < middle - cw * 0.5) {
+        container.scrollLeft += cw;
+      } else if (container.scrollLeft > middle + cw * 0.5) {
+        container.scrollLeft -= cw;
+      }
+    }
+
+    const updateTransforms = () => {
       scheduled = false;
       const container = containerRef.current;
       if (!container) return;
-
-      // realinha antes de medir, pra nunca deixar a pessoa ver a borda
-      // real do início/fim da lista triplicada.
-      const cw = copyWidth();
-      if (cw > 0) {
-        if (container.scrollLeft < cw * 0.5) {
-          container.scrollLeft += cw;
-        } else if (container.scrollLeft > cw * 1.5) {
-          container.scrollLeft -= cw;
-        }
-      }
 
       const rect = container.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -69,20 +85,24 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     };
 
     const onScroll = () => {
-      if (scheduled) return;
-      scheduled = true;
-      raf = requestAnimationFrame(update);
+      if (!scheduled) {
+        scheduled = true;
+        raf = requestAnimationFrame(updateTransforms);
+      }
+      if (settleTimer) clearTimeout(settleTimer);
+      settleTimer = setTimeout(realign, 120);
     };
 
     // começa no início da cópia do meio.
     const cw = copyWidth();
-    if (cw > 0) container.scrollLeft = cw;
-    update();
+    if (cw > 0) container.scrollLeft = cw * MIDDLE_COPY;
+    updateTransforms();
 
     container.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(raf);
+      if (settleTimer) clearTimeout(settleTimer);
       container.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
