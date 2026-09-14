@@ -1609,6 +1609,18 @@ a {
   flex-direction: column;
   gap: 1.2rem;
 }
+/* dois blocos: o conteúdo antes de comprar (medido por JS pra saber onde
+   termina) e a linha de comprar em si, que ganha um margin-top calculado
+   em runtime — o suficiente pra sempre terminar exatamente onde termina o
+   "leve também" na galeria, produto a produto (ver product-purchase.tsx). */
+.product-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.product-buy-row {
+  transition: margin-top 0.15s ease;
+}
 /* linha de selos (categoria + vendas) — mesmo padrão preto/texto branco
    usado no resto do site, acima do nome do produto. */
 .product-detail-badges {

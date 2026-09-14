@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatBRL, formatSoldCount, discountPercent } from "@/lib/store/format";
 import { useCart } from "@/lib/store/cart";
@@ -54,12 +54,57 @@ export function ProductPurchase({
   const [couponCode, setCouponCode] = useState("");
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
 
+  const crossSellRef = useRef<HTMLDivElement>(null);
+  const infoContentRef = useRef<HTMLDivElement>(null);
+  const buyRowRef = useRef<HTMLDivElement>(null);
+
   // ao navegar de um produto pra outro (ex: pelo "leve também" ou pelos
   // relacionados), o Next as vezes mantém o scroll onde a pessoa estava —
   // aqui garante que toda página de produto sempre abre do topo.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
+
+  // alinha o fim da linha de comprar com o fim do "leve também", sempre —
+  // compactar a descrição (ProductHighlights) já ajuda, mas nome/categoria/
+  // desconto/frete variam de produto pra produto e ainda podiam deixar uns
+  // px de diferença. Em vez de tentar acertar isso só no CSS (as duas
+  // colunas rolam de forma independente), mede as duas depois de cada
+  // render e empurra a linha de comprar com a distância exata que falta —
+  // sempre que a galeria (imagem carregando) ou o conteúdo da coluna de
+  // info (nome quebrando linha, "ver mais") mudam de altura.
+  useEffect(() => {
+    const crossSellEl = crossSellRef.current;
+    const infoContentEl = infoContentRef.current;
+    const buyRowEl = buyRowRef.current;
+    if (!crossSellEl || !buyRowEl) return;
+
+    let raf = 0;
+    function align() {
+      if (!crossSellEl || !buyRowEl) return;
+      buyRowEl.style.marginTop = "0px";
+      const crossSellBottom = crossSellEl.getBoundingClientRect().bottom;
+      const buyRowBottom = buyRowEl.getBoundingClientRect().bottom;
+      const delta = crossSellBottom - buyRowBottom;
+      buyRowEl.style.marginTop = delta > 0 ? `${delta}px` : "0px";
+    }
+
+    function scheduleAlign() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(align);
+    }
+
+    scheduleAlign();
+    const observer = new ResizeObserver(scheduleAlign);
+    observer.observe(crossSellEl);
+    if (infoContentEl) observer.observe(infoContentEl);
+    window.addEventListener("resize", scheduleAlign);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleAlign);
+    };
+  }, [crossSell, images, description]);
 
   const soldLabel = formatSoldCount(unitsSold);
   const crossSellHasDiscount =
@@ -98,7 +143,7 @@ export function ProductPurchase({
         />
 
         {crossSell && (
-          <div className="product-cross-sell">
+          <div className="product-cross-sell" ref={crossSellRef}>
             <span className="product-cross-sell-label">
               {crossSellHasDiscount ? "aproveite essa oferta e leve também" : "combine com"}
             </span>
@@ -142,53 +187,57 @@ export function ProductPurchase({
       </div>
 
       <div className="product-detail-info">
-        {(category || soldLabel) && (
-          <div className="product-detail-badges">
-            {category && <span className="product-detail-badge">{category}</span>}
-            {soldLabel && <span className="product-detail-badge accent">{soldLabel}</span>}
-          </div>
-        )}
-
-        <h1 className="display product-detail-name">{name}</h1>
-        <div className="product-detail-top-row">
-          <div className="product-detail-price-stack">
-            {compareAtPriceCents && (
-              <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
-            )}
-            <span className="product-detail-price">{formatBRL(priceCents)}</span>
-            <div className="product-coupon">
-              <input
-                type="text"
-                placeholder="cupom de desconto"
-                value={couponCode}
-                onChange={(e) => {
-                  setCouponCode(e.target.value);
-                  setCouponMessage(null);
-                }}
-              />
-              <button type="button" onClick={handleApplyCoupon}>
-                aplicar
-              </button>
+        <div className="product-info-content" ref={infoContentRef}>
+          {(category || soldLabel) && (
+            <div className="product-detail-badges">
+              {category && <span className="product-detail-badge">{category}</span>}
+              {soldLabel && <span className="product-detail-badge accent">{soldLabel}</span>}
             </div>
-            {couponMessage && <span className="product-coupon-message">{couponMessage}</span>}
+          )}
+
+          <h1 className="display product-detail-name">{name}</h1>
+          <div className="product-detail-top-row">
+            <div className="product-detail-price-stack">
+              {compareAtPriceCents && (
+                <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
+              )}
+              <span className="product-detail-price">{formatBRL(priceCents)}</span>
+              <div className="product-coupon">
+                <input
+                  type="text"
+                  placeholder="cupom de desconto"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value);
+                    setCouponMessage(null);
+                  }}
+                />
+                <button type="button" onClick={handleApplyCoupon}>
+                  aplicar
+                </button>
+              </div>
+              {couponMessage && <span className="product-coupon-message">{couponMessage}</span>}
+            </div>
+            <div className="product-payment-top">
+              <TrustBadges />
+              <PaymentMethods />
+            </div>
           </div>
-          <div className="product-payment-top">
-            <TrustBadges />
-            <PaymentMethods />
-          </div>
+
+          {description && <ProductHighlights text={description} />}
+          {shippingType && <ShippingEstimate productId={productId} />}
         </div>
 
-        {description && <ProductHighlights text={description} />}
-        {shippingType && <ShippingEstimate productId={productId} />}
-
-        <AddToCartButton
-          productId={productId}
-          slug={slug}
-          name={name}
-          priceCents={priceCents}
-          imageUrl={selectedVariant?.imageUrl ?? images[0] ?? null}
-          variantName={selectedVariant?.name ?? null}
-        />
+        <div className="product-buy-row" ref={buyRowRef}>
+          <AddToCartButton
+            productId={productId}
+            slug={slug}
+            name={name}
+            priceCents={priceCents}
+            imageUrl={selectedVariant?.imageUrl ?? images[0] ?? null}
+            variantName={selectedVariant?.name ?? null}
+          />
+        </div>
       </div>
     </>
   );
