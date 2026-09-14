@@ -84,138 +84,148 @@ export default function CarrinhoPage() {
     <section className="cart-page">
       <h1 className="display cart-heading">carrinho</h1>
 
-      <div className="cart-items">
-        {items.map((item) => (
-          <div key={`${item.productId}-${item.variantName ?? ""}`} className="cart-item">
-            {item.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
-              <img src={item.imageUrl} alt={item.name} className="cart-item-image" />
-            ) : (
-              <div className="cart-item-image cart-item-image-placeholder" aria-hidden="true">
-                {item.name.charAt(0).toUpperCase()}
+      {/* produtos + resumo à esquerda, dados de quem compra à direita —
+          mesmo padrão de qualquer checkout: primeiro confirma o que tá
+          levando, depois preenche pra onde vai. Empilha em coluna única
+          no mobile (ver media query). */}
+      <div className="cart-layout">
+        <div className="cart-review-column">
+          <div className="cart-items">
+            {items.map((item) => (
+              <div key={`${item.productId}-${item.variantName ?? ""}`} className="cart-item">
+                {item.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
+                  <img src={item.imageUrl} alt={item.name} className="cart-item-image" />
+                ) : (
+                  <div className="cart-item-image cart-item-image-placeholder" aria-hidden="true">
+                    {item.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="cart-item-info">
+                  <Link href={`/loja/${item.slug}`} className="cart-item-name">
+                    {item.name}
+                    {item.variantName && <span className="cart-item-variant"> — {item.variantName}</span>}
+                  </Link>
+                  <span className="cart-item-price">{formatBRL(item.priceCents)}</span>
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  value={item.quantity}
+                  onChange={(e) =>
+                    setQuantity(item.productId, item.variantName, Math.max(1, Number(e.target.value) || 1))
+                  }
+                  className="cart-item-quantity"
+                />
+                <button
+                  type="button"
+                  className="cart-item-remove"
+                  onClick={() => removeItem(item.productId, item.variantName)}
+                  aria-label={`remover ${item.name}`}
+                >
+                  remover
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="cart-summary">
+            <div className="cart-summary-row">
+              <span>subtotal</span>
+              <span>{formatBRL(totalCents)}</span>
+            </div>
+            {shippingLoading && (
+              <div className="cart-summary-row">
+                <span>frete</span>
+                <span>calculando...</span>
               </div>
             )}
-            <div className="cart-item-info">
-              <Link href={`/loja/${item.slug}`} className="cart-item-name">
-                {item.name}
-                {item.variantName && <span className="cart-item-variant"> — {item.variantName}</span>}
-              </Link>
-              <span className="cart-item-price">{formatBRL(item.priceCents)}</span>
+            {!shippingLoading && shipping && (
+              <div className="cart-summary-row">
+                <span>frete{shipping.daysEstimate ? ` (${shipping.daysEstimate})` : ""}</span>
+                <span>{shipping.costCents > 0 ? formatBRL(shipping.costCents) : "grátis"}</span>
+              </div>
+            )}
+            <div className="cart-summary-row cart-summary-row-total">
+              <span>total</span>
+              <span className="cart-summary-total">
+                {formatBRL(totalCents + (shipping?.costCents ?? 0))}
+              </span>
+            </div>
+          </div>
+
+          <PaymentMethods />
+          <TrustBadges />
+        </div>
+
+        <form action={formAction} className="buy-form">
+          <input type="hidden" name="cartJson" value={cartJson} />
+
+          <fieldset className="buy-form-fieldset">
+            <legend className="label">contato</legend>
+            <input name="customerName" placeholder="nome completo" required />
+            <input name="customerEmail" type="email" placeholder="e-mail" required />
+            <input name="customerPhone" placeholder="telefone (com DDD)" required />
+            <input name="customerCpf" placeholder="CPF (só números)" required />
+          </fieldset>
+
+          <fieldset className="buy-form-fieldset">
+            <legend className="label">endereço de entrega</legend>
+            <input
+              name="shippingCep"
+              placeholder="CEP"
+              required
+              value={cep}
+              onChange={(e) => setCep(formatCep(e.target.value))}
+              onBlur={handleCepBlur}
+            />
+            {cepLookupFailed && (
+              <p className="buy-form-hint">não encontramos esse CEP, preenche o endereço manualmente</p>
+            )}
+            <input
+              name="shippingStreet"
+              placeholder="rua"
+              required
+              value={address.street}
+              onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
+            />
+            <div className="buy-form-row-split">
+              <input name="shippingNumber" placeholder="número" required />
+              <input name="shippingComplement" placeholder="complemento (opcional)" />
             </div>
             <input
-              type="number"
-              min={1}
-              value={item.quantity}
-              onChange={(e) =>
-                setQuantity(item.productId, item.variantName, Math.max(1, Number(e.target.value) || 1))
-              }
-              className="cart-item-quantity"
-            />
-            <button
-              type="button"
-              className="cart-item-remove"
-              onClick={() => removeItem(item.productId, item.variantName)}
-              aria-label={`remover ${item.name}`}
-            >
-              remover
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className="cart-summary">
-        <div className="cart-summary-row">
-          <span>subtotal</span>
-          <span>{formatBRL(totalCents)}</span>
-        </div>
-        {shippingLoading && (
-          <div className="cart-summary-row">
-            <span>frete</span>
-            <span>calculando...</span>
-          </div>
-        )}
-        {!shippingLoading && shipping && (
-          <div className="cart-summary-row">
-            <span>frete{shipping.daysEstimate ? ` (${shipping.daysEstimate})` : ""}</span>
-            <span>{shipping.costCents > 0 ? formatBRL(shipping.costCents) : "grátis"}</span>
-          </div>
-        )}
-        <div className="cart-summary-row cart-summary-row-total">
-          <span>total</span>
-          <span className="cart-summary-total">{formatBRL(totalCents + (shipping?.costCents ?? 0))}</span>
-        </div>
-      </div>
-
-      <form action={formAction} className="buy-form">
-        <input type="hidden" name="cartJson" value={cartJson} />
-
-        <fieldset className="buy-form-fieldset">
-          <legend className="label">contato</legend>
-          <input name="customerName" placeholder="nome completo" required />
-          <input name="customerEmail" type="email" placeholder="e-mail" required />
-          <input name="customerPhone" placeholder="telefone (com DDD)" required />
-          <input name="customerCpf" placeholder="CPF (só números)" required />
-        </fieldset>
-
-        <fieldset className="buy-form-fieldset">
-          <legend className="label">endereço de entrega</legend>
-          <input
-            name="shippingCep"
-            placeholder="CEP"
-            required
-            value={cep}
-            onChange={(e) => setCep(formatCep(e.target.value))}
-            onBlur={handleCepBlur}
-          />
-          {cepLookupFailed && (
-            <p className="buy-form-hint">não encontramos esse CEP, preenche o endereço manualmente</p>
-          )}
-          <input
-            name="shippingStreet"
-            placeholder="rua"
-            required
-            value={address.street}
-            onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
-          />
-          <div className="buy-form-row-split">
-            <input name="shippingNumber" placeholder="número" required />
-            <input name="shippingComplement" placeholder="complemento (opcional)" />
-          </div>
-          <input
-            name="shippingNeighborhood"
-            placeholder="bairro"
-            required
-            value={address.neighborhood}
-            onChange={(e) => setAddress((a) => ({ ...a, neighborhood: e.target.value }))}
-          />
-          <div className="buy-form-row-split">
-            <input
-              name="shippingCity"
-              placeholder="cidade"
+              name="shippingNeighborhood"
+              placeholder="bairro"
               required
-              value={address.city}
-              onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
+              value={address.neighborhood}
+              onChange={(e) => setAddress((a) => ({ ...a, neighborhood: e.target.value }))}
             />
-            <input
-              name="shippingState"
-              placeholder="UF"
-              maxLength={2}
-              required
-              value={address.state}
-              onChange={(e) => setAddress((a) => ({ ...a, state: e.target.value.toUpperCase() }))}
-            />
-          </div>
-        </fieldset>
+            <div className="buy-form-row-split">
+              <input
+                name="shippingCity"
+                placeholder="cidade"
+                required
+                value={address.city}
+                onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
+              />
+              <input
+                name="shippingState"
+                placeholder="UF"
+                maxLength={2}
+                required
+                value={address.state}
+                onChange={(e) => setAddress((a) => ({ ...a, state: e.target.value.toUpperCase() }))}
+              />
+            </div>
+          </fieldset>
 
-        {state?.error && <p className="buy-form-error">{state.error}</p>}
+          {state?.error && <p className="buy-form-error">{state.error}</p>}
 
-        <button type="submit" className="btn-solid" disabled={pending}>
-          {pending ? "processando..." : "ir para o pagamento"}
-        </button>
-
-        <PaymentMethods />
-        <TrustBadges />
-      </form>
+          <button type="submit" className="btn-solid" disabled={pending}>
+            {pending ? "processando..." : "ir para o pagamento"}
+          </button>
+        </form>
+      </div>
     </section>
   );
 }

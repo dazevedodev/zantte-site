@@ -1418,7 +1418,15 @@ a {
 }
 .store-card-cover-wrap {
   position: relative;
+  display: block;
+  width: 100%;
   aspect-ratio: 1 / 1;
+  /* sem isso, uma foto muito mais alta que larga (ex: embalagem em pé)
+     ignorava o aspect-ratio e esticava o card inteiro pra caber — o
+     overflow:hidden do .store-card (por fora) não segura isso porque o
+     wrap contribui altura de verdade pro fluxo, não é conteúdo
+     "vazando". */
+  overflow: hidden;
 }
 .store-card-cover {
   width: 100%;
@@ -2114,7 +2122,26 @@ a {
 /* /loja/carrinho */
 .cart-page {
   padding: 4vh 6vw 10vh;
-  max-width: 720px;
+  max-width: 1100px;
+}
+/* produtos/resumo à esquerda, formulário de dados à direita — layout
+   clássico de checkout, em vez de tudo empilhado numa coluna só. */
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+}
+.cart-review-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+@media (max-width: 860px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
 }
 .cart-heading {
   font-family: var(--font-bubble);
