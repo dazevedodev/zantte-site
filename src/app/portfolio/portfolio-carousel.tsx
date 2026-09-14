@@ -88,8 +88,40 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     };
   }, [n]);
 
+  // navegação por botão — passa 1 item de cada vez, suave e controlado (em
+  // vez de depender só do scroll direto, que em trackpad/mouse rápido
+  // passava vários itens de uma vez e dava a sensação de "borrão").
+  function goTo(direction: -1 | 1) {
+    const container = containerRef.current;
+    const a = itemRefs.current[0];
+    const b = itemRefs.current[1];
+    if (!container || !a || !b) return;
+    const step = b.offsetLeft - a.offsetLeft;
+    container.scrollBy({ left: direction * step, behavior: "smooth" });
+  }
+
   return (
     <div ref={containerRef} className="portfolio-hcarousel">
+      <button
+        type="button"
+        className="portfolio-hcarousel-arrow prev"
+        aria-label="projeto anterior"
+        onClick={() => goTo(-1)}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        className="portfolio-hcarousel-arrow next"
+        aria-label="próximo projeto"
+        onClick={() => goTo(1)}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
       <div className="portfolio-hcarousel-track">
         {track.map((p, i) => (
           <a

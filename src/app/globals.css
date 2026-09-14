@@ -463,7 +463,59 @@ a {
   flex-direction: column;
   gap: 14px;
   will-change: transform, opacity;
-  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  /* mais lento que antes (era 0.15s) — num scroll rápido de trackpad/
+     mouse, a transição curta não dava tempo de acompanhar a mudança de
+     ângulo/escala item a item, e dava sensação de "borrão". */
+  transition: transform 0.32s ease-out, opacity 0.32s ease-out;
+}
+/* setas discretas — forma alternativa de passar 1 projeto de cada vez,
+   sem depender de rolar rápido (que é o que causava a sensação de
+   borrão). */
+.portfolio-hcarousel-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 15;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(23, 22, 15, 0.35);
+  color: #f5f3ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.portfolio-hcarousel-arrow:hover {
+  background: rgba(23, 22, 15, 0.55);
+}
+.portfolio-hcarousel-arrow svg {
+  width: 22px;
+  height: 22px;
+}
+.portfolio-hcarousel-arrow.prev {
+  left: 20px;
+}
+.portfolio-hcarousel-arrow.next {
+  right: 20px;
+}
+@media (max-width: 820px) {
+  .portfolio-hcarousel-arrow {
+    width: 36px;
+    height: 36px;
+  }
+  .portfolio-hcarousel-arrow svg {
+    width: 18px;
+    height: 18px;
+  }
+  .portfolio-hcarousel-arrow.prev {
+    left: 8px;
+  }
+  .portfolio-hcarousel-arrow.next {
+    right: 8px;
+  }
 }
 .portfolio-hcarousel-cover,
 .portfolio-hcarousel-placeholder {
