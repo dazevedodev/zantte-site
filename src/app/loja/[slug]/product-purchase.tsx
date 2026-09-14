@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { formatBRL, formatSoldCount } from "@/lib/store/format";
-import type { ProductVariant, ShippingType } from "@/lib/store/types";
+import Link from "next/link";
+import { formatBRL, formatSoldCount, discountPercent } from "@/lib/store/format";
+import { useCart } from "@/lib/store/cart";
+import type { Product, ProductVariant, ShippingType } from "@/lib/store/types";
 import { ProductGallery } from "./product-gallery";
 import { ProductHighlights } from "./product-highlights";
 import { AddToCartButton } from "./add-to-cart-button";
@@ -19,6 +21,7 @@ export function ProductPurchase({
   productId,
   slug,
   name,
+  category,
   description,
   priceCents,
   compareAtPriceCents,
@@ -27,11 +30,13 @@ export function ProductPurchase({
   variants,
   unitsSold,
   shippingType,
-  discountPercent,
+  discountPercent: discountPct,
+  crossSell,
 }: {
   productId: string;
   slug: string;
   name: string;
+  category: string | null;
   description: string;
   priceCents: number;
   compareAtPriceCents: number | null;
@@ -41,15 +46,37 @@ export function ProductPurchase({
   unitsSold: number;
   shippingType: ShippingType | null;
   discountPercent: number | null;
+  crossSell: Product | null;
 }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(variants[0] ?? null);
+  const { addItem, openDrawer } = useCart();
+  const [crossSellAdded, setCrossSellAdded] = useState(false);
+
+  const soldLabel = formatSoldCount(unitsSold);
+  const crossSellHasDiscount =
+    crossSell?.compareAtPriceCents && crossSell.compareAtPriceCents > crossSell.priceCents;
+
+  function handleAddCrossSell() {
+    if (!crossSell) return;
+    addItem({
+      productId: crossSell.id,
+      slug: crossSell.slug,
+      name: crossSell.name,
+      priceCents: crossSell.priceCents,
+      imageUrl: crossSell.imageUrls[0] ?? null,
+      variantName: null,
+    });
+    setCrossSellAdded(true);
+    setTimeout(() => setCrossSellAdded(false), 1500);
+    openDrawer();
+  }
 
   return (
     <>
       <ProductGallery
         images={images}
         name={name}
-        discountPercent={discountPercent}
+        discountPercent={discountPct}
         videoUrl={videoUrl}
         variants={variants}
         selectedVariant={selectedVariant}
@@ -57,6 +84,13 @@ export function ProductPurchase({
       />
 
       <div className="product-detail-info">
+        {(category || soldLabel) && (
+          <div className="product-detail-badges">
+            {category && <span className="product-detail-badge">{category}</span>}
+            {soldLabel && <span className="product-detail-badge accent">{soldLabel}</span>}
+          </div>
+        )}
+
         <h1 className="display product-detail-name">{name}</h1>
         <div className="product-detail-price-stack">
           {compareAtPriceCents && (
@@ -64,9 +98,7 @@ export function ProductPurchase({
           )}
           <span className="product-detail-price">{formatBRL(priceCents)}</span>
         </div>
-        {formatSoldCount(unitsSold) && (
-          <span className="product-detail-sold">{formatSoldCount(unitsSold)}</span>
-        )}
+
         {description && <ProductHighlights text={description} />}
         {shippingType && <ShippingEstimate productId={productId} />}
 
@@ -78,6 +110,49 @@ export function ProductPurchase({
           imageUrl={selectedVariant?.imageUrl ?? images[0] ?? null}
           variantName={selectedVariant?.name ?? null}
         />
+
+        {crossSell && (
+          <div className="product-cross-sell">
+            <span className="product-cross-sell-label">
+              {crossSellHasDiscount ? "aproveite essa oferta e leve também" : "combine com"}
+            </span>
+            <div className="product-cross-sell-item">
+              <Link href={`/loja/${crossSell.slug}`} className="product-cross-sell-link">
+                {crossSell.imageUrls[0] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
+                  <img src={crossSell.imageUrls[0]} alt={crossSell.name} className="product-cross-sell-image" />
+                ) : (
+                  <div className="product-cross-sell-image product-cross-sell-placeholder" aria-hidden="true">
+                    {crossSell.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="product-cross-sell-info">
+                  <span className="product-cross-sell-name">{crossSell.name}</span>
+                  <span className="product-cross-sell-price-row">
+                    {crossSellHasDiscount && (
+                      <span className="product-cross-sell-price-compare">
+                        {formatBRL(crossSell.compareAtPriceCents!)}
+                      </span>
+                    )}
+                    <span className="product-cross-sell-price">{formatBRL(crossSell.priceCents)}</span>
+                    {crossSellHasDiscount && (
+                      <span className="product-cross-sell-discount">
+                        -{discountPercent(crossSell.compareAtPriceCents!, crossSell.priceCents)}%
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </Link>
+              <button
+                type="button"
+                className={`product-cross-sell-add ${crossSellAdded ? "added" : ""}`}
+                onClick={handleAddCrossSell}
+              >
+                {crossSellAdded ? "adicionado ✓" : "+ adicionar"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <PaymentMethods />
         <TrustBadges />

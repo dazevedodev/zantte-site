@@ -27,6 +27,12 @@ export default async function ProductPage({
   const relatedLabel =
     sameCategory.length > 0 ? `mais em ${product.category}` : "você também pode gostar";
 
+  // "leve também" ao lado do botão de compra — prioriza um produto com
+  // desconto de verdade cadastrado (mesma regra do upsell do carrinho),
+  // pra ser um convite de oferta real, não empurrar qualquer coisa.
+  const crossSell =
+    others.find((p) => p.compareAtPriceCents && p.compareAtPriceCents > p.priceCents) ?? others[0] ?? null;
+
   return (
     <>
       <nav className="product-breadcrumb mono" aria-label="breadcrumb">
@@ -46,6 +52,7 @@ export default async function ProductPage({
           productId={product.id}
           slug={product.slug}
           name={product.name}
+          category={product.category}
           description={product.description}
           priceCents={product.priceCents}
           compareAtPriceCents={product.compareAtPriceCents}
@@ -59,6 +66,7 @@ export default async function ProductPage({
               ? discountPercent(product.compareAtPriceCents, product.priceCents)
               : null
           }
+          crossSell={crossSell}
         />
       </section>
 
