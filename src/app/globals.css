@@ -1827,6 +1827,7 @@ a {
   flex: 1;
   min-width: 140px;
   text-align: center;
+  white-space: nowrap;
 }
 .cart-add-icon-btn {
   position: relative;
