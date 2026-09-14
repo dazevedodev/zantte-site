@@ -67,12 +67,14 @@ export function ProductPurchase({
 
   // alinha o fim da linha de comprar com o fim do "leve também", sempre —
   // compactar a descrição (ProductHighlights) já ajuda, mas nome/categoria/
-  // desconto/frete variam de produto pra produto e ainda podiam deixar uns
-  // px de diferença. Em vez de tentar acertar isso só no CSS (as duas
-  // colunas rolam de forma independente), mede as duas depois de cada
-  // render e empurra a linha de comprar com a distância exata que falta —
-  // sempre que a galeria (imagem carregando) ou o conteúdo da coluna de
-  // info (nome quebrando linha, "ver mais") mudam de altura.
+  // desconto/frete variam de produto pra produto e às vezes a coluna da
+  // galeria termina antes, às vezes a de info termina antes. Em vez de
+  // tentar acertar isso só no CSS (as duas colunas rolam de forma
+  // independente), mede as duas depois de cada render e empurra pra baixo
+  // — com uma margem pequena e calculada, nunca esticando — qualquer uma
+  // das duas que estiver terminando mais cedo, sempre que a galeria
+  // (imagem carregando) ou o conteúdo da coluna de info (nome quebrando
+  // linha, "ver mais") mudam de altura.
   useEffect(() => {
     const crossSellEl = crossSellRef.current;
     const infoContentEl = infoContentRef.current;
@@ -82,11 +84,16 @@ export function ProductPurchase({
     let raf = 0;
     function align() {
       if (!crossSellEl || !buyRowEl) return;
+      crossSellEl.style.marginTop = "";
       buyRowEl.style.marginTop = "0px";
       const crossSellBottom = crossSellEl.getBoundingClientRect().bottom;
       const buyRowBottom = buyRowEl.getBoundingClientRect().bottom;
       const delta = crossSellBottom - buyRowBottom;
-      buyRowEl.style.marginTop = delta > 0 ? `${delta}px` : "0px";
+      if (delta > 0) {
+        buyRowEl.style.marginTop = `${delta}px`;
+      } else if (delta < 0) {
+        crossSellEl.style.marginTop = `${-delta}px`;
+      }
     }
 
     function scheduleAlign() {
