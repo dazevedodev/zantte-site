@@ -81,7 +81,11 @@ export function ProductPurchase({
     const buyRowEl = buyRowRef.current;
     if (!crossSellEl || !buyRowEl) return;
 
-    let raf = 0;
+    // setTimeout em vez de requestAnimationFrame de propósito — rAF só
+    // dispara durante pintura de verdade, e em aba em segundo plano (ou
+    // sem foco) o navegador pode nunca chamar o callback, deixando o
+    // alinhamento preso em 0.
+    let timer: ReturnType<typeof setTimeout> | null = null;
     function align() {
       if (!crossSellEl || !buyRowEl) return;
       crossSellEl.style.marginTop = "";
@@ -97,8 +101,8 @@ export function ProductPurchase({
     }
 
     function scheduleAlign() {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(align);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(align, 30);
     }
 
     scheduleAlign();
@@ -107,7 +111,7 @@ export function ProductPurchase({
     if (infoContentEl) observer.observe(infoContentEl);
     window.addEventListener("resize", scheduleAlign);
     return () => {
-      cancelAnimationFrame(raf);
+      if (timer) clearTimeout(timer);
       observer.disconnect();
       window.removeEventListener("resize", scheduleAlign);
     };
