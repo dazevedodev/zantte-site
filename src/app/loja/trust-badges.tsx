@@ -6,16 +6,6 @@ export function TrustBadges() {
     <ul className="trust-badges">
       <li>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-          <rect x="4" y="10" width="16" height="10" rx="1.5" />
-          <path d="M8 10V7a4 4 0 0 1 8 0v3" strokeLinecap="round" />
-        </svg>
-        <span>
-          Pagamento seguro
-          <small>processado pelo Mercado Pago</small>
-        </span>
-      </li>
-      <li>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
           <path d="M3 7h11v10H3z" strokeLinejoin="round" />
           <path d="M14 10h4l3 3v4h-7z" strokeLinejoin="round" />
           <circle cx="7.5" cy="19" r="1.6" />
