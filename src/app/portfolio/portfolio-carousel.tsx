@@ -101,7 +101,11 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
   }
 
   return (
-    <div ref={containerRef} className="portfolio-hcarousel">
+    <>
+      {/* fora do container com "perspective" de propósito — perspective
+          (assim como transform) cria um novo containing block pra
+          position:fixed, então um botão fixed lá dentro fica preso à
+          faixa que rola pro lado em vez de grudar na viewport. */}
       <button
         type="button"
         className="portfolio-hcarousel-arrow prev"
@@ -122,6 +126,8 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
           <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
+
+      <div ref={containerRef} className="portfolio-hcarousel">
       <div className="portfolio-hcarousel-track">
         {track.map((p, i) => (
           <a
@@ -150,6 +156,7 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
         ))}
         {track.length === 0 && <div className="portfolio-carousel-empty mono">em breve</div>}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
