@@ -1869,11 +1869,15 @@ a {
    agora" e o botão (só ícone) de adicionar ao carrinho, tudo na mesma linha:
    ela pediu o comprar agora do lado da quantidade e o adicionar virando só
    um botão de "+" com o ícone do carrinho, sem disputar espaço com o CTA
-   principal. margin-top:auto empurra pro fim da coluna de info — junto
-   com o mesmo truque no "leve também" (coluna da galeria), isso mantém as
-   duas linhas sempre alinhadas entre si, produto a produto. */
+   principal.
+   (nota: tentamos empurrar isso com margin-top:auto pra sempre alinhar
+   com o "leve também" — mas pra produto com descrição/destaques longos
+   isso esticava a coluna da galeria e deixava um vão preto enorme embaixo
+   da foto, bem pior que o desalinhamento. Voltou a ficar no fluxo normal,
+   logo depois dos destaques/frete — cada produto fica compacto e
+   consistente, sem vão esticado.) */
 .add-to-cart {
-  margin-top: auto;
+  margin-top: 1rem;
   max-width: 420px;
 }
 .add-to-cart-row {
@@ -2293,12 +2297,11 @@ a {
 
 /* "leve também" na própria página do produto — mesma lógica do upsell do
    carrinho (sempre prioriza desconto real), mas em caixa preta/texto
-   branco, igual o resto da loja, em vez do tom terracota do carrinho. */
-/* empurra o "leve também" pro fim da coluna da galeria — como a coluna da
-   galeria e a coluna de info são esticadas na mesma altura pelo grid
-   (.product-detail), isso mantém o "leve também" sempre alinhado com a
-   linha de comprar (que também é empurrada pro fim da coluna de info),
-   não importa o quão comprida seja a descrição de cada produto. */
+   branco, igual o resto da loja, em vez do tom terracota do carrinho.
+   Fica logo abaixo da foto, no fluxo normal — nada de empurrar pro fim da
+   coluna: isso criava um vão preto enorme entre a foto e a caixa sempre
+   que a descrição do produto era longa. Assim fica sempre no mesmo lugar,
+   colado na foto, produto a produto. */
 .product-cross-sell {
   background: var(--surface);
   border-radius: 14px;
@@ -2306,7 +2309,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: auto;
 }
 .product-cross-sell-label {
   font-size: 11px;
