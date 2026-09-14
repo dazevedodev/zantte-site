@@ -1393,6 +1393,11 @@ a {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  /* por padrão o grid estica todo item de uma linha pra altura do mais
+     alto (ex: um card com "+100 vendas" cria uma linha extra que os
+     outros não têm) — sem isso, o .store-card (fundo preto) esticava e
+     sobrava um vão preto enorme embaixo do preço nos cards mais curtos. */
+  align-items: start;
 }
 /* card — foto quadrada no topo (sem legenda flutuando por cima: preço
    ficava difícil de ler dependendo da foto) + categoria/nome/preço numa
