@@ -622,10 +622,10 @@ a {
 }
 .portfolio-hcarousel-tagline {
   font-size: 12px;
-  color: var(--muted);
+  color: rgba(245, 243, 234, 0.7);
 }
 .portfolio-carousel-empty {
-  color: var(--muted);
+  color: rgba(245, 243, 234, 0.7);
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1283,6 +1283,18 @@ a {
   font-size: 1.15rem;
   font-weight: 700;
   margin-top: 0.6rem;
+}
+/* em /sobre e /contato (fundo verde forçado, .simple-page-pastel) o
+   --muted do tema padrão (cinza claro, pensado pra fundo escuro) fica
+   quase invisível em cima do verde — mesma família de bug do --muted da
+   loja, só que aqui ninguém tinha reparado ainda porque a página era
+   curta demais pra chamar atenção. Escrita normal na página = creme, não
+   cinza. */
+.simple-page-pastel .simple-page-eyebrow {
+  color: rgba(245, 243, 234, 0.75);
+}
+.simple-page-pastel .simple-page-text {
+  color: rgba(245, 243, 234, 0.88);
 }
 .simple-page-text {
   font-size: 16px;
