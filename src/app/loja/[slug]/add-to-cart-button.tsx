@@ -49,18 +49,36 @@ export function AddToCartButton({
           value={quantity}
           onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
         />
-      </div>
-
-      <div className="add-to-cart-actions">
-        <button type="button" className="btn-solid" onClick={handleBuyNow}>
+        <button type="button" className="btn-solid buy-now-btn" onClick={handleBuyNow}>
           comprar agora
         </button>
         <button
           type="button"
-          className={`add-to-cart-secondary ${justAdded ? "added" : ""}`}
+          className={`cart-add-icon-btn ${justAdded ? "added" : ""}`}
           onClick={handleAddToCart}
+          aria-label="adicionar ao carrinho"
+          title="adicionar ao carrinho"
         >
-          {justAdded ? "adicionado ✓" : "+ adicionar ao carrinho"}
+          {justAdded ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+              <path d="M5 12.5l4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <path
+                  d="M3 4h2l2.2 11.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20.5 8H6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="10" cy="21" r="1.4" />
+                <circle cx="17" cy="21" r="1.4" />
+              </svg>
+              <span className="cart-add-plus" aria-hidden="true">
+                +
+              </span>
+            </>
+          )}
         </button>
       </div>
     </div>

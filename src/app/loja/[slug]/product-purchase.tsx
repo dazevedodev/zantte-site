@@ -137,11 +137,17 @@ export function ProductPurchase({
         )}
 
         <h1 className="display product-detail-name">{name}</h1>
-        <div className="product-detail-price-stack">
-          {compareAtPriceCents && (
-            <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
-          )}
-          <span className="product-detail-price">{formatBRL(priceCents)}</span>
+        <div className="product-detail-top-row">
+          <div className="product-detail-price-stack">
+            {compareAtPriceCents && (
+              <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
+            )}
+            <span className="product-detail-price">{formatBRL(priceCents)}</span>
+          </div>
+          <div className="product-payment-top">
+            <PaymentMethods />
+            <span className="product-payment-secure">pagamento seguro · Mercado Pago</span>
+          </div>
         </div>
 
         {description && <ProductHighlights text={description} />}
@@ -156,7 +162,6 @@ export function ProductPurchase({
           variantName={selectedVariant?.name ?? null}
         />
 
-        <PaymentMethods />
         <TrustBadges />
       </div>
     </>
