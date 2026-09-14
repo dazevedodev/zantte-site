@@ -14,7 +14,7 @@ import { ProductDescription } from "./product-description";
 // linha de comprar bem mais pra baixo do que o "leve também" na galeria
 // ao lado, um produto ficando bem diferente do outro. Colapsado, a coluna
 // fica compacta e parecida entre produtos.
-const TEXT_LIMIT = 160;
+const TEXT_LIMIT = 150;
 const BULLET_LIMIT = 3;
 
 export function ProductHighlights({ text }: { text: string }) {

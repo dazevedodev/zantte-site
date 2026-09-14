@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-const COLLAPSED_LIMIT = 280;
+// mais compacto do que antes (era 280) — em produtos sem "- destaque"
+// cadastrado (só parágrafo corrido), esse é o único freio de altura da
+// coluna de info; sem ele bem apertado, sobra um vão vazio enorme do lado
+// da galeria em produtos com pouco mais conteúdo (frete, selos etc.).
+const COLLAPSED_LIMIT = 150;
 
 export function ProductDescription({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
