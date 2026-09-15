@@ -213,7 +213,7 @@ export function CashFlowCalendar({
               <option value="saida">saída</option>
             </select>
             <input name="description" type="text" placeholder="descrição" required />
-            <input name="amount" type="number" step="0.01" min="0.01" placeholder="valor (R$)" required />
+            <input name="amount" type="text" inputMode="decimal" placeholder="valor (R$), ex: 50,00" required />
             <label className="cash-flow-add-paid">
               <input type="checkbox" name="paid" value="true" />
               já feito
