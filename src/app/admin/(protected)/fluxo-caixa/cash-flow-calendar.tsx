@@ -83,12 +83,20 @@ export function CashFlowCalendar({
 
   async function reload() {
     const { start, end } = calendarWindow(year, month);
-    const res = await fetch(`/admin/fluxo-caixa/entries-api?start=${start}&end=${end}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return;
-    const data = (await res.json()) as { entries: FinancialEntry[] };
-    setEntries(data.entries);
+    try {
+      const res = await fetch(`/admin/fluxo-caixa/entries-api?start=${start}&end=${end}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        setError(`falha ao recarregar (${res.status}): ${body.slice(0, 200)}`);
+        return;
+      }
+      const data = (await res.json()) as { entries: FinancialEntry[] };
+      setEntries(data.entries);
+    } catch (err) {
+      setError(`falha de rede ao recarregar: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   async function handleAdd(formData: FormData): Promise<boolean> {
@@ -103,7 +111,7 @@ export function CashFlowCalendar({
       await reload();
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(`erro ao chamar a action: ${err instanceof Error ? err.message : String(err)}`);
       return false;
     } finally {
       setPending(false);
@@ -111,13 +119,21 @@ export function CashFlowCalendar({
   }
 
   async function handleTogglePaid(id: string, paid: boolean) {
-    await setFinancialEntryPaidAction(id, paid);
-    await reload();
+    try {
+      await setFinancialEntryPaidAction(id, paid);
+      await reload();
+    } catch (err) {
+      setError(`erro ao marcar: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   async function handleDelete(id: string) {
-    await deleteFinancialEntryAction(id);
-    await reload();
+    try {
+      await deleteFinancialEntryAction(id);
+      await reload();
+    } catch (err) {
+      setError(`erro ao remover: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   const days = useMemo(() => buildGrid(year, month), [year, month]);

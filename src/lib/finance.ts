@@ -20,15 +20,23 @@ type FinancialEntryRow = {
   created_at: string;
 };
 
+// a coluna "date" do Postgres volta do driver como objeto Date de verdade
+// (não como texto) — String(dataObj) dá algo tipo "Tue Sep 15 2026...", que
+// nunca batia com a chave "YYYY-MM-DD" que o calendário usa. Era por isso
+// que o lançamento salvava certinho no banco mas nunca aparecia em lugar
+// nenhum: a data comparada nunca era igual à data procurada.
+function toDateOnly(value: unknown): string {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value).slice(0, 10);
+}
+
 function mapEntry(row: FinancialEntryRow): FinancialEntry {
   return {
     id: row.id,
     kind: row.kind,
     description: row.description,
     amountCents: row.amount_cents,
-    // vem do banco como Date/ISO com hora — corta pro dia puro (YYYY-MM-DD)
-    // pra bater exatamente com a célula do calendário, sem depender de fuso.
-    dueDate: String(row.due_date).slice(0, 10),
+    dueDate: toDateOnly(row.due_date),
     paid: row.paid,
     createdAt: row.created_at,
   };
