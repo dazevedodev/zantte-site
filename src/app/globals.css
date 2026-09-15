@@ -3276,11 +3276,19 @@ a {
   margin-bottom: 1rem;
 }
 .cash-flow-nav-arrow {
+  font-family: inherit;
   font-size: 1.4rem;
   line-height: 1;
   padding: 4px 10px;
   border-radius: 8px;
   border: 1px solid var(--line-soft);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.cash-flow-nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 .cash-flow-nav-arrow:hover {
   border-color: var(--paper);
@@ -3311,9 +3319,9 @@ a {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  min-height: 78px;
-  padding: 6px;
+  gap: 6px;
+  min-height: 98px;
+  padding: 8px;
   border-radius: 8px;
   border: 1px solid var(--line-soft);
   background: none;
@@ -3346,29 +3354,31 @@ a {
   width: 100%;
 }
 .cash-flow-chip {
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-weight: 600;
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
 }
 .cash-flow-chip.entrada {
-  background: rgba(107, 255, 176, 0.16);
-  color: var(--success);
+  background: rgba(107, 255, 176, 0.28);
+  color: #0f7a4f;
 }
 .cash-flow-chip.saida {
-  background: rgba(255, 107, 107, 0.14);
-  color: var(--danger);
+  background: rgba(255, 107, 107, 0.24);
+  color: #a3231a;
 }
 .cash-flow-chip.paid {
   opacity: 0.5;
   text-decoration: line-through;
 }
 .cash-flow-chip-more {
-  font-size: 10px;
-  color: rgba(23, 22, 15, 0.65);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(23, 22, 15, 0.7);
 }
 .cash-flow-panel {
   border-top: 1px solid var(--line-soft);

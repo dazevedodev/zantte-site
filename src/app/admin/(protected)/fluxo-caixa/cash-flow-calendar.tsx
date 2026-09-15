@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { formatBRL } from "@/lib/store/format";
 import type { FinancialEntry } from "@/lib/finance";
 import { calendarWindow } from "@/lib/finance-calendar";
@@ -64,25 +63,28 @@ function nextMonth(year: number, month1: number) {
 }
 
 export function CashFlowCalendar({
-  year,
-  month,
+  year: initialYear,
+  month: initialMonth,
   entries: initialEntries,
 }: {
   year: number;
   month: number;
   entries: FinancialEntry[];
 }) {
-  // estado local, recarregado por fetch direto depois de qualquer
-  // alteração — de propósito, em vez de confiar em revalidatePath/
-  // router.refresh() atualizando esse componente cliente sozinho (não
-  // estava acontecendo de forma confiável).
+  // ano/mês e lançamentos são estado local — trocar de mês (ou adicionar/
+  // marcar/remover) busca os dados novos por fetch direto e atualiza tudo
+  // na hora, sem navegação de página nenhuma (nem Link, nem router.refresh,
+  // que não tava confiável): a tela nunca "recarrega", só troca o conteúdo.
+  const [year, setYear] = useState(initialYear);
+  const [month, setMonth] = useState(initialMonth);
   const [entries, setEntries] = useState(initialEntries);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [monthLoading, setMonthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function reload() {
-    const { start, end } = calendarWindow(year, month);
+  async function fetchEntries(y: number, m: number): Promise<FinancialEntry[] | null> {
+    const { start, end } = calendarWindow(y, m);
     try {
       const res = await fetch(`/admin/fluxo-caixa/entries-api?start=${start}&end=${end}`, {
         cache: "no-store",
@@ -90,13 +92,33 @@ export function CashFlowCalendar({
       if (!res.ok) {
         const body = await res.text().catch(() => "");
         setError(`falha ao recarregar (${res.status}): ${body.slice(0, 200)}`);
-        return;
+        return null;
       }
       const data = (await res.json()) as { entries: FinancialEntry[] };
-      setEntries(data.entries);
+      return data.entries;
     } catch (err) {
       setError(`falha de rede ao recarregar: ${err instanceof Error ? err.message : String(err)}`);
+      return null;
     }
+  }
+
+  async function reload() {
+    const fresh = await fetchEntries(year, month);
+    if (fresh) setEntries(fresh);
+  }
+
+  async function handleChangeMonth(y: number, m: number) {
+    setMonthLoading(true);
+    setSelectedDate(null);
+    setError(null);
+    const fresh = await fetchEntries(y, m);
+    if (fresh) {
+      setYear(y);
+      setMonth(m);
+      setEntries(fresh);
+      window.history.pushState(null, "", `?y=${y}&m=${m}`);
+    }
+    setMonthLoading(false);
   }
 
   async function handleAdd(formData: FormData): Promise<boolean> {
@@ -183,15 +205,27 @@ export function CashFlowCalendar({
       </div>
 
       <div className="cash-flow-nav">
-        <Link href={`?y=${prev.year}&m=${prev.month}`} className="cash-flow-nav-arrow" aria-label="mês anterior">
+        <button
+          type="button"
+          onClick={() => handleChangeMonth(prev.year, prev.month)}
+          className="cash-flow-nav-arrow"
+          aria-label="mês anterior"
+          disabled={monthLoading}
+        >
           ‹
-        </Link>
+        </button>
         <span className="cash-flow-nav-label">
-          {MONTH_NAMES[month - 1]} {year}
+          {monthLoading ? "carregando..." : `${MONTH_NAMES[month - 1]} ${year}`}
         </span>
-        <Link href={`?y=${next.year}&m=${next.month}`} className="cash-flow-nav-arrow" aria-label="próximo mês">
+        <button
+          type="button"
+          onClick={() => handleChangeMonth(next.year, next.month)}
+          className="cash-flow-nav-arrow"
+          aria-label="próximo mês"
+          disabled={monthLoading}
+        >
           ›
-        </Link>
+        </button>
       </div>
 
       <div className="cash-flow-grid">
