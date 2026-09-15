@@ -11,6 +11,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Link href="/" className="admin-nav-site">
           ver site ↗
         </Link>
+        {/* discreto de propósito — não é sobre a loja/portfólio, é só pra
+            ela mesma, por isso fica visualmente separado dos links de
+            negócio acima em vez de ser "mais uma aba". */}
+        <Link href="/admin/fluxo-caixa" className="admin-nav-hidden-link">
+          fluxo
+        </Link>
         <form action={logoutAction} className="admin-nav-logout">
           <button type="submit">sair</button>
         </form>
