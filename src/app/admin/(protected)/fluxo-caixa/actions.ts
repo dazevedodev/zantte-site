@@ -30,13 +30,20 @@ export async function createFinancialEntryAction(
   const dueDate = formData.get("dueDate");
   if (typeof dueDate !== "string" || !dueDate.trim()) return { error: "data obrigatória" };
 
-  await createFinancialEntry({
-    kind,
-    description: description.trim(),
-    amountCents,
-    dueDate,
-    paid: formData.get("paid") === "true",
-  });
+  try {
+    await createFinancialEntry({
+      kind,
+      description: description.trim(),
+      amountCents,
+      dueDate,
+      paid: formData.get("paid") === "true",
+    });
+  } catch (err) {
+    // sem isso, um erro real do banco (conexão, schema etc.) ficava mudo —
+    // a tela não mudava e parecia que o botão "adicionar" não fazia nada.
+    const message = err instanceof Error ? err.message : String(err);
+    return { error: `erro ao salvar: ${message}` };
+  }
 
   revalidatePath("/admin/fluxo-caixa");
   return null;

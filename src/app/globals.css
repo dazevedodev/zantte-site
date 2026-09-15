@@ -3375,6 +3375,16 @@ a {
   padding-top: 1.5rem;
   max-width: 480px;
 }
+.cash-flow-error {
+  background: rgba(255, 107, 107, 0.16);
+  border: 1px solid var(--danger);
+  color: #17160f;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
 .cash-flow-panel-heading {
   font-family: var(--font-bubble);
   font-weight: 700;

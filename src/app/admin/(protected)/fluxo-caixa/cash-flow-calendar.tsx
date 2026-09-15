@@ -204,6 +204,8 @@ export function CashFlowCalendar({
             })}
           </h2>
 
+          {formState?.error && <p className="cash-flow-error">{formState.error}</p>}
+
           {selectedEntries.length > 0 && (
             <ul className="cash-flow-entry-list">
               {selectedEntries.map((entry) => (
@@ -240,7 +242,6 @@ export function CashFlowCalendar({
             <button type="submit" className="btn-solid" disabled={pending}>
               {pending ? "adicionando..." : "adicionar"}
             </button>
-            {formState?.error && <p className="buy-form-error">{formState.error}</p>}
           </form>
         </div>
       )}
