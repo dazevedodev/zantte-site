@@ -1,20 +1,8 @@
 import { listFinancialEntries } from "@/lib/finance";
+import { calendarWindow } from "@/lib/finance-calendar";
 import { CashFlowCalendar } from "./cash-flow-calendar";
 
 export const dynamic = "force-dynamic";
-
-// grade do calendário mostra dias do mês anterior/seguinte pra completar
-// semana — busca essa janela inteira (não só o mês "puro") de uma vez.
-function calendarWindow(year: number, month: number) {
-  const first = new Date(Date.UTC(year, month - 1, 1));
-  const last = new Date(Date.UTC(year, month, 0));
-  const gridStart = new Date(first);
-  gridStart.setUTCDate(gridStart.getUTCDate() - gridStart.getUTCDay());
-  const gridEnd = new Date(last);
-  gridEnd.setUTCDate(gridEnd.getUTCDate() + (6 - gridEnd.getUTCDay()));
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
-  return { start: fmt(gridStart), end: fmt(gridEnd) };
-}
 
 export default async function FluxoCaixaPage({
   searchParams,

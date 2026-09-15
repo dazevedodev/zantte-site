@@ -1,16 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { formatBRL } from "@/lib/store/format";
 import type { FinancialEntry } from "@/lib/finance";
-import {
-  createFinancialEntryAction,
-  setFinancialEntryPaidAction,
-  deleteFinancialEntryAction,
-  type FinanceFormState,
-} from "./actions";
+import { calendarWindow } from "@/lib/finance-calendar";
+import { createFinancialEntryAction, setFinancialEntryPaidAction, deleteFinancialEntryAction } from "./actions";
 
 const WEEKDAYS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const MONTH_NAMES = [
@@ -41,8 +36,6 @@ function todayIso() {
   return isoDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
 }
 
-// mesma janela calculada no server (page.tsx) — dias do mês vizinho que
-// completam a semana da primeira/última linha da grade.
 function buildGrid(year: number, month1: number) {
   const first = new Date(Date.UTC(year, month1 - 1, 1));
   const last = new Date(Date.UTC(year, month1, 0));
@@ -73,35 +66,59 @@ function nextMonth(year: number, month1: number) {
 export function CashFlowCalendar({
   year,
   month,
-  entries,
+  entries: initialEntries,
 }: {
   year: number;
   month: number;
   entries: FinancialEntry[];
 }) {
-  const router = useRouter();
+  // estado local, recarregado por fetch direto depois de qualquer
+  // alteração — de propósito, em vez de confiar em revalidatePath/
+  // router.refresh() atualizando esse componente cliente sozinho (não
+  // estava acontecendo de forma confiável).
+  const [entries, setEntries] = useState(initialEntries);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [formState, formAction, pending] = useActionState<FinanceFormState, FormData>(
-    createFinancialEntryAction,
-    null,
-  );
-  const formRef = useRef<HTMLFormElement>(null);
-  const wasPending = useRef(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // rede de segurança: o Next já deveria atualizar sozinho os dados do
-  // servidor depois de uma Server Action, mas força um refresh explícito
-  // (e limpa o formulário) assim que o "adicionar" termina sem erro —
-  // pra nunca parecer que "não aconteceu nada" quando na real só a tela
-  // que não tinha se atualizado.
-  useEffect(() => {
-    if (wasPending.current && !pending) {
-      if (!formState?.error) {
-        formRef.current?.reset();
-        router.refresh();
+  async function reload() {
+    const { start, end } = calendarWindow(year, month);
+    const res = await fetch(`/admin/fluxo-caixa/entries-api?start=${start}&end=${end}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return;
+    const data = (await res.json()) as { entries: FinancialEntry[] };
+    setEntries(data.entries);
+  }
+
+  async function handleAdd(formData: FormData): Promise<boolean> {
+    setPending(true);
+    setError(null);
+    try {
+      const result = await createFinancialEntryAction(null, formData);
+      if (result?.error) {
+        setError(result.error);
+        return false;
       }
+      await reload();
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      return false;
+    } finally {
+      setPending(false);
     }
-    wasPending.current = pending;
-  }, [pending, formState, router]);
+  }
+
+  async function handleTogglePaid(id: string, paid: boolean) {
+    await setFinancialEntryPaidAction(id, paid);
+    await reload();
+  }
+
+  async function handleDelete(id: string) {
+    await deleteFinancialEntryAction(id);
+    await reload();
+  }
 
   const days = useMemo(() => buildGrid(year, month), [year, month]);
   const byDate = useMemo(() => {
@@ -178,7 +195,10 @@ export function CashFlowCalendar({
               className={`cash-flow-day ${inMonth ? "" : "outside"} ${iso === today ? "today" : ""} ${
                 selectedDate === iso ? "selected" : ""
               }`}
-              onClick={() => setSelectedDate(iso)}
+              onClick={() => {
+                setSelectedDate(iso);
+                setError(null);
+              }}
             >
               <span className="cash-flow-day-number">{day}</span>
               <span className="cash-flow-day-entries">
@@ -204,7 +224,7 @@ export function CashFlowCalendar({
             })}
           </h2>
 
-          {formState?.error && <p className="cash-flow-error">{formState.error}</p>}
+          {error && <p className="cash-flow-error">{error}</p>}
 
           {selectedEntries.length > 0 && (
             <ul className="cash-flow-entry-list">
@@ -212,22 +232,36 @@ export function CashFlowCalendar({
                 <li key={entry.id} className={`cash-flow-entry ${entry.kind}`}>
                   <span className="cash-flow-entry-desc">{entry.description}</span>
                   <span className="cash-flow-entry-amount">{formatBRL(entry.amountCents)}</span>
-                  <form action={setFinancialEntryPaidAction.bind(null, entry.id, !entry.paid)}>
-                    <button type="submit" className="cash-flow-entry-paid-btn">
-                      {entry.paid ? (entry.kind === "entrada" ? "recebido ✓" : "pago ✓") : "marcar como feito"}
-                    </button>
-                  </form>
-                  <form action={deleteFinancialEntryAction.bind(null, entry.id)}>
-                    <button type="submit" className="cash-flow-entry-remove">
-                      remover
-                    </button>
-                  </form>
+                  <button
+                    type="button"
+                    className="cash-flow-entry-paid-btn"
+                    onClick={() => handleTogglePaid(entry.id, !entry.paid)}
+                  >
+                    {entry.paid ? (entry.kind === "entrada" ? "recebido ✓" : "pago ✓") : "marcar como feito"}
+                  </button>
+                  <button
+                    type="button"
+                    className="cash-flow-entry-remove"
+                    onClick={() => handleDelete(entry.id)}
+                  >
+                    remover
+                  </button>
                 </li>
               ))}
             </ul>
           )}
 
-          <form ref={formRef} action={formAction} className="cash-flow-add-form">
+          <form
+            className="cash-flow-add-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const formData = new FormData(form);
+              handleAdd(formData).then((success) => {
+                if (success) form.reset();
+              });
+            }}
+          >
             <input type="hidden" name="dueDate" value={selectedDate} />
             <select name="kind" defaultValue="saida">
               <option value="entrada">entrada</option>
