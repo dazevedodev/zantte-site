@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatBRL } from "@/lib/store/format";
 import type { FinancialEntry } from "@/lib/finance";
@@ -78,11 +79,29 @@ export function CashFlowCalendar({
   month: number;
   entries: FinancialEntry[];
 }) {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [formState, formAction, pending] = useActionState<FinanceFormState, FormData>(
     createFinancialEntryAction,
     null,
   );
+  const formRef = useRef<HTMLFormElement>(null);
+  const wasPending = useRef(false);
+
+  // rede de segurança: o Next já deveria atualizar sozinho os dados do
+  // servidor depois de uma Server Action, mas força um refresh explícito
+  // (e limpa o formulário) assim que o "adicionar" termina sem erro —
+  // pra nunca parecer que "não aconteceu nada" quando na real só a tela
+  // que não tinha se atualizado.
+  useEffect(() => {
+    if (wasPending.current && !pending) {
+      if (!formState?.error) {
+        formRef.current?.reset();
+        router.refresh();
+      }
+    }
+    wasPending.current = pending;
+  }, [pending, formState, router]);
 
   const days = useMemo(() => buildGrid(year, month), [year, month]);
   const byDate = useMemo(() => {
@@ -206,7 +225,7 @@ export function CashFlowCalendar({
             </ul>
           )}
 
-          <form action={formAction} className="cash-flow-add-form">
+          <form ref={formRef} action={formAction} className="cash-flow-add-form">
             <input type="hidden" name="dueDate" value={selectedDate} />
             <select name="kind" defaultValue="saida">
               <option value="entrada">entrada</option>
