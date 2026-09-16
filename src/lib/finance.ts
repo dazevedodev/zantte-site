@@ -80,11 +80,20 @@ export async function deleteFinancialEntry(id: string): Promise<void> {
 // saldo da conta agora — uma linha só (id fixo "main"), ela mesma atualiza
 // quando o valor muda de verdade (não é derivado dos lançamentos, é o que
 // ela vê no banco/app do banco).
+//
+// Se a tabela ainda não existir (antes de rodar a migração), volta 0 em
+// vez de derrubar a página inteira do fluxo de caixa — a página do
+// fluxo de caixa é muito mais importante que esse saldo pra travar por
+// causa disso.
 export async function getAccountBalance(): Promise<number> {
-  const rows = (await sql`select amount_cents from financial_balance where id = 'main'`) as {
-    amount_cents: number;
-  }[];
-  return rows[0]?.amount_cents ?? 0;
+  try {
+    const rows = (await sql`select amount_cents from financial_balance where id = 'main'`) as {
+      amount_cents: number;
+    }[];
+    return rows[0]?.amount_cents ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function setAccountBalance(cents: number): Promise<void> {
