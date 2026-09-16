@@ -3262,11 +3262,62 @@ a {
   font-size: 1.4rem;
   font-weight: 700;
 }
+/* mesma cor mais escura/legível usada nos "chips" do calendário — o
+   verde/vermelho padrão (--success/--danger) é feito pra fundo escuro,
+   ficava apagado em cima do verde da página. */
 .cash-flow-summary-value.entrada {
-  color: var(--success);
+  color: #0f7a4f;
 }
 .cash-flow-summary-value.saida {
-  color: var(--danger);
+  color: #a3231a;
+}
+.cash-flow-balance-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: inherit;
+}
+.cash-flow-balance-edit-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(23, 22, 15, 0.5);
+  text-decoration: underline;
+}
+.cash-flow-balance-btn:hover .cash-flow-balance-edit-hint {
+  color: #17160f;
+}
+.cash-flow-balance-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cash-flow-balance-form input {
+  width: 120px;
+  background: rgba(23, 22, 15, 0.08);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #17160f;
+  font-size: 14px;
+  font-weight: 700;
+}
+.cash-flow-balance-save,
+.cash-flow-balance-cancel {
+  font-size: 11px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: none;
+  color: #17160f;
+  cursor: pointer;
+}
+.cash-flow-balance-save:hover,
+.cash-flow-balance-cancel:hover {
+  border-color: #17160f;
 }
 .cash-flow-nav {
   display: flex;

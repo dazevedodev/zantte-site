@@ -76,3 +76,21 @@ export async function setFinancialEntryPaid(id: string, paid: boolean): Promise<
 export async function deleteFinancialEntry(id: string): Promise<void> {
   await sql`delete from financial_entries where id = ${id}`;
 }
+
+// saldo da conta agora — uma linha só (id fixo "main"), ela mesma atualiza
+// quando o valor muda de verdade (não é derivado dos lançamentos, é o que
+// ela vê no banco/app do banco).
+export async function getAccountBalance(): Promise<number> {
+  const rows = (await sql`select amount_cents from financial_balance where id = 'main'`) as {
+    amount_cents: number;
+  }[];
+  return rows[0]?.amount_cents ?? 0;
+}
+
+export async function setAccountBalance(cents: number): Promise<void> {
+  await sql`
+    insert into financial_balance (id, amount_cents, updated_at)
+    values ('main', ${cents}, now())
+    on conflict (id) do update set amount_cents = excluded.amount_cents, updated_at = excluded.updated_at
+  `;
+}

@@ -1,10 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { formatBRL } from "@/lib/store/format";
 import type { FinancialEntry } from "@/lib/finance";
 import { calendarWindow } from "@/lib/finance-calendar";
-import { createFinancialEntryAction, setFinancialEntryPaidAction, deleteFinancialEntryAction } from "./actions";
+import {
+  createFinancialEntryAction,
+  setFinancialEntryPaidAction,
+  deleteFinancialEntryAction,
+  setAccountBalanceAction,
+} from "./actions";
 
 const WEEKDAYS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const MONTH_NAMES = [
@@ -66,10 +71,12 @@ export function CashFlowCalendar({
   year: initialYear,
   month: initialMonth,
   entries: initialEntries,
+  balance: initialBalance,
 }: {
   year: number;
   month: number;
   entries: FinancialEntry[];
+  balance: number;
 }) {
   // ano/mês e lançamentos são estado local — trocar de mês (ou adicionar/
   // marcar/remover) busca os dados novos por fetch direto e atualiza tudo
@@ -78,12 +85,16 @@ export function CashFlowCalendar({
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const [entries, setEntries] = useState(initialEntries);
+  const [balance, setBalance] = useState(initialBalance);
+  const [balanceEditing, setBalanceEditing] = useState(false);
+  const [balanceInput, setBalanceInput] = useState("");
+  const [balancePending, setBalancePending] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [monthLoading, setMonthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchEntries(y: number, m: number): Promise<FinancialEntry[] | null> {
+  async function fetchEntries(y: number, m: number): Promise<{ entries: FinancialEntry[]; balance: number } | null> {
     const { start, end } = calendarWindow(y, m);
     try {
       const res = await fetch(`/admin/fluxo-caixa/entries-api?start=${start}&end=${end}`, {
@@ -94,8 +105,7 @@ export function CashFlowCalendar({
         setError(`falha ao recarregar (${res.status}): ${body.slice(0, 200)}`);
         return null;
       }
-      const data = (await res.json()) as { entries: FinancialEntry[] };
-      return data.entries;
+      return (await res.json()) as { entries: FinancialEntry[]; balance: number };
     } catch (err) {
       setError(`falha de rede ao recarregar: ${err instanceof Error ? err.message : String(err)}`);
       return null;
@@ -104,7 +114,10 @@ export function CashFlowCalendar({
 
   async function reload() {
     const fresh = await fetchEntries(year, month);
-    if (fresh) setEntries(fresh);
+    if (fresh) {
+      setEntries(fresh.entries);
+      setBalance(fresh.balance);
+    }
   }
 
   async function handleChangeMonth(y: number, m: number) {
@@ -115,10 +128,32 @@ export function CashFlowCalendar({
     if (fresh) {
       setYear(y);
       setMonth(m);
-      setEntries(fresh);
+      setEntries(fresh.entries);
+      setBalance(fresh.balance);
       window.history.pushState(null, "", `?y=${y}&m=${m}`);
     }
     setMonthLoading(false);
+  }
+
+  async function handleSaveBalance(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setBalancePending(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.set("balance", balanceInput);
+      const result = await setAccountBalanceAction(null, formData);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      await reload();
+      setBalanceEditing(false);
+    } catch (err) {
+      setError(`erro ao salvar saldo: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setBalancePending(false);
+    }
   }
 
   async function handleAdd(formData: FormData): Promise<boolean> {
@@ -184,10 +219,51 @@ export function CashFlowCalendar({
   const next = nextMonth(year, month);
   const today = todayIso();
   const selectedEntries = selectedDate ? (byDate.get(selectedDate) ?? []) : [];
+  // saldo atual + o que ainda entra/sai neste mês — não é "saldo daqui a X
+  // dias" de verdade (isso exigiria olhar todo lançamento futuro, não só o
+  // mês visível), é só "com o que já sei desse mês, devo terminar com
+  // quanto". Rótulo deixa isso explícito.
+  const projectedBalance = balance + monthTotals.balance;
 
   return (
     <div className="cash-flow">
       <div className="cash-flow-summary">
+        <div>
+          <span className="cash-flow-summary-label">saldo atual da conta</span>
+          {balanceEditing ? (
+            <form
+              className="cash-flow-balance-form"
+              onSubmit={handleSaveBalance}
+            >
+              <input
+                type="text"
+                inputMode="decimal"
+                autoFocus
+                defaultValue={(balance / 100).toFixed(2).replace(".", ",")}
+                onChange={(e) => setBalanceInput(e.target.value)}
+                placeholder="ex: 1500,00"
+              />
+              <button type="submit" className="cash-flow-balance-save" disabled={balancePending}>
+                {balancePending ? "..." : "salvar"}
+              </button>
+              <button type="button" className="cash-flow-balance-cancel" onClick={() => setBalanceEditing(false)}>
+                cancelar
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              className="cash-flow-summary-value cash-flow-balance-btn"
+              onClick={() => {
+                setBalanceInput((balance / 100).toFixed(2).replace(".", ","));
+                setBalanceEditing(true);
+                setError(null);
+              }}
+            >
+              {formatBRL(balance)} <span className="cash-flow-balance-edit-hint">editar</span>
+            </button>
+          )}
+        </div>
         <div>
           <span className="cash-flow-summary-label">entradas do mês</span>
           <span className="cash-flow-summary-value entrada">{formatBRL(monthTotals.income)}</span>
@@ -197,9 +273,15 @@ export function CashFlowCalendar({
           <span className="cash-flow-summary-value saida">{formatBRL(monthTotals.expense)}</span>
         </div>
         <div>
-          <span className="cash-flow-summary-label">saldo previsto</span>
+          <span className="cash-flow-summary-label">fluxo previsto do mês</span>
           <span className={`cash-flow-summary-value ${monthTotals.balance >= 0 ? "entrada" : "saida"}`}>
             {formatBRL(monthTotals.balance)}
+          </span>
+        </div>
+        <div>
+          <span className="cash-flow-summary-label">saldo + fluxo do mês</span>
+          <span className={`cash-flow-summary-value ${projectedBalance >= 0 ? "entrada" : "saida"}`}>
+            {formatBRL(projectedBalance)}
           </span>
         </div>
       </div>

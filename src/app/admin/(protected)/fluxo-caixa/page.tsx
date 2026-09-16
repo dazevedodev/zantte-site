@@ -1,4 +1,4 @@
-import { listFinancialEntries } from "@/lib/finance";
+import { listFinancialEntries, getAccountBalance } from "@/lib/finance";
 import { calendarWindow } from "@/lib/finance-calendar";
 import { CashFlowCalendar } from "./cash-flow-calendar";
 
@@ -15,14 +15,14 @@ export default async function FluxoCaixaPage({
   const month = Number(params.m) || now.getUTCMonth() + 1;
 
   const { start, end } = calendarWindow(year, month);
-  const entries = await listFinancialEntries(start, end);
+  const [entries, balance] = await Promise.all([listFinancialEntries(start, end), getAccountBalance()]);
 
   return (
     <section className="admin-page">
       <div className="admin-page-head-row">
         <h1 className="display admin-page-heading">fluxo de caixa</h1>
       </div>
-      <CashFlowCalendar year={year} month={month} entries={entries} />
+      <CashFlowCalendar year={year} month={month} entries={entries} balance={balance} />
     </section>
   );
 }
