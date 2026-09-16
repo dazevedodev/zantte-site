@@ -69,12 +69,57 @@ export async function createFinancialEntry(input: {
   return mapEntry(rows[0]);
 }
 
+// soma (ou subtrai) do saldo atual, de forma atômica — nunca sobrescreve
+// o valor, só ajusta em cima do que já tá lá (pra não pisar numa edição
+// manual que tenha acontecido entre a leitura e a escrita).
+async function adjustAccountBalance(deltaCents: number): Promise<void> {
+  if (deltaCents === 0) return;
+  await sql`
+    insert into financial_balance (id, amount_cents, updated_at)
+    values ('main', ${deltaCents}, now())
+    on conflict (id) do update
+      set amount_cents = financial_balance.amount_cents + excluded.amount_cents,
+          updated_at = now()
+  `;
+}
+
+// marcar uma entrada como recebida soma o valor no saldo da conta; marcar
+// uma saída como paga subtrai. Desmarcar reverte o mesmo efeito. O saldo
+// só é o número real da conta se ele acompanhar o que de fato já
+// aconteceu — se não fizesse isso, ela teria que ficar recalculando e
+// reeditando o saldo manualmente cada vez que algo é pago/recebido.
 export async function setFinancialEntryPaid(id: string, paid: boolean): Promise<void> {
+  const rows = (await sql`
+    select kind, amount_cents, paid from financial_entries where id = ${id}
+  `) as { kind: "entrada" | "saida"; amount_cents: number; paid: boolean }[];
+  const entry = rows[0];
+  if (!entry) return;
+
   await sql`update financial_entries set paid = ${paid} where id = ${id}`;
+
+  if (entry.paid === paid) return; // já tava nesse estado, sem efeito duplicado no saldo
+
+  const direction = entry.kind === "entrada" ? 1 : -1;
+  const delta = (paid ? 1 : -1) * direction * entry.amount_cents;
+  await adjustAccountBalance(delta);
 }
 
 export async function deleteFinancialEntry(id: string): Promise<void> {
+  const rows = (await sql`
+    select kind, amount_cents, paid from financial_entries where id = ${id}
+  `) as { kind: "entrada" | "saida"; amount_cents: number; paid: boolean }[];
+  const entry = rows[0];
+
   await sql`delete from financial_entries where id = ${id}`;
+
+  // só desfaz o efeito no saldo se esse lançamento já tinha sido contado
+  // (marcado como feito) — remover algo que nunca foi confirmado não
+  // deveria mexer no saldo.
+  if (!entry || !entry.paid) return;
+
+  const direction = entry.kind === "entrada" ? 1 : -1;
+  const delta = -1 * direction * entry.amount_cents;
+  await adjustAccountBalance(delta);
 }
 
 // saldo da conta agora — uma linha só (id fixo "main"), ela mesma atualiza

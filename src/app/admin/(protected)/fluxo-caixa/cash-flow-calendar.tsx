@@ -207,23 +207,32 @@ export function CashFlowCalendar({
   const monthTotals = useMemo(() => {
     let income = 0;
     let expense = 0;
+    let pendingIncome = 0;
+    let pendingExpense = 0;
     for (const entry of entries) {
       if (!entry.dueDate.startsWith(`${year}-${pad(month)}`)) continue;
-      if (entry.kind === "entrada") income += entry.amountCents;
-      else expense += entry.amountCents;
+      if (entry.kind === "entrada") {
+        income += entry.amountCents;
+        if (!entry.paid) pendingIncome += entry.amountCents;
+      } else {
+        expense += entry.amountCents;
+        if (!entry.paid) pendingExpense += entry.amountCents;
+      }
     }
-    return { income, expense, balance: income - expense };
+    return { income, expense, balance: income - expense, pendingBalance: pendingIncome - pendingExpense };
   }, [entries, year, month]);
 
   const prev = prevMonth(year, month);
   const next = nextMonth(year, month);
   const today = todayIso();
   const selectedEntries = selectedDate ? (byDate.get(selectedDate) ?? []) : [];
-  // saldo atual + o que ainda entra/sai neste mês — não é "saldo daqui a X
-  // dias" de verdade (isso exigiria olhar todo lançamento futuro, não só o
-  // mês visível), é só "com o que já sei desse mês, devo terminar com
-  // quanto". Rótulo deixa isso explícito.
-  const projectedBalance = balance + monthTotals.balance;
+  // saldo atual + só o que AINDA NÃO foi marcado como feito neste mês —
+  // usar o total do mês inteiro contaria duas vezes o que já foi marcado
+  // (aquilo já entrou no saldo atual quando foi confirmado). Não é "saldo
+  // daqui a X dias" de verdade (isso exigiria olhar todo lançamento
+  // futuro, não só o mês visível), é só "com o que ainda falta desse mês,
+  // devo terminar com quanto".
+  const projectedBalance = balance + monthTotals.pendingBalance;
 
   return (
     <div className="cash-flow">
@@ -279,7 +288,7 @@ export function CashFlowCalendar({
           </span>
         </div>
         <div>
-          <span className="cash-flow-summary-label">saldo + fluxo do mês</span>
+          <span className="cash-flow-summary-label">saldo + pendente do mês</span>
           <span className={`cash-flow-summary-value ${projectedBalance >= 0 ? "entrada" : "saida"}`}>
             {formatBRL(projectedBalance)}
           </span>
