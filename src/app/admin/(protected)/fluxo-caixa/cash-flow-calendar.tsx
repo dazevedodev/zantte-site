@@ -286,6 +286,8 @@ export function CashFlowCalendar({
         </div>
       </div>
 
+      {error && <p className="cash-flow-error">{error}</p>}
+
       <div className="cash-flow-nav">
         <button
           type="button"
@@ -355,8 +357,6 @@ export function CashFlowCalendar({
               month: "long",
             })}
           </h2>
-
-          {error && <p className="cash-flow-error">{error}</p>}
 
           {selectedEntries.length > 0 && (
             <ul className="cash-flow-entry-list">
