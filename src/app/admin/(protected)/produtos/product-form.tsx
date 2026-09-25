@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import type { ProductFormState } from "./actions";
 import type { ProductVariant, ShippingType } from "@/lib/store/types";
 
@@ -35,6 +35,20 @@ export function ProductForm({
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantImage, setNewVariantImage] = useState("");
   const [shippingType, setShippingType] = useState<ShippingType | "">(defaultValues?.shippingType ?? "");
+  const [justSaved, setJustSaved] = useState(false);
+  const wasPending = useRef(false);
+
+  // salvar (edição) não navega pra lugar nenhum — sem uma confirmação
+  // clara, um salvamento com sucesso parece idêntico a não ter feito
+  // nada, porque a tela fica exatamente igual. Isso deixa visível.
+  useEffect(() => {
+    const justFinished = wasPending.current && !pending;
+    wasPending.current = pending;
+    if (!justFinished || state?.error) return;
+    setJustSaved(true);
+    const timer = setTimeout(() => setJustSaved(false), 3000);
+    return () => clearTimeout(timer);
+  }, [pending, state]);
 
   function moveImage(index: number, direction: -1 | 1) {
     setImages((prev) => {
@@ -329,6 +343,7 @@ export function ProductForm({
       </div>
 
       {state?.error && <p className="buy-form-error">{state.error}</p>}
+      {justSaved && <p className="admin-form-success">salvo ✓</p>}
 
       <button type="submit" className="btn-solid" disabled={pending}>
         {pending ? "salvando..." : "salvar"}

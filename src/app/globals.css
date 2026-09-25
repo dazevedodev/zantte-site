@@ -1976,6 +1976,13 @@ a {
   font-size: 13px;
   color: var(--danger);
 }
+/* confirmação de "salvar" no admin — sem isso, um salvamento com sucesso
+   ficava idêntico visualmente a não ter feito nada. */
+.admin-form-success {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f7a4f;
+}
 
 /* botão "adicionar ao carrinho" na página do produto — quantidade, "comprar
    agora" e o botão (só ícone) de adicionar ao carrinho, tudo na mesma linha:

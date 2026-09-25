@@ -117,24 +117,31 @@ export async function createProductAction(
   const newImageUrls = await collectNewImageUrls(formData);
   const videoUrl = await resolveVideoUrl(formData);
 
-  const product = await createProduct({
-    slug: `${slugify(name)}-${Date.now().toString(36)}`,
-    name: name.trim(),
-    description: typeof description === "string" ? description.trim() : "",
-    priceCents,
-    compareAtPriceCents,
-    imageUrls: newImageUrls,
-    videoUrl,
-    variants: variantsFromForm(formData),
-    unitsSold: parseUnitsSold(formData),
-    category: optionalField(formData, "category"),
-    supplierUrl: optionalField(formData, "supplierUrl"),
-    ...shippingInputFromForm(formData),
-  });
+  let productId: string;
+  try {
+    const product = await createProduct({
+      slug: `${slugify(name)}-${Date.now().toString(36)}`,
+      name: name.trim(),
+      description: typeof description === "string" ? description.trim() : "",
+      priceCents,
+      compareAtPriceCents,
+      imageUrls: newImageUrls,
+      videoUrl,
+      variants: variantsFromForm(formData),
+      unitsSold: parseUnitsSold(formData),
+      category: optionalField(formData, "category"),
+      supplierUrl: optionalField(formData, "supplierUrl"),
+      ...shippingInputFromForm(formData),
+    });
+    productId = product.id;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { error: `erro ao salvar: ${message}` };
+  }
 
   revalidatePath("/admin/produtos");
   revalidatePath("/loja");
-  redirect(`/admin/produtos/${product.id}`);
+  redirect(`/admin/produtos/${productId}`);
 }
 
 export async function updateProductAction(
@@ -160,19 +167,26 @@ export async function updateProductAction(
   const imageUrls = [...existingImageUrlsFromForm(formData), ...newImageUrls];
   const videoUrl = await resolveVideoUrl(formData);
 
-  await updateProduct(productId, {
-    name: name.trim(),
-    description: typeof description === "string" ? description.trim() : "",
-    priceCents,
-    compareAtPriceCents,
-    imageUrls,
-    videoUrl,
-    variants: variantsFromForm(formData),
-    unitsSold: parseUnitsSold(formData),
-    category: optionalField(formData, "category"),
-    supplierUrl: optionalField(formData, "supplierUrl"),
-    ...shippingInputFromForm(formData),
-  });
+  try {
+    await updateProduct(productId, {
+      name: name.trim(),
+      description: typeof description === "string" ? description.trim() : "",
+      priceCents,
+      compareAtPriceCents,
+      imageUrls,
+      videoUrl,
+      variants: variantsFromForm(formData),
+      unitsSold: parseUnitsSold(formData),
+      category: optionalField(formData, "category"),
+      supplierUrl: optionalField(formData, "supplierUrl"),
+      ...shippingInputFromForm(formData),
+    });
+  } catch (err) {
+    // sem isso, um erro real do banco ficava mudo — a tela não mudava e
+    // parecia que "salvar" não fazia nada.
+    const message = err instanceof Error ? err.message : String(err);
+    return { error: `erro ao salvar: ${message}` };
+  }
 
   revalidatePath("/admin/produtos");
   revalidatePath(`/admin/produtos/${productId}`);
