@@ -25,6 +25,9 @@ type OrderRow = {
   mp_init_point: string | null;
   mp_payment_id: string | null;
   mp_status_detail: string | null;
+  pix_qr_code: string | null;
+  pix_qr_code_base64: string | null;
+  pix_expires_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -67,6 +70,9 @@ function mapOrder(row: OrderRow, items: OrderItem[]): Order {
     mpInitPoint: row.mp_init_point,
     mpPaymentId: row.mp_payment_id,
     mpStatusDetail: row.mp_status_detail,
+    pixQrCode: row.pix_qr_code,
+    pixQrCodeBase64: row.pix_qr_code_base64,
+    pixExpiresAt: row.pix_expires_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -189,6 +195,21 @@ export async function setOrderPreference(
   await sql`
     update orders
     set mp_preference_id = ${mpPreferenceId}, mp_init_point = ${mpInitPoint}, updated_at = now()
+    where id = ${id}
+  `;
+}
+
+export async function setOrderPixPayment(
+  id: string,
+  input: { mpPaymentId: string; pixQrCode: string; pixQrCodeBase64: string; pixExpiresAt: string },
+): Promise<void> {
+  await sql`
+    update orders
+    set mp_payment_id = ${input.mpPaymentId},
+        pix_qr_code = ${input.pixQrCode},
+        pix_qr_code_base64 = ${input.pixQrCodeBase64},
+        pix_expires_at = ${input.pixExpiresAt},
+        updated_at = now()
     where id = ${id}
   `;
 }

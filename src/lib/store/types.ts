@@ -104,6 +104,13 @@ export type Order = {
   mpPaymentId: string | null;
   mpStatusDetail: string | null;
 
+  // Pix gerado direto (fora do checkout hospedado da MP) — fica salvo aqui
+  // pra sobreviver o cliente saindo da tela: a página do pedido sempre
+  // consegue mostrar o mesmo código de novo, em vez de perder ele.
+  pixQrCode: string | null;
+  pixQrCodeBase64: string | null;
+  pixExpiresAt: string | null;
+
   createdAt: string;
   updatedAt: string;
 };

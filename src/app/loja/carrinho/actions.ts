@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { getProductById } from "@/lib/store/products";
-import { createOrder, setOrderPreference } from "@/lib/store/orders";
-import { createOrderPreference } from "@/lib/store/mercadopago";
+import { createOrder, setOrderPreference, setOrderPixPayment } from "@/lib/store/orders";
+import { createOrderPreference, createPixPayment, PIX_EXPIRATION_MINUTES } from "@/lib/store/mercadopago";
 import { estimateCartShipping } from "@/lib/store/shipping";
 import { onlyDigits, isValidCpf } from "@/lib/store/format";
 import { sendOrderCreatedEmail } from "@/lib/store/email";
@@ -113,6 +113,27 @@ export async function createCartOrderAction(
     }
     await setOrderPreference(order.id, preference.id, preference.init_point);
 
+    // Pix gerado direto pela API (não pelo checkout hospedado da MP) — assim
+    // dá pra mostrar o código na própria página do pedido, que não some se
+    // a pessoa sair da tela. Se essa chamada falhar, o pedido continua
+    // válido: ela ainda paga com cartão pelo link da MP, ou gera o Pix de
+    // novo na página do pedido.
+    try {
+      const pix = await createPixPayment(order, `pix-${order.id}`);
+      const qrCode = pix.point_of_interaction?.transaction_data?.qr_code;
+      const qrCodeBase64 = pix.point_of_interaction?.transaction_data?.qr_code_base64;
+      if (pix.id && qrCode && qrCodeBase64) {
+        await setOrderPixPayment(order.id, {
+          mpPaymentId: String(pix.id),
+          pixQrCode: qrCode,
+          pixQrCodeBase64: qrCodeBase64,
+          pixExpiresAt: pix.date_of_expiration ?? new Date(Date.now() + PIX_EXPIRATION_MINUTES * 60_000).toISOString(),
+        });
+      }
+    } catch {
+      // sem pix por enquanto — a página do pedido oferece gerar de novo.
+    }
+
     try {
       await sendOrderCreatedEmail({
         ...order,
@@ -123,7 +144,7 @@ export async function createCartOrderAction(
       // pedido e pagamento já foram criados; falha de e-mail não pode travar o checkout.
     }
 
-    redirectUrl = preference.init_point;
+    redirectUrl = `/pedido/${order.id}`;
   } catch (err) {
     if (err instanceof Error) return { error: err.message };
     return { error: "algo deu errado, tenta de novo" };

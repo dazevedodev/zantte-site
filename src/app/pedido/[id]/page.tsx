@@ -5,6 +5,7 @@ import { getOrderById } from "@/lib/store/orders";
 import { ORDER_STATUS_LABELS } from "@/lib/store/types";
 import { formatBRL } from "@/lib/store/format";
 import { PurchasePixel } from "./purchase-pixel";
+import { PixPanel } from "./pix-panel";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Seu pedido — Zantte", robots: { index: false, follow: false } };
@@ -49,10 +50,14 @@ export default async function PedidoPage({ params }: { params: Promise<{ id: str
         )}
         <p className="pedido-amount">total: {formatBRL(order.amountCents)}</p>
 
-        {order.status === "aguardando_pagamento" && order.mpInitPoint && (
-          <a href={order.mpInitPoint} className="btn-solid pedido-pay-link">
-            pagar agora
-          </a>
+        {order.status === "aguardando_pagamento" && (
+          <PixPanel
+            orderId={order.id}
+            pixQrCode={order.pixQrCode}
+            pixQrCodeBase64={order.pixQrCodeBase64}
+            pixExpiresAt={order.pixExpiresAt}
+            mpInitPoint={order.mpInitPoint}
+          />
         )}
 
         {order.status === "cancelado" ? (

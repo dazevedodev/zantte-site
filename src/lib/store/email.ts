@@ -27,10 +27,10 @@ export async function sendOrderCreatedEmail(order: Order) {
       `Olá, ${order.customerName}!`,
       ``,
       `Recebemos seu pedido (${itemsSummary(order)} — ${formatBRL(order.amountCents)}), mas ele só é confirmado depois do pagamento.`,
-      order.mpInitPoint ? `Pague agora: ${order.mpInitPoint}` : null,
+      `Pague agora (Pix ou cartão): ${trackingUrl(order)}`,
       ``,
-      `Guarda esse e-mail — se você fechar a tela de pagamento (inclusive a do Pix) antes de terminar,`,
-      `é só voltar aqui e clicar no link acima de novo, ou acompanhar o pedido em: ${trackingUrl(order)}`,
+      `Guarda esse e-mail — o código Pix fica salvo nessa página, então se você fechar a tela antes de`,
+      `terminar de pagar, é só voltar no link acima que o mesmo código continua lá.`,
     ]
       .filter(Boolean)
       .join("\n"),

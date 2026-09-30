@@ -2610,9 +2610,69 @@ a {
 .pedido-status-cancelado {
   color: var(--danger);
 }
-.pedido-pay-link {
-  align-self: flex-start;
-  margin: 0.4rem 0;
+
+/* painel de pagamento por pix — gerado direto (não é a página hospedada
+   da MP), fica sempre disponível nessa mesma URL do pedido. Fica direto
+   sobre o fundo verde da página (não um cartão --surface escuro): o botão
+   (.store-theme .btn-solid) já é uma pílula --paper, que é a MESMA cor de
+   --surface — um cartão --surface por baixo faria o botão "sumir" por
+   falta de contraste com o próprio fundo dele. Só o código copia-e-cola
+   (texto longo, precisa se destacar) ganha a pílula escura, igual aos
+   campos do formulário de checkout. */
+.pix-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.6rem 0 1rem;
+  text-align: center;
+}
+.pix-panel-empty {
+  align-items: flex-start;
+  text-align: left;
+}
+.pix-qr {
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 8px;
+}
+.pix-hint {
+  font-size: 13px;
+  color: rgba(23, 22, 15, 0.65);
+  max-width: 320px;
+}
+.pix-hint-persist {
+  font-size: 12px;
+  color: rgba(23, 22, 15, 0.5);
+}
+.pix-code-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 360px;
+}
+.pix-code-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0.5rem 0.7rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--on-surface);
+}
+.pix-copy-btn {
+  white-space: nowrap;
+  font-size: 13px;
+  padding: 0.5rem 0.9rem;
+}
+.pix-card-link {
+  font-size: 13px;
+  text-decoration: underline;
+  color: rgba(23, 22, 15, 0.6);
 }
 .pedido-tracking-code {
   font-size: 13px;

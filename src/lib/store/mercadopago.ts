@@ -67,6 +67,14 @@ export async function createOrderPreference(order: Order) {
       },
       auto_return: "approved",
       notification_url: `${siteUrl()}/api/mercadopago/webhook`,
+      // essa preferência agora só serve de link "pagar com cartão" — o Pix
+      // já sai gerado direto (createPixPayment) e mostrado na própria
+      // página do pedido. Sem excluir "bank_transfer" (categoria do Pix na
+      // MP) daqui, o checkout hospedado oferecia um SEGUNDO botão de Pix,
+      // com o mesmo bug antigo de ficar travado/sem código.
+      payment_methods: {
+        excluded_payment_types: [{ id: "bank_transfer" }],
+      },
     },
     requestOptions: { idempotencyKey: order.id },
   });
@@ -77,6 +85,41 @@ export async function createOrderPreference(order: Order) {
 export async function fetchPayment(paymentId: string) {
   const payment = new Payment(client());
   return payment.get({ id: paymentId });
+}
+
+// tempo de validade do código Pix — depois disso o "copia e cola" para de
+// funcionar do lado da MP e a página do pedido oferece gerar um novo.
+export const PIX_EXPIRATION_MINUTES = 60;
+
+/**
+ * Gera o Pix direto pela API de pagamentos (em vez de depender do checkout
+ * hospedado da MP) — o QR code e o "copia e cola" ficam disponíveis pra
+ * gente mostrar na própria página do pedido, que não desaparece se o
+ * cliente sair da tela. idempotencyKey deve variar a cada tentativa nova
+ * (senão a MP devolve o mesmo pagamento/código já expirado).
+ */
+export async function createPixPayment(order: Order, idempotencyKey: string) {
+  const payment = new Payment(client());
+  const [firstName, ...rest] = order.customerName.trim().split(/\s+/);
+  const surname = rest.join(" ") || firstName;
+
+  return payment.create({
+    body: {
+      transaction_amount: order.amountCents / 100,
+      description: order.items.map((item) => item.productName).join(", ").slice(0, 250),
+      payment_method_id: "pix",
+      external_reference: order.id,
+      notification_url: `${siteUrl()}/api/mercadopago/webhook`,
+      date_of_expiration: new Date(Date.now() + PIX_EXPIRATION_MINUTES * 60_000).toISOString(),
+      payer: {
+        email: order.customerEmail,
+        first_name: firstName,
+        last_name: surname,
+        identification: { type: "CPF", number: onlyDigits(order.customerCpf) },
+      },
+    },
+    requestOptions: { idempotencyKey },
+  });
 }
 
 /**
