@@ -1171,18 +1171,26 @@ a {
 }
 /* /contato — formulário de um lado, os 3 ícones de contato direto do
    outro. Empilha em coluna (form em cima) quando não cabe lado a lado. */
+/* coluna, não centralização única — desde que a logo saiu de
+   position:fixed pra ficar no fluxo normal (ver .simple-page-logo-wrap),
+   ela virou um filho de verdade desse flex container. Sem flex-direction:
+   column aqui, ela ficaria lado a lado com .contact-layout numa linha só,
+   em vez de em cima. O centro fica por conta de .contact-layout (flex: 1
+   empurra ele pro meio do espaço restante). */
 .contact-page {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14vh 6vw 6vh;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0 0 6vh;
 }
 .contact-layout {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: clamp(3rem, 8vw, 7rem);
   flex-wrap: wrap;
+  padding: 4vh 6vw 0;
 }
 .contact-icons {
   display: flex;
@@ -1255,29 +1263,23 @@ a {
   max-width: 320px;
   text-align: center;
 }
-/* o link em si (.site-logo) usa "background" pro gradiente de texto —
-   por isso o fundo sólido que impede o texto rolado por trás de "vazar"
-   por baixo da logo mora nesse wrapper separado, não no próprio link
-   (senão os dois "background" brigariam na mesma propriedade). Sem isso,
-   a logo fixa (sem fundo nenhum) deixava o parágrafo que rolava por
-   baixo aparecer atravessando as letras "zantte" — parecia que a logo
-   tinha "descido" junto com o texto, quando na verdade só ficou
-   transparente demais pra se destacar do que passava atrás dela. */
+/* em /sobre e /contato (páginas que rolam de verdade, ao contrário da
+   home) a logo era fixa (position:fixed) igual à home — mas numa página
+   comprida isso deixa ela flutuando por cima do conteúdo a página
+   inteira, sempre sobrepondo alguma coisa embaixo conforme rola (texto,
+   depois imagem de card, etc.), o que lê como "a logo desceu junto com a
+   página". Aqui ela fica no fluxo normal, no topo, e sai de cena como
+   qualquer cabeçalho normal quando a pessoa rola — nunca mais por cima
+   de nada. */
 .simple-page-logo-wrap {
-  position: fixed;
-  top: 22px;
-  left: calc(6vw - 14px);
-  z-index: 10;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: #7c9b83;
+  padding: 30px 6vw 0;
 }
 .simple-page {
   min-height: 60vh;
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
-  padding: 14vh 6vw 12vh;
+  padding: 5vh 6vw 12vh;
   max-width: 760px;
 }
 .simple-page-eyebrow {
