@@ -1255,11 +1255,22 @@ a {
   max-width: 320px;
   text-align: center;
 }
-.simple-page-logo {
+/* o link em si (.site-logo) usa "background" pro gradiente de texto —
+   por isso o fundo sólido que impede o texto rolado por trás de "vazar"
+   por baixo da logo mora nesse wrapper separado, não no próprio link
+   (senão os dois "background" brigariam na mesma propriedade). Sem isso,
+   a logo fixa (sem fundo nenhum) deixava o parágrafo que rolava por
+   baixo aparecer atravessando as letras "zantte" — parecia que a logo
+   tinha "descido" junto com o texto, quando na verdade só ficou
+   transparente demais pra se destacar do que passava atrás dela. */
+.simple-page-logo-wrap {
   position: fixed;
-  top: 30px;
-  left: 6vw;
+  top: 22px;
+  left: calc(6vw - 14px);
   z-index: 10;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #7c9b83;
 }
 .simple-page {
   min-height: 60vh;
@@ -1285,12 +1296,17 @@ a {
 }
 /* título de subseção — usado em páginas mais longas (ex: /sobre) pra
    quebrar o texto corrido em blocos, sem competir em tamanho com o título
-   principal da página. */
+   principal da página. Linha fina em cima marca visualmente onde um
+   bloco de assunto termina e o próximo começa — antes os subtítulos só
+   tinham uma margem igual à de qualquer parágrafo, então a página
+   inteira lia como um parágrafo só, sem sensação de seção. */
 .simple-page-subheading {
   font-family: var(--font-bubble);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  margin-top: 0.6rem;
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(245, 243, 234, 0.18);
 }
 /* em /sobre e /contato (fundo verde forçado, .simple-page-pastel) o
    --muted do tema padrão (cinza claro, pensado pra fundo escuro) fica

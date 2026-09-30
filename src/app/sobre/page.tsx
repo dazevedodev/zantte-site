@@ -3,19 +3,25 @@ import { Footer } from "@/components/footer";
 import { WHATSAPP_URL } from "@/lib/site-config";
 import { listActiveProducts } from "@/lib/store/products";
 import { formatBRL } from "@/lib/store/format";
+import { listActivePortfolioProjects } from "@/lib/portfolio";
 
 export const dynamic = "force-dynamic";
 
 export default async function SobrePage() {
-  // 3 produtos reais da ZAN CO. como prova visual — nunca inventados, só o
-  // que já tá ativo na loja de verdade. Prioriza quem tem foto.
-  const products = (await listActiveProducts()).filter((p) => p.imageUrls[0]).slice(0, 3);
+  // prova visual real em vez de texto solto — nunca inventada, só o que já
+  // está ativo no banco (produtos da loja, projetos do portfólio). Prioriza
+  // quem tem imagem cadastrada.
+  const [allProducts, allProjects] = await Promise.all([listActiveProducts(), listActivePortfolioProjects()]);
+  const products = allProducts.filter((p) => p.imageUrls[0]).slice(0, 3);
+  const projects = allProjects.filter((p) => p.coverUrl).slice(0, 3);
 
   return (
     <div className="simple-page-pastel">
-      <Link href="/" className="site-logo display simple-page-logo" aria-label="zantte">
-        zantte
-      </Link>
+      <div className="simple-page-logo-wrap">
+        <Link href="/" className="site-logo display" aria-label="zantte">
+          zantte
+        </Link>
+      </div>
 
       <section className="simple-page">
         {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
@@ -35,6 +41,25 @@ export default async function SobrePage() {
           depender de memória ou de anotação solta. Sem molde pronto: entendemos o fluxo de quem usa todo dia
           antes de desenhar uma tela.
         </p>
+
+        {projects.length > 0 && (
+          <div className="about-showcase">
+            {projects.map((p) => (
+              <a
+                key={p.id}
+                href={p.url ?? "/portfolio"}
+                target={p.url ? "_blank" : undefined}
+                rel={p.url ? "noreferrer" : undefined}
+                className="about-showcase-item"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- capa vem do Blob, sem otimização necessária aqui. */}
+                <img src={p.coverUrl!} alt={p.name} />
+                <span className="about-showcase-name">{p.name}</span>
+                {p.tagline && <span className="about-showcase-price">{p.tagline}</span>}
+              </a>
+            ))}
+          </div>
+        )}
 
         <h2 className="simple-page-subheading">zantte + zan co.</h2>
         <p className="simple-page-text">

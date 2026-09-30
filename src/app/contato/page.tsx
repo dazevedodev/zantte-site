@@ -11,9 +11,11 @@ const CONTACT_LINKS = [
 export default function ContatoPage() {
   return (
     <div className="simple-page-pastel contact-page">
-      <Link href="/" className="site-logo display simple-page-logo" aria-label="zantte">
-        zantte
-      </Link>
+      <div className="simple-page-logo-wrap">
+        <Link href="/" className="site-logo display" aria-label="zantte">
+          zantte
+        </Link>
+      </div>
 
       <div className="contact-layout">
         <ContactForm />
