@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BrandObject } from "./brand-object";
 import { prefersReducedMotion } from "@/lib/motion";
 
 const SESSION_KEY = "zantte-booted";
-const LINE_DURATION_MS = 1300;
-const HOLD_MS = 350;
-const EXIT_MS = 500;
+const ENTER_MS = 550;
+const HOLD_MS = 500;
+const EXIT_MS = 450;
 
-type Phase = "lines" | "hold" | "exiting" | "done";
+type Phase = "entering" | "hold" | "exiting" | "done";
 
 export function BootScreen() {
-  const [phase, setPhase] = useState<Phase>("lines");
+  const [phase, setPhase] = useState<Phase>("entering");
   // Começa visível (cobre a tela desde o primeiro paint) — se começasse
   // false, o HTML inicial não tinha o overlay nenhum, e o conteúdo da
   // página (hero) ficava exposto por um instante antes do JS decidir
@@ -40,12 +39,12 @@ export function BootScreen() {
       requestAnimationFrame(() => setStarted(true));
     });
 
-    const t1 = window.setTimeout(() => setPhase("hold"), LINE_DURATION_MS);
-    const t2 = window.setTimeout(() => setPhase("exiting"), LINE_DURATION_MS + HOLD_MS);
+    const t1 = window.setTimeout(() => setPhase("hold"), ENTER_MS);
+    const t2 = window.setTimeout(() => setPhase("exiting"), ENTER_MS + HOLD_MS);
     const t3 = window.setTimeout(() => {
       setPhase("done");
       document.body.style.overflow = "";
-    }, LINE_DURATION_MS + HOLD_MS + EXIT_MS);
+    }, ENTER_MS + HOLD_MS + EXIT_MS);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -60,13 +59,11 @@ export function BootScreen() {
 
   return (
     <div className={`boot-screen ${phase === "exiting" ? "exiting" : ""}`} aria-hidden="true">
-      <div className="boot-object">
-        <BrandObject onCharged={() => {}} shape="monograma" />
+      <div className={`boot-mascot-wrap ${started ? "in" : ""}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- mesmo ícone estático do mascote em public/, sem necessidade de otimização. */}
+        <img src="/icons/mascot.png" alt="" className="boot-mascot" />
       </div>
-      <div className="boot-line">
-        <span className={`boot-line-half boot-line-left ${started ? "grow" : ""}`} />
-        <span className={`boot-line-half boot-line-right ${started ? "grow" : ""}`} />
-      </div>
+      <span className={`boot-wordmark ${started ? "in" : ""}`}>zantte</span>
     </div>
   );
 }
