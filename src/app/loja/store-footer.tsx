@@ -13,7 +13,7 @@ export function StoreFooter() {
           { href: "/loja/termos", label: "Termos e privacidade" },
         ]}
       />
-      {COMPANY_CNPJ && <p className="store-footer-cnpj mono">ZAN CO. — CNPJ {COMPANY_CNPJ}</p>}
+      {COMPANY_CNPJ && <p className="store-footer-cnpj">Zantte — CNPJ {COMPANY_CNPJ}</p>}
     </>
   );
 }
