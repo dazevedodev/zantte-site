@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ProductVariant } from "@/lib/store/types";
 
 export function ProductGallery({
@@ -22,7 +22,21 @@ export function ProductGallery({
 }) {
   const [active, setActive] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
+  const [zooming, setZooming] = useState(false);
+  const mainImageRef = useRef<HTMLImageElement>(null);
   const hasVariants = variants.length > 0;
+
+  // segue o cursor de verdade (não só "scale no centro") — escreve direto
+  // no DOM via ref em vez de guardar x/y no state, pra não re-renderizar o
+  // componente inteiro a cada pixel de movimento do mouse.
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const img = mainImageRef.current;
+    if (!img) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    img.style.transformOrigin = `${x}% ${y}%`;
+  }
 
   if (images.length === 0 && !hasVariants && !videoUrl) {
     return (
@@ -106,13 +120,18 @@ export function ProductGallery({
         )
       )}
 
-      <div className="product-detail-media">
+      <div
+        className={`product-detail-media ${zooming && !showVideo ? "zooming" : ""}`}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setZooming(true)}
+        onMouseLeave={() => setZooming(false)}
+      >
         {discountPercent !== null && <span className="sale-badge">-{discountPercent}%</span>}
         {showVideo && videoUrl ? (
           <video src={videoUrl} controls autoPlay className="product-gallery-main" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- imagem vem do Blob, sem otimização necessária aqui.
-          <img src={activeUrl} alt={name} className="product-gallery-main" />
+          <img ref={mainImageRef} src={activeUrl} alt={name} className="product-gallery-main" />
         )}
       </div>
     </div>

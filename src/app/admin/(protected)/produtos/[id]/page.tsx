@@ -40,6 +40,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         action={action}
         defaultValues={{
           name: product.name,
+          slug: product.slug,
           description: product.description,
           priceReais: (product.priceCents / 100).toFixed(2).replace(".", ","),
           compareAtPriceReais: product.compareAtPriceCents

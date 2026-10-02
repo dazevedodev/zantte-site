@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import type { ProductFormState } from "./actions";
 import type { ProductVariant, ShippingType } from "@/lib/store/types";
+import { slugify } from "@/lib/store/format";
 
 export function ProductForm({
   action,
@@ -11,6 +12,7 @@ export function ProductForm({
   action: (prevState: ProductFormState, formData: FormData) => Promise<ProductFormState>;
   defaultValues?: {
     name: string;
+    slug: string;
     description: string;
     priceReais: string;
     compareAtPriceReais: string;
@@ -35,6 +37,7 @@ export function ProductForm({
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantImage, setNewVariantImage] = useState("");
   const [shippingType, setShippingType] = useState<ShippingType | "">(defaultValues?.shippingType ?? "");
+  const [slugInput, setSlugInput] = useState(defaultValues?.slug ?? "");
   const [justSaved, setJustSaved] = useState(false);
   const wasPending = useRef(false);
 
@@ -84,6 +87,21 @@ export function ProductForm({
         nome
       </label>
       <input id="name" name="name" defaultValue={defaultValues?.name} required />
+
+      <label className="mono label" htmlFor="slug">
+        link do produto (opcional — deixa em branco pra gerar do nome)
+      </label>
+      <input
+        id="slug"
+        name="slug"
+        placeholder="ex: espatula-2-em-1"
+        value={slugInput}
+        onChange={(e) => setSlugInput(e.target.value)}
+      />
+      <p className="admin-form-hint">
+        zantte.com.br/loja/<strong>{slugify(slugInput) || "..."}</strong>
+        {defaultValues && " — mudar isso troca o link do produto; links e anúncios já compartilhados param de funcionar."}
+      </p>
 
       <label className="mono label" htmlFor="category">
         categoria (opcional)

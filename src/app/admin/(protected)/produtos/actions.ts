@@ -9,6 +9,7 @@ import {
   setProductActive,
   setProductFeatured,
   deleteProduct,
+  isSlugTaken,
 } from "@/lib/store/products";
 import { uploadProductImage, uploadProductVideo } from "@/lib/store/blob";
 import { slugify } from "@/lib/store/format";
@@ -82,6 +83,26 @@ function parsePositiveInt(formData: FormData, name: string): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+/**
+ * Slug final a salvar — campo do form (se ela editou) ou derivado do nome
+ * (se deixou em branco), sempre garantindo que seja único. Quando já
+ * existe outro produto com o mesmo slug, vai tentando "-2", "-3"... em vez
+ * de recusar o salvamento — ela não devia precisar pensar nisso na hora
+ * de cadastrar/editar.
+ */
+async function resolveSlug(formData: FormData, name: string, excludeId?: string): Promise<string> {
+  const raw = formData.get("slug");
+  const base = slugify(typeof raw === "string" && raw.trim() ? raw : name) || "produto";
+
+  let candidate = base;
+  let attempt = 2;
+  while (await isSlugTaken(candidate, excludeId)) {
+    candidate = `${base}-${attempt}`;
+    attempt += 1;
+  }
+  return candidate;
+}
+
 function shippingInputFromForm(formData: FormData): ProductShippingInput {
   const raw = formData.get("shippingType");
   const shippingType: ShippingType | null = raw === "own" || raw === "drop" ? raw : null;
@@ -120,7 +141,7 @@ export async function createProductAction(
   let productId: string;
   try {
     const product = await createProduct({
-      slug: `${slugify(name)}-${Date.now().toString(36)}`,
+      slug: await resolveSlug(formData, name),
       name: name.trim(),
       description: typeof description === "string" ? description.trim() : "",
       priceCents,
@@ -169,6 +190,7 @@ export async function updateProductAction(
 
   try {
     await updateProduct(productId, {
+      slug: await resolveSlug(formData, name, productId),
       name: name.trim(),
       description: typeof description === "string" ? description.trim() : "",
       priceCents,

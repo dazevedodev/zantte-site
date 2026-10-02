@@ -1667,6 +1667,18 @@ a {
   height: 100%;
   object-fit: contain;
 }
+/* zoom que segue o mouse — o JS só escreve o transform-origin (onde o
+   cursor está) direto na imagem a cada movimento; o "dar zoom" em si é só
+   essa escala no hover, barato de animar porque é a mesma propriedade
+   (transform) o tempo todo, sem re-layout. overflow:hidden do pai (acima)
+   já contém a imagem ampliada dentro da moldura. */
+.product-gallery-main {
+  transition: transform 0.25s ease;
+  cursor: zoom-in;
+}
+.product-detail-media.zooming .product-gallery-main {
+  transform: scale(2.2);
+}
 .product-gallery-thumbs {
   display: flex;
   flex-direction: column;

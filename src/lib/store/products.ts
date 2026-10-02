@@ -67,6 +67,18 @@ export async function listAllProductsAdmin(): Promise<Product[]> {
   return rows.map(mapProduct);
 }
 
+// usado pra garantir slug único antes de salvar (criação OU troca de slug
+// numa edição) — exclui o próprio produto da checagem quando editId é
+// passado, senão um produto "colidiria" com o próprio slug dele mesmo.
+export async function isSlugTaken(slug: string, excludeId?: string): Promise<boolean> {
+  const rows = (
+    excludeId
+      ? await sql`select 1 from products where slug = ${slug} and id != ${excludeId} limit 1`
+      : await sql`select 1 from products where slug = ${slug} limit 1`
+  ) as unknown[];
+  return rows.length > 0;
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const rows = (await sql`
     select * from products where slug = ${slug} and active = true limit 1
@@ -131,6 +143,7 @@ export async function createProduct(
 export async function updateProduct(
   id: string,
   input: {
+    slug: string;
     name: string;
     description: string;
     priceCents: number;
@@ -145,7 +158,8 @@ export async function updateProduct(
 ): Promise<Product> {
   const rows = (await sql`
     update products
-    set name = ${input.name},
+    set slug = ${input.slug},
+        name = ${input.name},
         description = ${input.description},
         price_cents = ${input.priceCents},
         compare_at_price_cents = ${input.compareAtPriceCents},
