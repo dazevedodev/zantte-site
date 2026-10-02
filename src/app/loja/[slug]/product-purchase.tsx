@@ -51,8 +51,6 @@ export function ProductPurchase({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(variants[0] ?? null);
   const { addItem, openDrawer } = useCart();
   const [crossSellAdded, setCrossSellAdded] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
-  const [couponMessage, setCouponMessage] = useState<string | null>(null);
 
   const crossSellRef = useRef<HTMLDivElement>(null);
   const infoContentRef = useRef<HTMLDivElement>(null);
@@ -114,10 +112,6 @@ export function ProductPurchase({
   const soldLabel = formatSoldCount(unitsSold);
   const crossSellHasDiscount =
     crossSell?.compareAtPriceCents && crossSell.compareAtPriceCents > crossSell.priceCents;
-
-  function handleApplyCoupon() {
-    setCouponMessage(couponCode.trim() ? "cupons chegando em breve por aqui" : "digite um cupom");
-  }
 
   function handleAddCrossSell() {
     if (!crossSell) return;
@@ -207,21 +201,6 @@ export function ProductPurchase({
                 <span className="product-detail-price-compare">{formatBRL(compareAtPriceCents)}</span>
               )}
               <span className="product-detail-price">{formatBRL(priceCents)}</span>
-              <div className="product-coupon">
-                <input
-                  type="text"
-                  placeholder="cupom de desconto"
-                  value={couponCode}
-                  onChange={(e) => {
-                    setCouponCode(e.target.value);
-                    setCouponMessage(null);
-                  }}
-                />
-                <button type="button" onClick={handleApplyCoupon}>
-                  aplicar
-                </button>
-              </div>
-              {couponMessage && <span className="product-coupon-message">{couponMessage}</span>}
             </div>
             <div className="product-payment-top">
               <TrustBadges />

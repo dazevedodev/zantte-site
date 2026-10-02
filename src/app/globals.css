@@ -1879,44 +1879,6 @@ a {
   align-items: flex-start;
   gap: 4px;
 }
-.product-coupon {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-.product-coupon input {
-  background: var(--surface);
-  border: none;
-  border-radius: 999px;
-  padding: 10px 14px;
-  color: var(--on-surface);
-  font-size: 13px;
-  width: 128px;
-}
-.product-coupon input::placeholder {
-  color: var(--on-surface);
-  opacity: 0.5;
-}
-.product-coupon button {
-  background: none;
-  border: 1.5px solid var(--line);
-  border-radius: 999px;
-  padding: 0 18px;
-  color: var(--paper);
-  font-family: var(--font-bubble);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-.product-coupon button:hover {
-  border-color: var(--accent);
-}
-.product-coupon-message {
-  font-size: 12px;
-  color: var(--paper);
-  opacity: 0.65;
-}
 .product-detail-price {
   font-size: 28px;
   font-weight: 700;
