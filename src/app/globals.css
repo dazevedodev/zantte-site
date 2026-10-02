@@ -1272,8 +1272,15 @@ a {
    qualquer cabeçalho normal quando a pessoa rola — nunca mais por cima
    de nada. */
 .simple-page-logo-wrap {
+  max-width: 760px;
+  margin: 0 auto;
   padding: 30px 6vw 0;
 }
+/* tinha max-width mas nunca "margin: 0 auto" — em tela larga o texto
+   colava na esquerda com uma sobra enorme de verde vazio à direita, em
+   vez de ficar centralizado como o resto do site. Mesmo ajuste em
+   .cart-page e .pedido-tracking (era o mesmo problema nos três lugares,
+   não um bug isolado). */
 .simple-page {
   min-height: 60vh;
   display: flex;
@@ -1281,6 +1288,7 @@ a {
   gap: 1.4rem;
   padding: 5vh 6vw 12vh;
   max-width: 760px;
+  margin: 0 auto;
 }
 .simple-page-eyebrow {
   font-family: var(--font-bubble);
@@ -2201,10 +2209,15 @@ a {
   flex-shrink: 0;
 }
 
-/* /loja/carrinho */
+/* /loja/carrinho — tinha max-width mas nunca "margin: 0 auto", então em
+   tela larga o conteúdo colava na esquerda com uma sobra enorme de verde
+   vazio à direita, em vez de ficar centralizado na página. Mesmo ajuste
+   feito em .pedido-tracking e .simple-page logo abaixo — era o mesmo
+   problema repetido nos três lugares. */
 .cart-page {
   padding: 4vh 6vw 10vh;
   max-width: 1100px;
+  margin: 0 auto;
 }
 /* produtos/resumo à esquerda, formulário de dados à direita — layout
    clássico de checkout, em vez de tudo empilhado numa coluna só. */
@@ -2619,6 +2632,7 @@ a {
   flex-direction: column;
   gap: 0.8rem;
   max-width: 560px;
+  margin: 0 auto;
 }
 .pedido-heading {
   font-size: clamp(1.6rem, 3.5vw, 2.4rem);
