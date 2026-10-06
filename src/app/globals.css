@@ -740,10 +740,17 @@ a {
   -webkit-text-stroke: 2px var(--paper);
   color: transparent;
 }
+/* altura em "aspect-ratio" (sempre = largura), nunca em vh — era isso que
+   causava o desencontro entre o que eu via e o que ela via: em vh, a
+   altura do palco dependia da altura da JANELA do navegador (não só da
+   largura da tela), então em janelas mais baixas/largas (comum em
+   notebook) o palco encolhia e a cabeça do mascote subia até a linha dos
+   cards. Com aspect-ratio o palco é sempre um quadrado de verdade,
+   renderiza igual em qualquer proporção de janela. */
 .store-hero-stage {
   position: relative;
   width: min(560px, 90vw);
-  height: min(58vh, 560px);
+  aspect-ratio: 1;
   flex-shrink: 0;
 }
 .store-hero-mascot {
@@ -869,20 +876,10 @@ a {
   .store-hero {
     padding: 5vh 6vw 4vh;
   }
-  .store-hero-stage {
-    height: min(52vh, 440px);
-  }
-  /* no mobile o palco fica proporcionalmente mais baixo (altura em vh)
-     mas a largura do mascote continua a mesma % — isso fazia a foto dele
-     ficar relativamente mais "alta" que o palco, e a faixa de degradê (%
-     da altura do palco) acabava cobrindo bem mais corpo do que no
-     desktop. Mascote um pouco menor + faixa de degradê menor resolve. */
-  .store-hero-mascot {
-    width: 48%;
-  }
-  .store-hero-mascot-fade {
-    height: 22%;
-  }
+  /* .store-hero-stage agora usa aspect-ratio (não vh), então fica
+     consistente em qualquer tela sem precisar de ajuste à parte aqui —
+     a causa raiz dos ajustes antigos (altura em vh variando com a altura
+     da janela) foi resolvida na regra base, não só aqui no mobile. */
   .store-hero-float-card {
     width: 30%;
   }
