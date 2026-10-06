@@ -722,7 +722,6 @@ a {
   align-items: center;
   gap: 0.2rem;
   padding: 3vh 6vw 3vh;
-  border-bottom: 1px solid var(--line-soft);
   overflow: hidden;
 }
 .store-hero-mark {
@@ -912,7 +911,7 @@ a {
   align-items: center;
   gap: 10px;
   background: var(--surface);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 12px 18px;
   min-width: 0;
 }
@@ -953,7 +952,7 @@ a {
   gap: 8px;
   background: var(--surface);
   border: none;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 12px 18px;
   color: var(--on-surface);
   font-family: var(--font-display), sans-serif;
@@ -1018,7 +1017,7 @@ a {
 .store-category-pills button {
   background: var(--surface);
   border: none;
-  border-radius: 999px;
+  border-radius: 0;
   color: var(--on-surface);
   padding: 10px 20px;
   font-size: 13px;
@@ -1072,12 +1071,6 @@ a {
    página) pra parecer uma faixa de marca, não um bloco de conteúdo. */
 .why-buy {
   padding: 6vh 6vw 0;
-}
-.why-buy > .label {
-  display: block;
-  margin-bottom: 1.6rem;
-  color: #17160f;
-  font-weight: 700;
 }
 .why-buy-band {
   overflow: hidden;

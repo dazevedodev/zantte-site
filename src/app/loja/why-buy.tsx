@@ -13,7 +13,6 @@ const REASONS = [
 export function WhyBuy() {
   return (
     <section className="why-buy">
-      <span className="label">por que comprar com a gente</span>
       <div className="why-buy-band" aria-label="por que comprar com a gente">
         <div className="why-buy-track">
           {[0, 1].map((copy) => (
