@@ -32,6 +32,15 @@ function normalizeUrl(url: string) {
 const COPIES = 16;
 const MIDDLE_COPY = Math.floor(COPIES / 2);
 
+// posição de scroll que deixa o card no centro, medida pelo LAYOUT
+// (offsetLeft), não pela posição visual: o card do 3D muda de transform
+// conforme se aproxima do centro, então o retângulo visual engana.
+function layoutCenterScroll(item: HTMLElement, container: HTMLElement): number {
+  const track = item.offsetParent as HTMLElement | null;
+  const trackLeft = track ? track.offsetLeft : 0;
+  return trackLeft + item.offsetLeft + item.offsetWidth / 2 - container.clientWidth / 2;
+}
+
 export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -82,12 +91,9 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
         }
       }
       if (!best) return;
-      const iRect = best.getBoundingClientRect();
-      const delta = iRect.left + iRect.width / 2 - cCenter;
-      if (Math.abs(delta) < 1) return;
-      container.scrollTo({ left: container.scrollLeft + delta, behavior: "smooth" });
-      window.setTimeout(() => {
-      }, 650);
+      const target = layoutCenterScroll(best, container);
+      if (Math.abs(target - container.scrollLeft) < 1) return;
+      container.scrollTo({ left: target, behavior: "smooth" });
     };
 
     const onScroll = () => {
@@ -114,11 +120,7 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     // corrigimos o scroll pra o centro do card bater com o centro da tela.
     const centerMiddleItem = () => {
       const item = itemRefs.current[MIDDLE_COPY * n];
-      if (!item) return;
-      const cRect = container.getBoundingClientRect();
-      const iRect = item.getBoundingClientRect();
-      const delta = iRect.left + iRect.width / 2 - (cRect.left + cRect.width / 2);
-      container.scrollLeft += delta;
+      if (item) container.scrollLeft = layoutCenterScroll(item, container);
     };
     centerMiddleItem();
     updateTransforms();
@@ -164,10 +166,7 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     const container = containerRef.current;
     const item = itemRefs.current[index];
     if (!container || !item) return;
-    const cRect = container.getBoundingClientRect();
-    const iRect = item.getBoundingClientRect();
-    const delta = iRect.left + iRect.width / 2 - (cRect.left + cRect.width / 2);
-    container.scrollTo({ left: container.scrollLeft + delta, behavior });
+    container.scrollTo({ left: layoutCenterScroll(item, container), behavior });
   }
 
   function goTo(direction: -1 | 1) {
