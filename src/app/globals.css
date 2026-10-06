@@ -826,7 +826,7 @@ a {
 }
 .store-hero-float-card.card-1 {
   left: 0;
-  top: 4%;
+  top: 0;
   transform: rotate(-7deg);
 }
 .store-hero-float-card.card-2 {
