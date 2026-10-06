@@ -82,7 +82,21 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     // já nasce no estado final.
     const trackEl = container.querySelector<HTMLElement>(".portfolio-hcarousel-track");
     trackEl?.classList.add("no-transition");
-    itemRefs.current[MIDDLE_COPY * n]?.scrollIntoView({ behavior: "instant", inline: "center", block: "nearest" });
+    // scrollIntoView sozinho deixava o card do meio alguns pixels (às vezes
+    // centenas) fora do centro quando o scroll-snap reencaixava depois — o
+    // card então aparecia torto/deslocado. Medimos a diferença real e
+    // corrigimos o scroll pra o centro do card bater com o centro da tela.
+    const centerMiddleItem = () => {
+      const item = itemRefs.current[MIDDLE_COPY * n];
+      if (!item) return;
+      container.style.scrollSnapType = "none";
+      const cRect = container.getBoundingClientRect();
+      const iRect = item.getBoundingClientRect();
+      const delta = iRect.left + iRect.width / 2 - (cRect.left + cRect.width / 2);
+      container.scrollLeft += delta;
+      container.style.scrollSnapType = "";
+    };
+    centerMiddleItem();
     updateTransforms();
     requestAnimationFrame(() => trackEl?.classList.remove("no-transition"));
 
