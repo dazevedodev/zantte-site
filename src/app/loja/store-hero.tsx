@@ -21,8 +21,10 @@ export function StoreHero({ products, featured }: { products: Product[]; feature
       </h1>
 
       <div className="store-hero-stage">
-        {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
-        <img src="/icons/mascot-zanco.png" alt="" className="store-hero-mascot" />
+        <div className="store-hero-mascot-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element -- ícone 3D estático em public/, sem necessidade de otimização. */}
+          <img src="/icons/mascot-zanco.png" alt="" className="store-hero-mascot" />
+        </div>
         {/* desvanece o rodapé reto da foto no fundo da loja, em vez de um corte seco */}
         <div className="store-hero-mascot-fade" aria-hidden="true" />
 

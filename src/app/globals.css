@@ -753,14 +753,25 @@ a {
   aspect-ratio: 1;
   flex-shrink: 0;
 }
-.store-hero-mascot {
+/* wrapper só pra centralizar (transform: translateX) — a animação de
+   flutuar (dock-float, que anima o PRÓPRIO transform em translateY) tem
+   que ficar num elemento separado, senão as duas disputam a mesma
+   propriedade CSS e a animação sempre vence: era por isso que o mascote
+   não ficava centralizado de verdade, só parecia por coincidência em
+   alguns tamanhos de tela. Mesmo problema (e mesma solução) que o .hero-dock-icon
+   já resolve em outro lugar do site. */
+.store-hero-mascot-wrap {
   position: absolute;
   left: 50%;
   bottom: 6%;
   transform: translateX(-50%);
   width: 58%;
-  height: auto;
   z-index: 2;
+}
+.store-hero-mascot {
+  display: block;
+  width: 100%;
+  height: auto;
   animation: dock-float 5.5s ease-in-out infinite;
 }
 /* desvanece o rodapé reto da foto no verde, em vez de um corte seco —
