@@ -66,10 +66,38 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
       }
     };
 
+    let settleTimer: number | null = null;
+    const settleToCenter = () => {
+      const cRect = container.getBoundingClientRect();
+      const cCenter = cRect.left + cRect.width / 2;
+      let best: HTMLAnchorElement | null = null;
+      let bestDist = Infinity;
+      for (const el of itemRefs.current) {
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - cCenter);
+        if (d < bestDist) {
+          bestDist = d;
+          best = el;
+        }
+      }
+      if (!best) return;
+      const iRect = best.getBoundingClientRect();
+      const delta = iRect.left + iRect.width / 2 - cCenter;
+      if (Math.abs(delta) < 1) return;
+      container.style.scrollSnapType = "none";
+      container.scrollTo({ left: container.scrollLeft + delta, behavior: "smooth" });
+      window.setTimeout(() => {
+        container.style.scrollSnapType = "";
+      }, 650);
+    };
+
     const onScroll = () => {
       if (scheduled) return;
       scheduled = true;
       raf = requestAnimationFrame(updateTransforms);
+      if (settleTimer) window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settleToCenter, 160);
     };
 
     // centraliza o item do meio já na posição final, sem nenhuma animação
@@ -104,6 +132,7 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(raf);
+      if (settleTimer) window.clearTimeout(settleTimer);
       container.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
@@ -112,13 +141,51 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
   // navegação por botão — passa 1 item de cada vez, suave e controlado (em
   // vez de depender só do scroll direto, que em trackpad/mouse rápido
   // passava vários itens de uma vez e dava a sensação de "borrão").
+  // medimos a posição VISUAL (getBoundingClientRect) e não offsetLeft:
+  // o scroll-snap encaixa pelo layout, mas o card aparece deslocado por
+  // causa do 3D — então centralizar pelo que se vê é o que faz o card do
+  // meio ficar de fato no centro.
+  function nearestIndex(): number {
+    const container = containerRef.current;
+    if (!container) return -1;
+    const cRect = container.getBoundingClientRect();
+    const cCenter = cRect.left + cRect.width / 2;
+    let best = -1;
+    let bestDist = Infinity;
+    itemRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const d = Math.abs(r.left + r.width / 2 - cCenter);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
+      }
+    });
+    return best;
+  }
+
+  function alignItemToCenter(index: number, behavior: ScrollBehavior) {
+    const container = containerRef.current;
+    const item = itemRefs.current[index];
+    if (!container || !item) return;
+    const cRect = container.getBoundingClientRect();
+    const iRect = item.getBoundingClientRect();
+    const delta = iRect.left + iRect.width / 2 - (cRect.left + cRect.width / 2);
+    container.scrollTo({ left: container.scrollLeft + delta, behavior });
+  }
+
   function goTo(direction: -1 | 1) {
     const container = containerRef.current;
-    const a = itemRefs.current[0];
-    const b = itemRefs.current[1];
-    if (!container || !a || !b) return;
-    const step = b.offsetLeft - a.offsetLeft;
-    container.scrollBy({ left: direction * step, behavior: "smooth" });
+    const current = nearestIndex();
+    if (!container || current < 0) return;
+    const target = current + direction;
+    if (!itemRefs.current[target]) return;
+    container.style.scrollSnapType = "none";
+    alignItemToCenter(target, "smooth");
+    window.setTimeout(() => {
+      alignItemToCenter(target, "instant");
+      container.style.scrollSnapType = "";
+    }, 650);
   }
 
   return (
