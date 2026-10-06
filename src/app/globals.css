@@ -452,7 +452,6 @@ a {
   height: 100vh;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
   perspective: 1200px;
   display: flex;
   align-items: center;

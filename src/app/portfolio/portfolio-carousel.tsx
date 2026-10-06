@@ -85,10 +85,8 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
       const iRect = best.getBoundingClientRect();
       const delta = iRect.left + iRect.width / 2 - cCenter;
       if (Math.abs(delta) < 1) return;
-      container.style.scrollSnapType = "none";
       container.scrollTo({ left: container.scrollLeft + delta, behavior: "smooth" });
       window.setTimeout(() => {
-        container.style.scrollSnapType = "";
       }, 650);
     };
 
@@ -117,12 +115,10 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     const centerMiddleItem = () => {
       const item = itemRefs.current[MIDDLE_COPY * n];
       if (!item) return;
-      container.style.scrollSnapType = "none";
       const cRect = container.getBoundingClientRect();
       const iRect = item.getBoundingClientRect();
       const delta = iRect.left + iRect.width / 2 - (cRect.left + cRect.width / 2);
       container.scrollLeft += delta;
-      container.style.scrollSnapType = "";
     };
     centerMiddleItem();
     updateTransforms();
@@ -180,11 +176,9 @@ export function PortfolioCarousel({ projects }: { projects: PortfolioProject[] }
     if (!container || current < 0) return;
     const target = current + direction;
     if (!itemRefs.current[target]) return;
-    container.style.scrollSnapType = "none";
     alignItemToCenter(target, "smooth");
     window.setTimeout(() => {
       alignItemToCenter(target, "instant");
-      container.style.scrollSnapType = "";
     }, 650);
   }
 
