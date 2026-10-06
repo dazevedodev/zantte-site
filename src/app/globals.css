@@ -872,6 +872,17 @@ a {
   .store-hero-stage {
     height: min(52vh, 440px);
   }
+  /* no mobile o palco fica proporcionalmente mais baixo (altura em vh)
+     mas a largura do mascote continua a mesma % — isso fazia a foto dele
+     ficar relativamente mais "alta" que o palco, e a faixa de degradê (%
+     da altura do palco) acabava cobrindo bem mais corpo do que no
+     desktop. Mascote um pouco menor + faixa de degradê menor resolve. */
+  .store-hero-mascot {
+    width: 48%;
+  }
+  .store-hero-mascot-fade {
+    height: 22%;
+  }
   .store-hero-float-card {
     width: 30%;
   }
