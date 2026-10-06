@@ -67,28 +67,22 @@ const REASONS = [
   },
 ];
 
-// marquee horizontal contínuo (CSS puro, sem JS/rAF) — duplica a lista
-// uma vez e anima translateX até -50%, um loop sem emenda visível.
-const TRACK = [...REASONS, ...REASONS];
-
 export function WhyBuy() {
   return (
     <section className="why-buy">
       <span className="label">por que comprar com a gente</span>
-      <div className="why-buy-marquee">
-        <div className="why-buy-grid">
-          {TRACK.map((reason, i) => (
-            <div key={`${reason.title}-${i}`} className="why-buy-item" aria-hidden={i >= REASONS.length}>
-              <div className="why-buy-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-                  {reason.icon}
-                </svg>
-              </div>
-              <h3>{reason.title}</h3>
-              <p>{reason.text}</p>
+      <div className="why-buy-grid">
+        {REASONS.map((reason) => (
+          <div key={reason.title} className="why-buy-item">
+            <div className="why-buy-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                {reason.icon}
+              </svg>
             </div>
-          ))}
-        </div>
+            <h3>{reason.title}</h3>
+            <p>{reason.text}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

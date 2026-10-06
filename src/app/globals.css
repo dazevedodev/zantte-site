@@ -1068,49 +1068,28 @@ a {
   }
 }
 
-/* "por que comprar com a gente" — fundo continua o verde da página, só
-   os cartões (retângulos) que são pretos com texto branco. A esteira em
-   si é full-bleed (sem o padding lateral da página, sem máscara de
-   esmaecimento): os cards entram e saem exatamente na borda da tela dos
-   dois lados, só o rótulo acima mantém o respiro do resto do site. */
+/* "por que comprar com a gente" — grade com todos os itens visíveis (sem
+   rolagem), cartões claros em cima do verde da página. */
 .why-buy {
-  padding: 6vh 0 7vh;
+  padding: 6vh 6vw 7vh;
 }
 .why-buy > .label {
   display: block;
-  margin: 0 6vw 2.2rem;
+  margin-bottom: 2rem;
   color: #17160f;
   font-weight: 700;
 }
-/* esteira horizontal contínua — a lista vem duplicada do componente
-   (TRACK = REASONS+REASONS), então translateX(-50%) sempre entrega
-   exatamente o comprimento de uma cópia: o loop nunca "pisca" ou trava,
-   só recomeça exatamente de onde já estava (puro CSS, sem JS/rAF). */
-.why-buy-marquee {
-  overflow: hidden;
-  width: 100%;
-}
 .why-buy-grid {
-  display: flex;
-  gap: 20px;
-  width: max-content;
-  animation: why-buy-marquee 46s linear infinite;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
 }
 .why-buy-item {
-  flex: 0 0 auto;
-  width: min(280px, 78vw);
-  padding: 28px 22px;
-  border-radius: 14px;
-  background: #17160f;
+  padding: 26px 24px;
+  border-radius: 18px;
+  background: #f5f3ea;
+  box-shadow: 0 10px 22px rgba(23, 22, 15, 0.12);
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes why-buy-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
 }
 .why-buy-item:hover {
   transform: translateY(-3px);
@@ -1119,7 +1098,7 @@ a {
   width: 46px;
   height: 46px;
   border-radius: 999px;
-  background: rgba(192, 57, 43, 0.2);
+  background: rgba(192, 57, 43, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1135,13 +1114,23 @@ a {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 0.4rem;
-  color: #f5f3ea;
+  color: #17160f;
 }
 .why-buy-item p {
   font-size: 13px;
   line-height: 1.55;
-  color: rgba(245, 243, 234, 0.65);
+  color: rgba(23, 22, 15, 0.7);
   max-width: 32ch;
+}
+@media (max-width: 900px) {
+  .why-buy-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .why-buy-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* "mais produtos" no fim da página do produto */
