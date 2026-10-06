@@ -1067,68 +1067,70 @@ a {
   }
 }
 
-/* "por que comprar com a gente" — grade com todos os itens visíveis (sem
-   rolagem), cartões claros em cima do verde da página. */
+/* "por que comprar com a gente" — faixa contínua (ticker) em preto, texto
+   creme em caixa-alta, rolando em loop. Full-bleed (fora do padding da
+   página) pra parecer uma faixa de marca, não um bloco de conteúdo. */
 .why-buy {
-  padding: 6vh 6vw 7vh;
+  padding: 6vh 6vw 0;
 }
 .why-buy > .label {
   display: block;
-  margin-bottom: 2rem;
+  margin-bottom: 1.6rem;
   color: #17160f;
   font-weight: 700;
 }
-.why-buy-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+.why-buy-band {
+  overflow: hidden;
+  background: #17160f;
+  padding: 22px 0;
+  margin: 0 -6vw;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.18);
 }
-.why-buy-item {
-  padding: 26px 24px;
-  border-radius: 18px;
-  background: #f5f3ea;
-  box-shadow: 0 10px 22px rgba(23, 22, 15, 0.12);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.why-buy-item:hover {
-  transform: translateY(-3px);
-}
-.why-buy-item .why-buy-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  background: rgba(192, 57, 43, 0.12);
+.why-buy-track {
   display: flex;
+  width: max-content;
+  animation: why-buy-loop 38s linear infinite;
+}
+.why-buy-set {
+  display: flex;
+  flex-shrink: 0;
+}
+.why-buy-word {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 1.1rem;
+  font-family: var(--font-bubble);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #f5f3ea;
+  white-space: nowrap;
+  padding-right: 34px;
 }
-.why-buy-item svg {
-  width: 22px;
-  height: 22px;
-  color: var(--accent);
+.why-buy-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 34px;
+  border-radius: 50%;
+  background: var(--accent);
 }
-.why-buy-item h3 {
-  font-family: var(--font-display), sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  color: #17160f;
+@keyframes why-buy-loop {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
-.why-buy-item p {
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(23, 22, 15, 0.7);
-  max-width: 32ch;
-}
-@media (max-width: 900px) {
-  .why-buy-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (prefers-reduced-motion: reduce) {
+  .why-buy-track {
+    animation: none;
   }
 }
 @media (max-width: 560px) {
-  .why-buy-grid {
-    grid-template-columns: 1fr;
+  .why-buy-word {
+    font-size: 20px;
   }
 }
 
