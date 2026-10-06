@@ -722,7 +722,7 @@ a {
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  padding: 7vh 6vw 6vh;
+  padding: 3vh 6vw 3vh;
   border-bottom: 1px solid var(--line-soft);
   overflow: hidden;
 }
@@ -749,7 +749,7 @@ a {
    renderiza igual em qualquer proporção de janela. */
 .store-hero-stage {
   position: relative;
-  width: min(560px, 90vw);
+  width: min(500px, 90vw);
   aspect-ratio: 1;
   flex-shrink: 0;
 }
