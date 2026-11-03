@@ -47,4 +47,4 @@ Copie `.env.example` para `.env.local` e preencha as chaves: banco, Vercel Blob,
 
 ---
 
-Feito por [Daniel Dazevedo](https://dazevedo.dev) · DAZEVEDO
+Feito por [Daniel D'Azevedo](https://dazevedo.dev) · DAZEVEDO
